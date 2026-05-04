@@ -1,0 +1,10 @@
+<h1>Главная</h1>
+
+<% if (user) { %>
+    <p>Привет, <%= user.username %></p>
+    <a href="/dashboard">Dashboard</a><br>
+    <a href="/logout">Выйти</a>
+<% } else { %>
+    <a href="/login">Войти</a><br>
+    <a href="/register">Регистрация</a>
+<% } %>
