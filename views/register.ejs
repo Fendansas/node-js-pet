@@ -1,17 +1,45 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Регистрация</title>
-</head>
-<body>
-    <h1>Регистрация</h1>
+<%- include('partials/header', { title: 'Регистрация', user }) %>
 
-    <form method="POST" action="/register">
-        <input type="text" name="username" placeholder="Логин" required><br>
-        <input type="password" name="password" placeholder="Пароль" required><br>
-        <button type="submit">Зарегистрироваться</button>
-    </form>
+<div class="auth-container">
 
-    <a href="/">Назад</a>
-</body>
-</html>
+    <div class="auth-box">
+
+        <h1 class="auth-title">☢ Создание сталкера</h1>
+        <p class="auth-subtitle">Добро пожаловать в Зону, новичок</p>
+
+        <form method="POST" action="/register" class="auth-form">
+
+            <label>Позывной</label>
+            <input type="text" name="username" placeholder="Например: Sidorovich" required>
+
+            <label>Email (необязательно)</label>
+            <input type="email" name="email" placeholder="stalker@zone.ru">
+
+            <label>Пароль</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+
+            <label>О себе</label>
+            <input type="text" name="bio" placeholder="Коротко о тебе...">
+
+            <label>Аватар (URL)</label>
+            <input type="text" name="avatar" placeholder="https://...">
+
+            <label>Путь сталкера</label>
+            <select name="rank">
+                <option value="stalker">Сталкер</option>
+                <option value="svoboda">Свобода</option>
+                <option value="dolg">Долг</option>
+                <option value="monolit">Монолит</option>
+            </select>
+
+            <button type="submit">Войти в Зону</button>
+
+        </form>
+
+        <a class="back-link" href="/">← Назад</a>
+
+    </div>
+
+</div>
+
+<%- include('partials/footer') %>

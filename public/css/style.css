@@ -1,0 +1,212 @@
+body {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: radial-gradient(circle at top, #0b0f0c, #000000);
+    color: #c7f9cc;
+}
+
+/* ===== HEADER ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    background: rgba(10, 20, 10, 0.95);
+    border-bottom: 2px solid #2dff7a;
+    box-shadow: 0 0 15px rgba(45, 255, 122, 0.2);
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 800;
+    color: #2dff7a;
+    letter-spacing: 2px;
+}
+.nav{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #c7f9cc;
+    transition: 0.2s;
+}
+
+.nav a:hover {
+    color: #2dff7a;
+    text-shadow: 0 0 10px #2dff7a;
+}
+
+/* ===== CONTAINER ===== */
+.container {
+    padding: 30px;
+}
+
+/* =========================
+   GLOBAL RESET FIX (ВАЖНО)
+   ========================= */
+
+* {
+    box-sizing: border-box;
+}
+
+/* убираем старые конфликты */
+form {
+    all: unset;
+}
+
+/* ===== DEFAULT FORM (НЕ AUTH) ===== */
+.form-default {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(20, 30, 20, 0.6);
+    border: 1px solid #2dff7a;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(45, 255, 122, 0.15);
+}
+
+/* ===== AUTH PAGE ===== */
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+.auth-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 25px;
+    background: rgba(10, 20, 10, 0.95);
+    border: 1px solid #2dff7a;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(45, 255, 122, 0.15);
+}
+
+.auth-title {
+    text-align: center;
+    color: #2dff7a;
+    margin-bottom: 5px;
+    font-size: 22px;
+}
+
+.auth-subtitle {
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 20px;
+}
+
+/* ===== FORM FIX ===== */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* label */
+.auth-form label {
+    font-size: 12px;
+    color: #c7f9cc;
+    margin-top: 5px;
+}
+
+/* inputs + select (фикс одинакового поведения) */
+.auth-form input,
+.auth-form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #2dff7a;
+    background: #0b0f0c;
+    color: #c7f9cc;
+    outline: none;
+    transition: 0.2s;
+}
+
+/* hover/focus fix (это твой баг UX) */
+.auth-form input:focus,
+.auth-form select:focus {
+    box-shadow: 0 0 10px rgba(45, 255, 122, 0.4);
+    border-color: #2dff7a;
+}
+
+/* button */
+.auth-form button {
+    margin-top: 10px;
+    padding: 12px;
+    background: #2dff7a;
+    border: none;
+    border-radius: 6px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.auth-form button:hover {
+    background: #1ee66b;
+    box-shadow: 0 0 15px #2dff7a;
+}
+
+/* ===== LINKS ===== */
+a {
+    color: #2dff7a;
+    text-decoration: none;
+}
+
+a:hover {
+    text-shadow: 0 0 10px #2dff7a;
+}
+
+/* back link */
+.back-link {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.8;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    margin-top: 50px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(10, 20, 10, 0.95);
+    border-top: 2px solid #2dff7a;
+}
+
+.footer-content span {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.user-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 15px;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #2dff7a;
+    object-fit: cover;
+    box-shadow: 0 0 10px rgba(45, 255, 122, 0.4);
+}
+
+.username {
+    font-size: 14px;
+    color: #c7f9cc;
+}

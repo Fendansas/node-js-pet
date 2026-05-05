@@ -1,3 +1,5 @@
+<%- include('partials/header', { title: 'Главная' }) %>
+
 <h1>Главная</h1>
 
 <% if (user) { %>
@@ -8,3 +10,5 @@
     <a href="/login">Войти</a><br>
     <a href="/register">Регистрация</a>
 <% } %>
+
+<%- include('partials/footer') %>
