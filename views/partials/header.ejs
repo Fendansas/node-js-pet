@@ -20,6 +20,9 @@
     <nav class="nav">
         <a href="/">Главная</a>
         <a href="/profile">ПДА</a>
+        <% if (user) { %>
+            <a href="/admin/rbac">RBAC</a>
+        <% } %>
 
         <% if (user) { %>
             <img class="avatar" src="<%= user.avatar || '/img/default-avatar.png' %>" />

@@ -1,0 +1,76 @@
+<%- include('../partials/header', { title: 'RBAC' }) %>
+
+<div class="container">
+
+    <h1>RBAC Управление</h1>
+
+    <!-- СОЗДАТЬ PERMISSION -->
+    <div class="auth-box">
+        <h2>Создать Permission</h2>
+
+        <form method="POST" action="/admin/permissions">
+            <input name="name" placeholder="user:create" required>
+            <input name="description" placeholder="user:create" required>
+            <button>Создать</button>
+        </form>
+    </div>
+
+    <!-- СОЗДАТЬ ROLE -->
+    <div class="auth-box">
+        <h2>Создать Роль</h2>
+
+        <form method="POST" action="/admin/roles">
+            <input name="name" placeholder="moderator" required>
+            <input name="description" placeholder="moderator" required>
+            <button>Создать</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- СПИСОК РОЛЕЙ -->
+    <% roles.forEach(role => { %>
+
+        <div class="auth-box">
+
+            <h3><%= role.name %></h3>
+
+            <p><b>Права:</b></p>
+
+            <ul>
+                <% role.permissions.forEach(p => { %>
+                    <li>
+                        <%= p.name %>
+
+                        <form method="POST" action="/admin/roles/remove-permission" style="display:inline">
+                            <input type="hidden" name="roleId" value="<%= role._id %>">
+                            <input type="hidden" name="permissionId" value="<%= p._id %>">
+                            <button>❌</button>
+                        </form>
+
+                    </li>
+                <% }) %>
+            </ul>
+
+            <!-- ДОБАВИТЬ ПРАВО -->
+            <form method="POST" action="/admin/roles/add-permission">
+
+                <input type="hidden" name="roleId" value="<%= role._id %>">
+
+                <select name="permissionId">
+                    <% permissions.forEach(p => { %>
+                        <option value="<%= p._id %>"><%= p.name %></option>
+                    <% }) %>
+                </select>
+
+                <button>Добавить</button>
+
+            </form>
+
+        </div>
+
+    <% }) %>
+
+</div>
+
+<%- include('../partials/footer') %>

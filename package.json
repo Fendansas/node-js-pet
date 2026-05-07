@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "seed": "node database/seeders/rbac.seed.js",
+    "seed:admin": "node database/seeders/admin.seed.js"
   },
   "repository": {
     "type": "git",

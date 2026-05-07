@@ -28,9 +28,8 @@ const userSchema = new mongoose.Schema(
 
         // ===== ROLE SYSTEM =====
         role: {
-            type: String,
-            enum: ['user', 'moderator', 'admin'],
-            default: 'user'
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Role'
         },
 
         // ===== PROFILE =====

@@ -1,13 +1,9 @@
 import express from 'express';
 
+
+import { getHomePage } from '../controllers/index.controller.js';
+
 const router = express.Router();
-
-router.get('/', (req, res) => {
-    res.render('index', { user: req.session.user });
-});
-
-router.get('/test', (req, res) => {
-    res.send('OK');
-});
+router.get('/', getHomePage);
 
 export default router;

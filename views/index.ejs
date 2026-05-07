@@ -1,14 +1,103 @@
-<%- include('partials/header', { title: 'Главная' }) %>
+<%- include('partials/header', { title: 'Зона — Главная' }) %>
 
-<h1>Главная</h1>
+<div class="container">
 
-<% if (user) { %>
-    <p>Привет, <%= user.username %></p>
-    <a href="/dashboard">Dashboard</a><br>
-    <a href="/logout">Выйти</a>
-<% } else { %>
-    <a href="/login">Войти</a><br>
-    <a href="/register">Регистрация</a>
-<% } %>
+    <!-- HERO -->
+    <div class="hero">
+        <h1>☢ Добро пожаловать в Зону</h1>
+
+        <% if (user) { %>
+            <p class="subtitle">
+                Полевой сталкер: <span class="glow"><%= user.username %></span>
+            </p>
+        <% } else { %>
+            <p class="subtitle">
+                Ты ещё не в системе. Войди или зарегистрируйся.
+            </p>
+        <% } %>
+    </div>
+
+    <hr>
+
+    <% if (user) { %>
+
+        <!-- PLAYER STATUS -->
+        <div class="grid">
+
+            <div class="card">
+                <h3>📊 Статус</h3>
+                <p>❤️ HP: <span class="good">100</span></p>
+                <p>☢ Радиация: <span class="bad">12%</span></p>
+                <p>💰 Деньги: <span class="glow">500 RU</span></p>
+            </div>
+
+            <div class="card">
+                <h3>🎒 Инвентарь</h3>
+                <ul>
+                    <li>🧪 Аптечка <span>x2</span></li>
+                    <li>🥖 Хлеб <span>x3</span></li>
+                    <li>🔋 Батареи <span>x1</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>⚡ Быстрые действия</h3>
+
+                <a class="btn" href="/profile">Профиль</a>
+                <a class="btn" href="/dashboard">Панель</a>
+                <a class="btn danger" href="/logout">Выйти</a>
+
+            </div>
+
+        </div>
+
+    <% } else { %>
+
+        <!-- GUEST -->
+        <div class="guest-box">
+
+            <div class="card center">
+                <h2>Ты не в системе</h2>
+                <p>Войди или зарегистрируйся, чтобы войти в Зону</p>
+
+                <div class="auth-actions">
+                    <a class="btn" href="/login">Войти</a>
+                    <a class="btn" href="/register">Регистрация</a>
+                </div>
+            </div>
+
+        </div>
+
+    <% } %>
+
+    <hr>
+
+    <!-- ZONE INFO -->
+    <div class="zone-info">
+
+        <h2>☢ Состояние Зоны</h2>
+
+        <div class="grid">
+
+            <div class="card">
+                <h3>Радиоактивность</h3>
+                <p class="bad">Высокая</p>
+            </div>
+
+            <div class="card">
+                <h3>Аномалии</h3>
+                <p class="glow">Активны</p>
+            </div>
+
+            <div class="card">
+                <h3>Фракции</h3>
+                <p>Долг / Свобода / Монолит</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <%- include('partials/footer') %>

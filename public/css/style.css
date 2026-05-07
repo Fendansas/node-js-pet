@@ -210,3 +210,96 @@ a:hover {
     font-size: 14px;
     color: #c7f9cc;
 }
+
+hr {
+    margin: 30px 0;
+    border: 1px solid #2dff7a;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hero {
+    text-align: center;
+    padding: 30px 10px;
+}
+
+.subtitle {
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+.glow {
+    color: #2dff7a;
+    text-shadow: 0 0 10px #2dff7a;
+}
+
+.good {
+    color: #2dff7a;
+}
+
+.bad {
+    color: #ff3b3b;
+}
+
+/* GRID SYSTEM */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* CARDS */
+.card {
+    background: rgba(10, 20, 10, 0.85);
+    border: 1px solid #2dff7a;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 0 15px rgba(45, 255, 122, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #2dff7a;
+}
+
+/* BUTTONS */
+.btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 1px solid #2dff7a;
+    border-radius: 6px;
+    color: #c7f9cc;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #2dff7a;
+    color: black;
+}
+
+.btn.danger {
+    border-color: #ff3b3b;
+}
+
+.btn.danger:hover {
+    background: #ff3b3b;
+    color: white;
+}
+
+/* INVENTORY */
+.card ul li {
+    font-size: 13px;
+}

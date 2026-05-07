@@ -11,6 +11,9 @@ import connectDB from './config/db.js';
 import indexRoutes from './routes/index.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import profileRoutes from './routes/profile.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import { currentUser } from './middleware/current-user.middleware.js';
+
 
 const app = express();
 
@@ -39,11 +42,13 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(currentUser);
+
 // Routes
 app.use('/', indexRoutes);
 app.use('/', authRoutes);
 app.use('/profile', profileRoutes);
-
+app.use('/admin', adminRoutes );
 // Start
 app.listen(3000, () => {
     console.log('http://localhost:3000');
