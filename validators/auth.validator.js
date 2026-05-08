@@ -1,21 +1,41 @@
-export const validateRegister = (req, res, next) => {
-    const {username, password} = req.body;
+import {body} from "express-validator";
 
-    if (!username || username.length < 3) {
-        return res.status(400).send('Invalid username');
-    }
+export const validateRegister = [
+    body('username')
+        .trim()
+        .isLength({ min: 3, max: 20 })
+        .withMessage('Username must be 3-20 chars')
+        .matches(/^[a-zA-Z0-9_]+$/)
+        .withMessage('Username can contain only letters, numbers and _'),
+    body('email')
+        .trim()
+        .isEmail()
+        .withMessage('Invalid email')
+        .normalizeEmail(),
 
-    if (!password || password.length < 6) {
-        return res.status(400).send('Password too short');
-    }
-    next();
-}
+    body('password')
+        .isLength({ min: 6, max: 100 })
+        .withMessage("Password must be at least 6 characters"),
 
-export const validateLogin = (req, res, next) =>{
-    const {username, password} = req.body;
+    body('bio')
+        .optional()
+        .trim()
+        .isLength({ max: 300 })
+        .withMessage('Bio too long'),
 
-    if (!username || !password){
-        return res.status(400).send('Missing credentials');
-    }
-    next();
-}
+    body('avatar')
+        .optional()
+        .isURL()
+        .withMessage('Avatar must be a valid URL')
+];
+
+export const validateLogin =[
+    body('username')
+        .trim()
+        .notEmpty()
+        .withMessage("Username is required"),
+    body('password')
+        .trim()
+        .notEmpty()
+        .withMessage("Password is required"),
+]

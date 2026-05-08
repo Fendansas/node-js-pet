@@ -9,17 +9,19 @@ export const allow = (permission) => {
         }
 
         // Временно разрешаем доступ админам ко всем admin роутам
-        if (req.currentUser.role?.name === 'admin') {
-            return next();
-        }
+        // if (req.currentUser.role?.name === 'admin') {
+        //     return next();
+        // }
 
         const permissions =
             req.currentUser.role?.permissions || [];
 
+
+
         const hasPermission = permissions.some(
             p => p.name === permission
         );
-
+        console.log(hasPermission);
         if (!hasPermission) {
             return res.status(403).send('Forbidden');
         }

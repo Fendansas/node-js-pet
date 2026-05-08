@@ -3,16 +3,44 @@ import { isAuth } from '../middleware/auth.middleware.js';
 import { allow } from '../middleware/permission.middleware.js';
 
 import * as Admin from '../controllers/admin.controller.js';
+import {createPermissionValidator, createRoleValidator, rolePermissionValidator} from "../validators/rbac.validator.js";
+import {validate} from "../middleware/validation.middleware.js";
+
 
 const router = express.Router();
 
+router.get('/rbac',
+                isAuth,
+                allow('role:read'),
+                Admin.rbacPage
+);
+router.post('/permissions',
+    isAuth,
+    allow('permission:create'),
+    createPermissionValidator,
+    validate,
+    Admin.createPermission
+);
+router.post('/roles',
+    isAuth,
+    allow('role:create'),
+    createRoleValidator,
+    validate,
+    Admin.createRole
+);
 
-router.get('/rbac', isAuth, allow('role:read'), Admin.rbacPage)
+router.post('/roles/add-permission',
+    isAuth,
+    allow('role:update'),
+    rolePermissionValidator,
+    validate,
+    Admin.addPermissionToRole);
 
-router.post('/permissions', isAuth, allow('permission:create'), Admin.createPermission);
-router.post('/roles', isAuth, allow('role:create'), Admin.createRole);
-
-router.post('/roles/add-permission', isAuth, allow('role:update'), Admin.addPermissionToRole);
-router.post('/roles/remove-permission', isAuth, allow('role:update'), Admin.removePermissionFromRole);
+router.post('/roles/remove-permission',
+    isAuth,
+    allow('role:update'),
+    rolePermissionValidator,
+    validate,
+    Admin.removePermissionFromRole);
 
 export default router;

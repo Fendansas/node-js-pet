@@ -1,14 +1,21 @@
 import express from 'express';
 import { register, login } from '../controllers/auth.controller.js';
 import {validateLogin, validateRegister} from "../validators/auth.validator.js";
+import { validate } from "../middleware/validation.middleware.js";
 
 const router = express.Router();
 
 router.get('/login', (req, res) => res.render('login'));
-router.post('/login', validateLogin, login);
+router.post('/login',
+    validateLogin,
+    validate,
+    login);
 
 router.get('/register', (req, res) => res.render('register'));
-router.post('/register', validateRegister, register);
+router.post('/register',
+    validateRegister,
+    validate,
+    register);
 
 router.get('/logout', (req, res) => {
     req.session.destroy(() => {

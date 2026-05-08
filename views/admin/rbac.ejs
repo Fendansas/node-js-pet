@@ -4,7 +4,7 @@
 
     <h1>RBAC Управление</h1>
 
-    <!-- СОЗДАТЬ PERMISSION -->
+
     <div class="auth-box">
         <h2>Создать Permission</h2>
 
@@ -15,20 +15,18 @@
         </form>
     </div>
 
-    <!-- СОЗДАТЬ ROLE -->
+
     <div class="auth-box">
         <h2>Создать Роль</h2>
 
         <form method="POST" action="/admin/roles">
             <input name="name" placeholder="moderator" required>
-            <input name="description" placeholder="moderator" required>
             <button>Создать</button>
         </form>
     </div>
 
     <hr>
 
-    <!-- СПИСОК РОЛЕЙ -->
     <% roles.forEach(role => { %>
 
         <div class="auth-box">
@@ -52,7 +50,7 @@
                 <% }) %>
             </ul>
 
-            <!-- ДОБАВИТЬ ПРАВО -->
+
             <form method="POST" action="/admin/roles/add-permission">
 
                 <input type="hidden" name="roleId" value="<%= role._id %>">

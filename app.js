@@ -13,9 +13,11 @@ import authRoutes from './routes/auth.routes.js';
 import profileRoutes from './routes/profile.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import { currentUser } from './middleware/current-user.middleware.js';
+import {attachUser} from "./middleware/attachUser.js";
+import mainRoute from "./routes/index.js";
 
 
-const app = express();
+export const app = express();
 
 // DB
 connectDB();
@@ -43,12 +45,9 @@ app.use((req, res, next) => {
 });
 
 app.use(currentUser);
+app.use(attachUser);
+app.use(mainRoute);
 
-// Routes
-app.use('/', indexRoutes);
-app.use('/', authRoutes);
-app.use('/profile', profileRoutes);
-app.use('/admin', adminRoutes );
 // Start
 app.listen(3000, () => {
     console.log('http://localhost:3000');

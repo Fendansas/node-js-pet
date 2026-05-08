@@ -18,7 +18,6 @@ export const registerUser = async ({
         throw new Error('USER_ALREADY_EXISTS');
     }
 
-    // ищем базовую роль
     const userRole = await Role.findOne({ name: 'user' });
 
     if (!userRole) {

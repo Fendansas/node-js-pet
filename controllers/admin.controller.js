@@ -1,54 +1,43 @@
-import Role from "../models/role.js";
-import Permission from "../models/permission.js";
+
+import * as RbacService from "../services/rbac.service.js";
 
 
 export const rbacPage = async (req, res) => {
-    const roles = await Role.find().populate('permissions');
-    const permissions = await Permission.find();
-    res.render('admin/rbac', {
-        roles,
-        permissions
-    });
+    const data = await RbacService.getRbacPageData();
+    res.render('admin/rbac', data);
 }
 export const createPermission = async (req, res) => {
+
     const {name, description} = req.body;
-    await Permission.create({name, description});
+
+    await RbacService.createPermission(name, description);
+
     res.redirect('/admin/rbac');
 }
 
 export const createRole = async (req, res)=>{
-    const {name, permissions} = req.body;
 
-    await Role.create({
-        name,
-        permissions
-    });
+    const {name} = req.body;
+
+    await RbacService.createRole(name);
+
     res.redirect('/admin/rbac');
 }
 
 export const addPermissionToRole = async (req, res)=>{
+
     const {roleId, permissionId} = req.body;
 
-    const role = await Role.findById(roleId);
-
-    if (!role.permissions.includes(permissionId)) {
-        role.permissions.push(permissionId);
-        await role.save();
-    }
+    await RbacService.addPermissionToRole(roleId, permissionId);
 
     res.redirect('/admin/rbac');
 }
 
 export const removePermissionFromRole = async (req, res) => {
+
     const { roleId, permissionId } = req.body;
 
-    const role = await Role.findById(roleId);
-
-    role.permissions = role.permissions.filter(
-        p => p.toString() !== permissionId
-    );
-
-    await role.save();
+    await RbacService.removePermissionFromRole(roleId, permissionId);
 
     res.redirect('/admin/rbac');
 }

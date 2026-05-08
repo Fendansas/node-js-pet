@@ -1,7 +1,8 @@
 import user from "../models/user.js";
+import User from "../models/user.js";
 
-export const getHomePage = (req, res) =>{
+export const getHomePage = async (req, res) =>{
     res.render('index', {
-        user: req.session.user || null
+        user: res.locals.user || null
     });
 };
