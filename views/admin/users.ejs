@@ -1,0 +1,92 @@
+<%- include('../partials/header', { title: 'Зона — Пользователи' }) %>
+
+
+<div class="admin-page">
+
+    <div class="admin-top">
+        <div>
+            <h1 class="admin-title">ADMIN PANEL</h1>
+            <p class="admin-subtitle">Управление пользователями системы</p>
+        </div>
+
+        <div class="admin-stats">
+            <div class="stat-card">
+                <span>Пользователей</span>
+                <strong><%= users.length %></strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Онлайн</span>
+                <strong class="good">37</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Заблокировано</span>
+                <strong class="bad">4</strong>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-box">
+
+        <div class="table-header">
+            <h2>Список пользователей</h2>
+
+            <input type="text" placeholder="Поиск пользователя..." class="search-input">
+        </div>
+
+        <table class="admin-table">
+
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Аватар</th>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>BIO</th>
+                <th>Роль</th>
+                <th>Статус</th>
+                <th>Дата регистрации</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <% for (const user of users) { %>
+                <tr>
+                    <td><%= user._id %></td>
+
+                    <td>
+                        <img src="<%= user.avatar || '/img/default-avatar.png' %>" class="table-avatar">
+                    </td>
+
+                    <td><%= user.username %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.bio %></td>
+                    <td>
+                        <span class="role admin-role"><%= user.role?.name || 'Нет роли' %></span>
+                    </td>
+
+                    <td>
+                        <span class="status online">ONLINE</span>
+                    </td>
+
+                    <td><%= new Date(user.createdAt).toLocaleDateString('ru-RU') %></td>
+
+                    <td class="actions">
+                        <a href="#" class="btn">Редактировать</a>
+                        <a href="#" class="btn danger">Удалить</a>
+                    </td>
+                </tr>
+            <% } %>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<%- include('../partials/footer') %>

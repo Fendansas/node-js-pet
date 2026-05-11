@@ -1,10 +1,210 @@
 <%- include('partials/header', { title: 'Главная' }) %>
 
 
-<h1>Профиль</h1>
+<div class="profile-page">
 
-<p>Добро пожаловать, <%= user.username %>!</p>
+    <!-- PROFILE TOP -->
 
-<a href="/logout">Выйти</a>
+    <div class="profile-top">
+
+        <div class="profile-card">
+
+            <div class="profile-banner"></div>
+
+            <div class="profile-content">
+                <img
+                        src="<%= user.avatar || '/img/default-avatar.png' %>"
+                        class="profile-avatar"
+                >
+
+                <h1 class="profile-name"><%= user.username%></h1>
+
+                <p class="profile-role">
+                    <%= user.role.name %>
+                </p>
+
+                <div class="profile-badges">
+                    <span class="badge">LEVEL 87</span>
+                    <span class="badge">PREMIUM</span>
+                    <span class="badge online-badge">
+                        ONLINE
+                    </span>
+                </div>
+
+                <p class="profile-description">
+                    Управление системой, модерация пользователей,
+                    контроль безопасности и настройка платформы.
+                </p>
+
+                <div class="profile-actions">
+                    <a href="#" class="btn">
+                        Редактировать
+                    </a>
+
+                    <a href="/logout" class="btn danger">
+                        Выйти
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GRID -->
+
+    <div class="profile-grid">
+
+        <!-- LEFT -->
+
+        <div class="profile-column">
+
+            <div class="card">
+
+                <h3>Информация</h3>
+
+                <div class="info-list">
+
+                    <div class="info-item">
+                        <span>Email</span>
+                        <strong><%= user.email %></strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Регистрация</span>
+                        <strong><%=new Date(user.createdAt).toLocaleDateString('ru-RU')%></strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Страна</span>
+                        <strong>Неизвестна</strong>
+                    </div>
+
+                    <div class="info-item">
+                        <span>Статус</span>
+                        <strong class="good">
+                            Активен
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Безопасность</h3>
+
+                <div class="security-list">
+
+                    <div class="security-item">
+                        <span>2FA</span>
+                        <strong class="good">Выключено</strong>
+                    </div>
+
+                    <div class="security-item">
+                        <span>Последний вход</span>
+                        <strong><%= new Date(user.lastLogin).toLocaleDateString('ru-RU') %></strong>
+                    </div>
+
+                    <div class="security-item">
+                        <span>IP</span>
+                        <strong>192.168.0.1</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="profile-column large">
+
+            <div class="card">
+
+                <h3>Активность</h3>
+
+                <div class="activity-list">
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>BOI</strong>
+                            <p><%= user.bio %></p>
+                        </div>
+
+                        <span>2 мин назад</span>
+                    </div>
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>Money</strong>
+                            <p><%= user.money %></p>
+                        </div>
+
+                        <span>1 час назад</span>
+                    </div>
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>Создание поста</strong>
+                            <p>Опубликована новая новость</p>
+                        </div>
+
+                        <span>Сегодня</span>
+                    </div>
+
+                    <div class="activity-item">
+                        <div>
+                            <strong>Обновление профиля</strong>
+                            <p>Изменён аватар пользователя</p>
+                        </div>
+
+                        <span>Вчера</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h3>Статистика</h3>
+
+                <div class="stats-grid">
+
+                    <div class="mini-stat">
+                        <span>Постов</span>
+                        <strong>145</strong>
+                    </div>
+
+                    <div class="mini-stat">
+                        <span>Комментариев</span>
+                        <strong>1 284</strong>
+                    </div>
+
+                    <div class="mini-stat">
+                        <span>Лайков</span>
+                        <strong>9 541</strong>
+                    </div>
+
+                    <div class="mini-stat">
+                        <span>Рейтинг</span>
+                        <strong class="glow">
+                            98%
+                        </strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 <%- include('partials/footer') %>

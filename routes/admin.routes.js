@@ -5,7 +5,7 @@ import { allow } from '../middleware/permission.middleware.js';
 import * as Admin from '../controllers/admin.controller.js';
 import {createPermissionValidator, createRoleValidator, rolePermissionValidator} from "../validators/rbac.validator.js";
 import {validate} from "../middleware/validation.middleware.js";
-
+import * as User from '../controllers/user.controller.js';
 
 const router = express.Router();
 
@@ -42,5 +42,11 @@ router.post('/roles/remove-permission',
     rolePermissionValidator,
     validate,
     Admin.removePermissionFromRole);
+
+router.get('/users',
+    isAuth,
+    allow('role:read'),
+    User.getAllUsers
+);
 
 export default router;

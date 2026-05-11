@@ -1,0 +1,22 @@
+import User from "../models/user.js";
+
+export const updateUserProfileService = async (userId, data)=>{
+
+    const user = await User.findByIdAndUpdate (
+        userId,
+        {
+            username: data.username,
+            email: data.email,
+            bio: data.bio,
+            avatar: data.avatar,
+            rank: data.rank
+        },
+        {
+            new:true,
+            runValidators: true
+        }
+    ).populate('role');
+
+    return updatedUser;
+
+}
