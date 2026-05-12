@@ -946,3 +946,109 @@ li {
     }
 
 }
+
+
+/* =========================
+   PRODUCTS
+   ========================= */
+
+.product-card {
+    overflow: hidden;
+    padding: 0;
+}
+
+.product-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(45,255,122,0.15);
+}
+
+.product-content {
+    padding: 15px;
+}
+
+.product-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.product-category {
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 30px;
+    border: 1px solid #2dff7a;
+    background: rgba(45,255,122,0.08);
+}
+
+.product-price {
+    color: #2dff7a;
+    font-size: 18px;
+}
+
+.product-title {
+    margin: 0 0 10px;
+    color: #2dff7a;
+}
+
+.product-description {
+    opacity: 0.75;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 70px;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+/* ERRORS */
+
+.errors {
+    margin-bottom: 20px;
+}
+
+.error-text {
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255,59,59,0.12);
+    border: 1px solid rgba(255,59,59,0.25);
+    color: #ff6b6b;
+    margin-bottom: 10px;
+}
+
+.product-cards .grid{
+    display: grid;
+    grid-template-columns: repeat(4, minmax(220px, 1fr));  /* минимум 220px, максимум 4 колонки */
+    gap: 15px;
+    margin-top: 20px;
+}
+* На маленьких экранах уменьшаем количество колонок */
+@media (max-width: 1024px) {
+    .product-cards .grid {
+        grid-template-columns: repeat(3, 1fr);  /* 3 колонки на планшетах */
+    }
+}
+
+@media (max-width: 768px) {
+    .product-cards .grid {
+        grid-template-columns: repeat(2, 1fr);  /* 2 колонки на телефонах */
+    }
+}
+
+@media (max-width: 480px) {
+    .product-cards .grid {
+        grid-template-columns: 1fr;  /* 1 колонка на маленьких телефонах */
+    }
+}
+.products-filter {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: flex-end;
+}

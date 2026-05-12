@@ -1,0 +1,141 @@
+<%- include('../partials/header', { title: 'Редактировать хабар' }) %>
+<div class="edit-profile-page">
+
+    <div class="edit-profile-box">
+
+        <div class="edit-profile-top">
+
+            <img
+                    src="<%= product.image %>"
+                    class="edit-avatar"
+            >
+
+            <div>
+
+                <h1 class="edit-title">
+                    EDIT PRODUCT
+                </h1>
+
+                <p class="edit-subtitle">
+                    Редактирование товара
+                </p>
+
+            </div>
+
+        </div>
+
+        <% if (errors) { %>
+
+            <div class="errors">
+
+                <% errors.forEach(error => { %>
+
+                    <p class="error-text">
+                        <%= error.msg %>
+                    </p>
+
+                <% }) %>
+
+            </div>
+
+        <% } %>
+
+        <form
+                action="/products/<%= product._id %>/edit"
+                method="POST"
+                enctype="multipart/form-data"
+                class="edit-profile-form"
+        >
+
+            <div class="form-group">
+
+                <label>
+                    Название
+                </label>
+
+                <input
+                        type="text"
+                        name="title"
+                        value="<%= product.title %>"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Описание
+                </label>
+
+                <textarea
+                        name="description"
+                ><%= product.description %></textarea>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Цена
+                </label>
+
+                <input
+                        type="number"
+                        name="price"
+                        value="<%= product.price %>"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Категория
+                </label>
+
+                <input
+                        type="text"
+                        name="category"
+                        value="<%= product.category %>"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label>
+                    Новая картинка
+                </label>
+
+                <input
+                        type="file"
+                        name="image"
+                >
+
+            </div>
+
+            <div class="edit-actions">
+
+                <button
+                        type="submit"
+                        class="save-btn"
+                >
+                    Сохранить
+                </button>
+
+                <a
+                        href="/products"
+                        class="cancel-btn"
+                >
+                    Отмена
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

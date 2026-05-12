@@ -1,0 +1,149 @@
+<%- include('../partials/header', { title: 'Хабар' }) %>
+
+<div class="container product-cards">
+
+    <div class="admin-top">
+
+        <div>
+            <h1 class="admin-title">
+                PRODUCT CATALOG
+            </h1>
+
+            <p class="admin-subtitle">
+                Управление товарами
+            </p>
+        </div>
+        <div class="products-filter">
+
+            <form
+                    method="GET"
+                    class="filter-form"
+            >
+
+                <select
+                        name="category"
+                        class="search-input"
+                >
+
+                    <option value="">
+                        Все категории
+                    </option>
+
+                    <% categories.forEach(category => { %>
+
+                        <option
+                                value="<%= category %>"
+
+                                <%= selectedCategory === category
+                                        ? 'selected'
+                                        : ''
+                                %>
+                        >
+                            <%= category %>
+                        </option>
+
+                    <% }) %>
+
+                </select>
+
+                <button
+                        type="submit"
+                        class="btn"
+                >
+                    Фильтр
+                </button>
+
+                <a
+                        href="/products"
+                        class="btn danger"
+                >
+                    Сброс
+                </a>
+
+            </form>
+
+        </div>
+
+        <a
+                href="/products/create"
+                class="btn"
+        >
+            + Добавить товар
+        </a>
+
+    </div>
+
+    <div class="grid">
+
+        <% products.forEach(product => { %>
+
+            <div class="card product-card">
+
+                <img
+                        src="<%= product.image %>"
+                        alt="<%= product.title %>"
+                        class="product-image"
+                >
+
+                <div class="product-content">
+
+                    <div class="product-top">
+
+                        <span class="product-category">
+                            <%= product.category %>
+                        </span>
+
+                        <strong class="product-price">
+                            € <%= product.price %>
+                        </strong>
+
+                    </div>
+
+                    <h3 class="product-title">
+                        <%= product.title %>
+                    </h3>
+
+                    <p class="product-description">
+                        <%= product.description %>
+                    </p>
+
+                    <div class="product-actions">
+
+                        <a
+                                href="/products/<%= product._id %>"
+                                class="btn"
+                        >
+                            Смотреть
+                        </a>
+                        <% if (user.role.name  === 'admin') { %>
+                            <a
+                                    href="/products/<%= product._id %>/edit"
+                                    class="btn"
+                            >
+                                Редактировать
+                            </a>
+
+                            <form
+                                    action="/products/<%= product._id %>/delete"
+                                    method="POST"
+                            >
+                                <button
+                                        class="btn danger"
+                                >
+                                    Удалить
+                                </button>
+                            </form>
+                        <% } %>
+                    </div>
+
+                </div>
+
+            </div>
+
+        <% }) %>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>
