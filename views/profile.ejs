@@ -26,9 +26,17 @@
                 <div class="profile-badges">
                     <span class="badge">LEVEL 87</span>
                     <span class="badge">PREMIUM</span>
-                    <span class="badge online-badge">
+                    <%
+                    console.log(user.isOnline)
+                    if(user.isOnline) { %>
+                        <span class="badge online-badge">
                         ONLINE
                     </span>
+                    <% } else { %>
+                        <span class="badge offline-badge">
+                        OFLINE
+                    </span>
+                    <% } %>
                 </div>
 
                 <p class="profile-description">

@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import {editProfile} from "../controllers/user.controller.js";
 
 export const updateUserProfileService = async (userId, data)=>{
 
@@ -17,6 +18,22 @@ export const updateUserProfileService = async (userId, data)=>{
         }
     ).populate('role');
 
-    return updatedUser;
+    return user;
 
+}
+
+export const getProfileService = async (userId) => {
+    const user = await User.findById(userId).populate('role');
+    return user;
+}
+
+export const getAllUsersService = async () => {
+    const users = await User.find().populate('role');
+    const onlineUsers = users.filter(user => user.isOnline).length;
+    return {users, onlineUsers} ;
+}
+
+export const editProfileService = async (userId) => {
+    const user = await User.findById(userId).populate('role')
+    return user;
 }
