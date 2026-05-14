@@ -85,13 +85,20 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        // ===== ONLINE SYSTEM =====
+        lastSeen: {
+            type: Date,
+            default: null
+        },
 
         lastLogin: {
             type: Date
         }
     },
     {
-        timestamps: true
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 );
 
@@ -100,6 +107,17 @@ userSchema.index({ username: 1, email: 1 });
 
 userSchema.virtual('isDangerous').get(function () {
     return this.radiation > 70 || this.health < 30;
+});
+
+userSchema.virtual('isOnline').get(function () {
+
+    if (!this.lastSeen) {
+        return false;
+    }
+
+    const fiveMinutes = 5 * 60 * 1000;
+
+    return Date.now() - this.lastSeen.getTime() < fiveMinutes;
 });
 
 export default mongoose.model('User', userSchema);

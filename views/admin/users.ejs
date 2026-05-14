@@ -68,7 +68,13 @@
                     </td>
 
                     <td>
-                        <span class="status online">ONLINE</span>
+                        <% if(user.isOnline) { %>
+                            <span class="online">● Online</span>
+                        <% } else { %>
+
+                            <span class="offline">● Offline</span>
+                        <% } %>
+<!--                        <span class="status online">ONLINE</span>-->
                     </td>
 
                     <td><%= new Date(user.createdAt).toLocaleDateString('ru-RU') %></td>

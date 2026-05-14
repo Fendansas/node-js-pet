@@ -15,6 +15,7 @@ import adminRoutes from './routes/admin.routes.js';
 import { currentUser } from './middleware/current-user.middleware.js';
 import {attachUser} from "./middleware/attachUser.js";
 import mainRoute from "./routes/index.js";
+import {updateLastSeen} from "./middleware/online.middleware.js";
 
 
 export const app = express();
@@ -47,7 +48,19 @@ app.use((req, res, next) => {
 app.use(currentUser);
 app.use(attachUser);
 app.use(mainRoute);
+app.use(session({
+    secret: process.env.SESSION_SECRET,
 
+    resave: false,
+
+    saveUninitialized: false,
+
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24
+    }
+}));
+
+app.use(updateLastSeen);
 // Start
 app.listen(3000, () => {
     console.log('http://localhost:3000');
