@@ -108,6 +108,13 @@
                     </p>
 
                     <div class="product-actions">
+                        <form action="/products/buy/<%= product._id %>" method="POST">
+
+                            <button type="submit">
+                                Buy
+                            </button>
+
+                        </form>
 
                         <a
                                 href="/products/<%= product._id %>"
@@ -115,7 +122,7 @@
                         >
                             Смотреть
                         </a>
-                        <% if (user.role.name  === 'admin') { %>
+                        <% if (user.role && user.role.name === 'admin') { %>
                             <a
                                     href="/products/<%= product._id %>/edit"
                                     class="btn"

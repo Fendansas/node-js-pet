@@ -76,8 +76,14 @@ const userSchema = new mongoose.Schema(
 
         inventory: [
             {
-                item: String,
-                count: Number
+                product:{
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product'
+                },
+                count: {
+                    type: Number,
+                    default: 1
+                }
             }
         ],
 

@@ -23,7 +23,7 @@ export const updateUserProfileService = async (userId, data)=>{
 }
 
 export const getProfileService = async (userId) => {
-    const user = await User.findById(userId).populate('role');
+    const user = await User.findById(userId).populate('role').populate('inventory.product');
     return user;
 }
 

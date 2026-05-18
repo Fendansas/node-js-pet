@@ -184,6 +184,34 @@
                 <div class="stats-grid">
 
                     <div class="mini-stat">
+                        <div class="card">
+                            <h3>🎒 Инвентарь</h3>
+                            <% console.log('sasa',  user.inventory)%>
+                            <ul>
+                                <% user.inventory.forEach(item => { %>
+                                    <li>
+                                        <img src="<%= item.product.image %>" width="100">
+                                        <h3><%= item.product.title %></h3>
+                                        <p>Count: <%= item.count %></p>
+                                    </li>
+                                <% }) %>
+                                <li>🥖 Хлеб <span>x3</span></li>
+                                <li>🔋 Батареи <span>x1</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <div class="card">
+
+                <h3>Статистика</h3>
+
+                <div class="stats-grid">
+
+                    <div class="mini-stat">
                         <span>Постов</span>
                         <strong>145</strong>
                     </div>
