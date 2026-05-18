@@ -1,20 +1,26 @@
 import { verifyToken } from '../utils/jwt.js';
 
-export function isAuth(req, res, next) {
+export const authUser = (req, res, next) => {
 
     const token = req.cookies?.token;
 
     if (!token) {
-        return res.redirect('/login');
+
+        req.user = null;
+
+        return next();
     }
 
     const decoded = verifyToken(token);
 
     if (!decoded) {
-        return res.redirect('/login');
+
+        req.user = null;
+
+        return next();
     }
 
     req.user = decoded;
 
     next();
-}
+};

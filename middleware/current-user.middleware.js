@@ -4,11 +4,16 @@ export const currentUser = async (req, res, next) => {
 
     try {
 
-        if (!req.session?.user?.id) {
+        if (!req.user?.id) {
+
+            req.currentUser = null;
+
+            res.locals.currentUser = null;
+
             return next();
         }
 
-        const user = await User.findById(req.session.user.id)
+        const user = await User.findById(req.user.id)
             .populate({
                 path: 'role',
                 populate: {
@@ -17,7 +22,11 @@ export const currentUser = async (req, res, next) => {
             });
 
         if (!user) {
-            req.session.destroy(() => {});
+
+            req.currentUser = null;
+
+            res.locals.currentUser = null;
+
             return next();
         }
 

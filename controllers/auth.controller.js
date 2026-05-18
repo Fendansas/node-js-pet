@@ -3,6 +3,8 @@ import {
     loginUser
 } from '../services/auth.service.js';
 
+import { generateToken } from '../utils/jwt.js';
+
 export const register = async (req, res) => {
 
     try {
@@ -33,13 +35,25 @@ export const login = async (req, res) => {
 
         const user = await loginUser(req.body);
 
-        req.session.user = {
+        const token = generateToken({
             id: user._id,
-            username: user.username
-        };
+            username: user.username,
+            role: user.role
+        });
+
+        // req.session.user = {
+        //     id: user._id,
+        //     username: user.username
+        // };
 
         user.lastLogin = new Date();
         await user.save();
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: false,
+            maxAge: 1000 * 60 * 60
+        });
 
         res.redirect('/');
 
@@ -57,7 +71,10 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
 
-    req.session.destroy(() => {
-        res.redirect('/login');
-    });
+    res.clearCookie('token');
+    res.redirect('/login');
+
+    // req.session.destroy(() => {
+    //     res.redirect('/login');
+    // });
 };

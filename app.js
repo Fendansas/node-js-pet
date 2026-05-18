@@ -2,8 +2,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express from 'express';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
 
 import connectDB from './config/db.js';
 
@@ -13,6 +11,8 @@ import profileRoutes from './routes/profile.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import mainRoute from './routes/index.js';
 
+import cookieParser from 'cookie-parser';
+import { authUser } from './middleware/auth-user.middleware.js';
 import { currentUser } from './middleware/current-user.middleware.js';
 import { attachUser } from './middleware/attachUser.js';
 import { updateLastSeen } from './middleware/online.middleware.js';
@@ -27,35 +27,23 @@ app.set('view engine', 'ejs');
 
 // ===== MIDDLEWARES =====
 app.use(express.static('public'));
+
 app.use(express.urlencoded({ extended: true }));
 
-// ===== SESSION =====
-app.use(session({
-    secret: process.env.SESSION_SECRET,
+// COOKIE PARSER ДОЛЖЕН БЫТЬ РАНЬШЕ
+app.use(cookieParser());
 
-    resave: false,
-
-    saveUninitialized: false,
-
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI
-    }),
-
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24
-    }
-}));
+// JWT USER
+app.use(authUser);
+app.use(currentUser);
 
 // ===== GLOBAL USER =====
 app.use((req, res, next) => {
 
-    res.locals.user = req.session.user;
+    res.locals.user = req.user || null;
 
     next();
 });
-
-// ===== CURRENT USER =====
-app.use(currentUser);
 
 app.use(attachUser);
 
