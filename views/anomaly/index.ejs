@@ -151,7 +151,9 @@
     <div id="map" class="anomaly-map"></div>
 
     <div class="anomaly-table-box">
-
+        <a href="/anomaly/export" class="btn">
+            Export TXT
+        </a>
         <% if(anomalies.length > 0){ %>
 
             <table class="anomaly-table">
@@ -166,6 +168,7 @@
                     <th>Latitude</th>
                     <th>Longitude</th>
                     <th>Дата</th>
+                    <th>Actions</th>
                 </tr>
 
                 </thead>
@@ -260,6 +263,36 @@
                         <td>
                             <%= new Date(item.createdAt).toLocaleDateString() %>
                         </td>
+                        <td>
+
+                            <div class="actions">
+
+                                <a
+                                        href="/anomaly/edit/<%= item._id %>"
+                                        class="btn"
+                                >
+                                    Edit
+                                </a>
+
+                                <form
+                                        action="/anomaly/delete/<%= item._id %>"
+                                        method="POST"
+                                        onsubmit="return confirm('Удалить аномалию?')"
+                                >
+
+                                    <button
+                                            class="btn danger"
+                                            type="submit"
+                                    >
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
 
                     </tr>
 

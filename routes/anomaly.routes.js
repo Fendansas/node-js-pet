@@ -18,9 +18,25 @@ router.get(
 router.post('/create',
     anomalyCreateValidator, anomalyController.create);
 
+router.get(
+    '/edit/:id',
+    anomalyController.editPage
+);
 
+router.post(
+    '/edit/:id',
+    anomalyCreateValidator,
+    anomalyController.update
+);
 
+router.post(
+    '/delete/:id',
+    anomalyController.delete
+);
 
-
+router.get(
+    '/export',
+    anomalyController.export
+);
 
 export default router;

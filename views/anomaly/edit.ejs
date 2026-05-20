@@ -1,0 +1,187 @@
+<%- include('../partials/header', { title: 'Хабар' }) %>
+<link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet/dist/leaflet.css"
+/>
+
+<style>
+
+    .wrapper{
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 20px;
+    }
+
+    .form-block{
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+    }
+
+    #map{
+        width: 100%;
+        height: 700px;
+        border-radius: 10px;
+    }
+
+    .form-group{
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+    }
+
+    input,
+    select,
+    button{
+        padding: 10px;
+    }
+
+</style>
+
+
+<div class="container">
+
+    <h1>Создание GPS точки</h1>
+
+    <div class="wrapper">
+
+        <div class="form-block">
+
+            <form action="/anomaly/edit/<%= anomaly._id %>" method="POST">
+
+                <div class="form-group">
+                    <label>Название</label>
+                    <input
+                            type="text"
+                            name="name"
+                            required
+                            placeholder="Введите название"
+                            value="<%= anomaly.name %>"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Latitude</label>
+                    <input
+                            type="text"
+                            id="latitude"
+                            name="latitude"
+                            required
+                            readonly
+                            value="<%= anomaly.latitude %>"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Longitude</label>
+                    <input
+                            type="text"
+                            id="longitude"
+                            name="longitude"
+                            required
+                            readonly
+                            value="<%= anomaly.longitude %>"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Radius</label>
+                    <input
+                            type="number"
+                            name="radius"
+                            required
+                            placeholder="Например 100"
+                            value="<%= anomaly.radius %>"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Type</label>
+
+                    <select name="type" required >
+                        <option value="">Выберите тип</option>
+                        <option value="R">R=Radiation</option>
+                        <option value="A">A=Anomal</option>
+                        <option value="M">M=Mental</option>
+                        <option value="B">B=Burer</option>
+                        <option value="C">C=Controller</option>
+                        <option value="H">H=Health</option>
+                        <option value="F">F=Artifact</option>
+                        <option value="Z">Z=Monolith</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Value</label>
+                    <input
+                            type="number"
+                            name="value"
+                            required
+                            placeholder="Введите значение"
+                            value="<%= anomaly.value %>"
+                    />
+                </div>
+
+                <button type="submit">
+                    Редактировать точку
+                </button>
+
+            </form>
+
+            <div class="coords-info">
+                Нажмите на карту чтобы выбрать координаты
+            </div>
+
+        </div>
+
+        <div id="map"></div>
+
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+    // Стартовая позиция карты
+    const map = L.map('map').setView([53.668850, 23.840332], 12);
+
+    // OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+            '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Маркер
+    let marker = null;
+
+    // Клик по карте
+    map.on('click', function (e) {
+
+        const lat = e.latlng.lat.toFixed(6);
+        const lng = e.latlng.lng.toFixed(6);
+
+        // Заполняем инпуты
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+
+        // Если маркер уже есть -> удаляем
+        if (marker) {
+            map.removeLayer(marker);
+        }
+
+        // Создаем новый маркер
+        marker = L.marker([lat, lng]).addTo(map);
+
+        marker.bindPopup(`
+            <b>Координаты</b><br>
+            Lat: ${lat}<br>
+            Lng: ${lng}
+        `).openPopup();
+
+    });
+
+</script>
+
+<%- include('../partials/footer') %>
