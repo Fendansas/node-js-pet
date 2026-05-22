@@ -1,5 +1,4 @@
 import User from "../models/user.js";
-import {editProfile} from "../controllers/user.controller.js";
 
 export const updateUserProfileService = async (userId, data)=>{
 

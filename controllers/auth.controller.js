@@ -1,63 +1,66 @@
-import {
-    registerUser,
-    loginUser
-} from '../services/auth.service.js';
+import { BaseController } from './base.controller.js';
+import { registerUser, loginUser } from '../services/auth.service.js';
 
-export const register = async (req, res) => {
+export class AuthController extends BaseController {
+    async register(req, res) {
+        console.log('[AUTH] Register attempt:', req.body.username);
 
-    try {
+        try {
+            await registerUser(req.body);
+            console.log('[AUTH] User registered successfully');
 
-        await registerUser(req.body);
+            return this.successRedirect(res, '/login', 'Registration successful');
 
-        res.redirect('/login');
+        } catch (err) {
 
-    } catch (err) {
+            console.log('[AUTH] Register error:', err.message);
+            if (err.message === 'USER_ALREADY_EXISTS'){
+                return res.status(409).send('User already exists');
+            }
 
-        console.log(err);
+            if(err.message === 'DEFAULT_ROLE_NOT_FOUND'){
+                return res.status(500).send('Default role not found');
+            }
 
-        if (err.message === 'USER_ALREADY_EXISTS') {
-            return res.status(409).send('User already exists');
+            return this.handlerError(res, err, 'Register error');
         }
-
-        if (err.message === 'DEFAULT_ROLE_NOT_FOUND') {
-            return res.status(500).send('Default role not found');
-        }
-
-        res.status(500).send('Register error');
     }
-};
 
-export const login = async (req, res) => {
+    async login (req, res){
+        console.log('[AUTH] Login attempt:', req.body.username);
 
-    try {
+        try {
+            const user = await loginUser(req.body);
+            req.session.user = {
+                id: user.__id,
+                username: user.username
+            }
+            console.log('[AUTH] User logged in:', user.username);
 
-        const user = await loginUser(req.body);
+            user.lastLogin = new Date();
+            await user.save();
 
-        req.session.user = {
-            id: user._id,
-            username: user.username
-        };
+            return this.successRedirect(res, '/', 'Login successful');
+        } catch (err) {
+            console.log('[AUTH] Login error:', err.message);
 
-        user.lastLogin = new Date();
-        await user.save();
-
-        res.redirect('/');
-
-    } catch (err) {
-
-        console.log(err);
-
-        if (err.message === 'INVALID_CREDS') {
-            return res.status(401).send('Invalid credentials');
+            if (err.message === 'INVALID_CREDS'){
+                return res.status(401).send('Invalid credentials');
+            }
+            return this.handlerError(res, err, 'Login error');
         }
-
-        res.status(500).send('Login error');
     }
-};
 
-export const logout = async (req, res) => {
+    async logout(req, res) {
+        console.log('[AUTH] Logout attempt');
 
-    req.session.destroy(() => {
-        res.redirect('/login');
-    });
-};
+        req.session.destroy(() => {
+            console.log('[AUTH] Session destroyed');
+            return this.successRedirect(res, '/login', 'Logged out successfully');
+        });
+    }
+}
+
+
+
+export default new AuthController();

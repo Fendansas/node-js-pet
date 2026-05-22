@@ -1,272 +1,211 @@
-import productService from "../services/product.service.js";
-import {validationResult} from "express-validator";
-import User from "../models/user.js";
-import Product from "../models/Product.js";
+import { BaseController } from './base.controller.js';
+import productService from '../services/product.service.js';
+import { validationResult } from 'express-validator';
+import User from '../models/user.js';
+import Product from '../models/Product.js'
 
 
-class ProductController {
+class ProductController extends BaseController {
 
 
     async index(req, res){
 
         try {
+            console.log('[PRODUCT] Listing products');
+            const user = await User.findById(this.getCurrentUser(req, res)?._id).populate('role');
 
-            const user =
-                await User.findById(
-                    res.locals.user._id
-                ).populate('role');
+            const category = req.query.category;
 
-            const category =
-                req.query.category;
+            console.log('[PRODUCT] Category filter:', category || 'all');
 
-            const products =
-                await productService.getAll(
-                    category
-                );
+            const products = await productService.getAll(category);
+            const categories = await productService.getCategories();
 
-            const categories =
-                await productService.getCategories();
+            console.log('[PRODUCT] Found', products.length, 'products');
 
-            res.render(
-                'products/index',
-                {
-                    products,
-                    user,
-                    categories,
-                    selectedCategory:
-                        category || ""
-                }
-            );
+            return this.renderView(res, 'products/index', {
+                products,
+                user,
+                categories,
+                selectedCategory: category || ''
+            });
 
         } catch (error) {
-
-            console.log(error);
-
-            res.status(500)
-                .send('Server Error');
+            return this.handleError(res, error, 'Server Error');
         }
     }
 
     createPage(req, res){
-        return res.render('products/create');
+        console.log('[PRODUCT] Showing create page');
+
+        return this.renderView(res, 'products/create');
     }
 
-    async create(req, res){
+    async create(req, res) {
+        console.log('[PRODUCT] Creating new product');
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return this.sendValidationError(res, errors, 'products/create');
+        }
 
         try {
-            const errors = validationResult(req);
-            if(!errors.isEmpty()){
-                return res.status(400).render('products/create', {errors: errors.array()});
-            }
-            const {
-                title,
-                description,
-                price,
-                category
-            } = req.body;
+            const { title, description, price, category } = req.body;
+
+            console.log('[PRODUCT] Product data:', { title, price, category });
 
             await productService.create({
                 title,
                 description,
                 price,
                 category,
-                image: '/uploads/'+ req.file.filename,
+                image: '/uploads/' + req.file.filename
             });
 
-            return res.redirect('/products');
+            console.log('[PRODUCT] Product created successfully');
+            return this.successRedirect(res, '/products', 'Product created');
 
-        }  catch (error){
-
-            console.log(error);
-
-            return res.status(500).send('Server Error');
+        } catch (error) {
+            return this.handleError(res, error, 'Server Error');
         }
     }
 
-    async show(req, res){
+    async show(req, res) {
+
+        console.log('[PRODUCT] Showing product:', req.params.id);
+
         try {
             const product = await productService.getById(req.params.id);
-            if (!product){
+
+            if (!product) {
+                console.log('[PRODUCT] Product not found:', req.params.id);
                 return res.status(404).send('Product not found');
             }
 
-            return res.render('products/show', {product});
-        } catch (error) {
-            console.log(error);
-            res.status(500).send('Server Error');
-        }
-    }
+            return this.renderView(res, 'products/show', { product });
 
-    async delete (req, res){
-        try {
-            await productService.delete(req.params.id);
-            return res.redirect('/products');
         } catch (error) {
-            console.log(error);
-            res.status(500).send('Server Error');
+            return this.handleError(res, error, 'Server Error');
         }
     }
 
     async editPage(req, res) {
 
-        try {
+        console.log('[PRODUCT] Editing product:', req.params.id);
 
-            const product =
-                await productService.getById(
-                    req.params.id
-                );
+        try {
+            const product = await productService.getById(req.params.id);
 
             if (!product) {
-                return res
-                    .status(404)
-                    .send("Product not found");
+                return res.status(404).send('Product not found');
             }
 
-            return res.render(
-                "products/edit",
-                {
-                    product,
-                    errors: [],
-                }
-            );
+            return this.renderView(res, 'products/edit', { product, errors: [] });
 
         } catch (error) {
-            console.log(error);
-            return res
-                .status(500)
-                .send("Server Error");
+            return this.handleError(res, error, 'Server Error');
         }
     }
 
     async update(req, res) {
+        console.log('[PRODUCT] Updating product:', req.params.id);
+
+        const errors = validationResult(req);
+        const product = await productService.getById(req.params.id);
+
+        if (!product) {
+            return res.status(404).send('Product not found');
+        }
+
+        if (!errors.isEmpty()) {
+            return this.sendValidationError(res, errors, 'products/edit', { product });
+        }
 
         try {
-
-            const errors =
-                validationResult(req);
-
-            const product =
-                await productService.getById(
-                    req.params.id
-                );
-
-            if (!product) {
-
-                return res
-                    .status(404)
-                    .send("Product not found");
-            }
-
-            if (!errors.isEmpty()) {
-
-                return res.status(400).render(
-                    "products/edit",
-                    {
-                        product,
-                        errors: errors.array(),
-                    }
-                );
-            }
-
-            const {
-                title,
-                description,
-                price,
-                category,
-            } = req.body;
-
-            const updateData = {
-
-                title,
-                description,
-                price,
-                category,
-            };
+            const { title, description, price, category } = req.body;
+            const updateData = { title, description, price, category };
 
             if (req.file) {
-
-                updateData.image =
-                    "/uploads/" +
-                    req.file.filename;
+                updateData.image = '/uploads/' + req.file.filename;
+                console.log('[PRODUCT] New image uploaded:', req.file.filename);
             }
 
-            await productService.update(
-                req.params.id,
-                updateData
-            );
+            await productService.update(req.params.id, updateData);
+            console.log('[PRODUCT] Product updated successfully');
 
-            return res.redirect(
-                "/products"
-            );
+            return this.successRedirect(res, '/products', 'Product updated');
 
         } catch (error) {
-
-            console.log(error);
-
-            return res
-                .status(500)
-                .send("Server Error");
+            return this.handleError(res, error, 'Server Error');
         }
     }
 
-    async buyProduct(req, res) {
+    async delete(req, res) {
+        console.log('[PRODUCT] Deleting product:', req.params.id);
 
         try {
-            const userId = res.locals.user._id;
-            console.log(userId)
-            const productId = req.params.id;
-            console.log('productId', productId)
-            await productService.buyProduct(userId, productId);
-            return res.redirect('/products');
+            await productService.delete(req.params.id);
+            console.log('[PRODUCT] Product deleted successfully');
+            return this.successRedirect(res, '/products', 'Product deleted');
 
         } catch (error) {
-            console.log(error);
-            const user = await User.findById(res.locals.user._id)
+            return this.handleError(res, error, 'Server Error');
+        }
+    }
+
+
+    async buyProduct(req, res) {
+        console.log('[PRODUCT] Buying product:', req.params.id);
+        console.log('[PRODUCT] User ID:', this.getCurrentUser(req, res)?._id);
+
+        try {
+            const userId = this.getCurrentUser(req, res)?._id;
+            const productId = req.params.id;
+
+            await productService.buyProduct(userId, productId);
+            console.log('[PRODUCT] Product purchased successfully');
+
+            return this.successRedirect(res, '/products', 'Product purchased');
+
+        } catch (error) {
+            console.log('[PRODUCT] Buy error:', error.message);
+
+            const user = await User.findById(this.getCurrentUser(req, res)?._id)
                 .populate('role')
                 .populate('inventory.product');
 
             const products = await productService.getAll();
-
             const categories = await productService.getCategories();
 
-            return res.render('products/index',
-                {
-                    user,
-                    products,
-                    categories,
-                    selectedCategory: "",
-                    success: null,
-                    errors: [
-                        {
-                            msg: error.message
-                        }
-                    ]
-                }
-            );
+            return this.renderView(res, 'products/index', {
+                user,
+                products,
+                categories,
+                selectedCategory: '',
+                success: null,
+                errors: [{ msg: error.message }]
+            });
         }
     }
 
+
     async inventory(req, res) {
 
+        console.log('[PRODUCT] Loading inventory');
+
         try {
-            const user = await User.findById(res.locals.user._id)
+            const user = await User.findById(this.getCurrentUser(req, res)?._id)
                 .populate('role')
                 .populate('inventory.product');
 
-            return res.render('products/inventory',
-                {
-                    inventory: user.inventory,
-                    user
-                }
-            );
-        } catch (error){
+            return this.renderView(res, 'products/inventory', {
+                inventory: user.inventory,
+                user
+            });
 
-            console.log(error);
-            return res
-                .status(500)
-                .send("Server Error");
+        } catch (error) {
+            return this.handleError(res, error, 'Server Error');
         }
-
     }
 
 

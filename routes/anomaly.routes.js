@@ -8,35 +8,35 @@ const router = express.Router();
 
 router.get(
     "/",
-    anomalyController.index
+    (req, res) => anomalyController.index(req, res)
 );
 
 router.get(
     "/create",
-    anomalyController.createPage
+    (req, res) => anomalyController.createPage(req, res)
 );
 router.post('/create',
-    anomalyCreateValidator, anomalyController.create);
+    anomalyCreateValidator, (req, res) => anomalyController.create(req, res));
 
 router.get(
     '/edit/:id',
-    anomalyController.editPage
+    (req, res) => anomalyController.editPage(req, res)
 );
 
 router.post(
     '/edit/:id',
     anomalyCreateValidator,
-    anomalyController.update
+    (req, res) => anomalyController.update(req, res)
 );
 
 router.post(
     '/delete/:id',
-    anomalyController.delete
+    (req, res) => anomalyController.delete(req, res)
 );
 
 router.get(
     '/export',
-    anomalyController.export
+    (req, res) => anomalyController.export(req, res)
 );
 
 export default router;

@@ -1,72 +1,96 @@
-import User from "../models/user.js";
-import {validationResult} from "express-validator";
-import {register} from "./auth.controller.js";
+import { BaseController } from './base.controller.js';
+import { validationResult } from 'express-validator';
+import User from '../models/user.js';
 import {
     updateUserProfileService,
     getProfileService,
     getAllUsersService,
     editProfileService
-} from "../services/user.service.js";
+} from '../services/user.service.js';
 
 
-export const getProfile = async (req, res) => {
-    const user = await getProfileService(res.locals.user._id);
-    res.render('profile', {
-        user
-    });
-};
-export const editProfile = async (req, res)=>{
-    const user = await editProfileService(res.locals.user._id);
+export class UserController extends BaseController {
 
-    res.render('edit-profile', {
-        user
-    });
-}
-export const updateProfile = async (req, res) => {
+    async getProfile(req, res) {
+        console.log('[USER] Loading profile for:', this.getCurrentUser(req, res)?._id);
 
-    const errors = validationResult(req);
+        try {
+            const user = await getProfileService(this.getCurrentUser(req, res)?._id);
+            console.log('[USER] Profile loaded successfully');
 
-    if (!errors.isEmpty()) {
+            return this.renderView(res, 'profile', { user });
 
-        const user = await User.findById(res.locals.user._id).populate('role');
-
-        return res.status(400).render('edit-profile', {
-            user,
-            errors: errors.array()
-        });
+        } catch (error) {
+            return this.handleError(res, error, 'Profile error');
+        }
     }
 
-    try {
+    async editProfile(req, res) {
+        console.log('[USER] Loading edit profile page');
 
-        const updatedUser = await updateUserProfileService(
-            res.locals.user._id,
-            req.body
-        );
+        try {
+            const user = await editProfileService(this.getCurrentUser(req, res)?._id);
+            console.log('[USER] Edit profile page loaded');
 
-        return res.render('edit-profile', {
-            user: updatedUser,
-            success: 'Profile updated successfully',
-            errors: []
-        });
+            return this.renderView(res, 'edit-profile', { user });
 
-    } catch (error) {
+        } catch (error) {
+            return this.handleError(res, error, 'Edit profile error');
+        }
+    }
 
-        console.log(error);
+    async updateProfile(req, res) {
+        console.log('[USER] Updating profile');
 
-        const user = await User.findById(res.locals.user._id).populate('role');
+        const errors = validationResult(req);
 
-        return res.status(500).render('edit-profile', {
-            user,
-            errors: [{ msg: 'Something went wrong' }]
-        });
+        if (!errors.isEmpty()) {
+            console.log('[USER] Validation errors:', errors.array());
+
+            const user = await User.findById(this.getCurrentUser(req, res)?._id).populate('role');
+            return this.sendValidationError(res, errors, 'edit-profile', { user });
+        }
+
+        try {
+            const updatedUser = await updateUserProfileService(
+                this.getCurrentUser(req, res)?._id,
+                req.body
+            );
+
+            console.log('[USER] Profile updated successfully');
+
+            return this.renderView(res, 'edit-profile', {
+                user: updatedUser,
+                success: 'Profile updated successfully',
+                errors: []
+            });
+
+        } catch (error) {
+            console.log('[USER] Update profile error:', error.message);
+
+            const user = await User.findById(this.getCurrentUser(req, res)?._id).populate('role');
+
+            return this.renderView(res, 'edit-profile', {
+                user,
+                errors: [{ msg: 'Something went wrong' }]
+            });
+        }
+    }
+
+    async getAllUsers(req, res) {
+        console.log('[USER] Loading all users (admin)');
+
+        try {
+            const { users, onlineUsers } = await getAllUsersService();
+
+            console.log('[USER] Found', users.length, 'users,', onlineUsers.length, 'online');
+
+            return this.renderView(res, 'admin/users', { users, onlineUsers });
+
+        } catch (error) {
+            return this.handleError(res, error, 'Users list error');
+        }
     }
 }
 
-
-export const getAllUsers = async (req, res) => {
-    const {users, onlineUsers } = await getAllUsersService();
-
-    res.render('admin/users', {
-        users, onlineUsers
-    });
-};
+export default new UserController();
