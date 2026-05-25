@@ -4,6 +4,8 @@ dotenv.config();
 import express from 'express';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import path from 'path';
+import multer from 'multer';
 
 import connectDB from './config/db.js';
 
@@ -64,16 +66,59 @@ app.use(updateLastSeen);
 
 // ===== ROUTES =====
 app.use(mainRoute);
-
 app.use(indexRoutes);
-
 app.use(authRoutes);
-
 app.use(profileRoutes);
-
 app.use(adminRoutes);
 
+// ===== AVATAR ROUTE =====
+app.get('/api/avatars/:id', async (req, res) => {
+    try {
+        const { getAvatarService } = await import('./services/avatar.service.js');
+        const stream = await getAvatarService(req.params.id);
+
+        stream.on('error', () => {
+            res.sendFile(path.join(process.cwd(), 'public/img/default-avatar.png'));
+        });
+
+        stream.on('metadata', (metadata) => {
+            res.setHeader('Content-Type', metadata.mimetype || 'image/jpeg');
+        });
+
+        stream.pipe(res);
+
+    } catch (error) {
+        console.error('Avatar route error:', error);
+        res.sendFile(path.join(process.cwd(), 'public/img/default-avatar.png'));
+    }
+});
+
+// ===== ОБРАБОТКА ОШИБОК MULTER =====
+app.use((error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({
+                success: false,
+                message: 'Файл слишком большой (макс 5MB)'
+            });
+        }
+        return res.status(400).json({
+            success: false,
+            message: 'Ошибка загрузки файла: ' + error.message
+        });
+    }
+    
+    if (error.message) {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+    
+    next(error);
+});
 // ===== START SERVER =====
 app.listen(3000, () => {
     console.log('http://localhost:3000');
+    console.log('Avatar service ready');
 });

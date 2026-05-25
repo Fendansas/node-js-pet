@@ -1,12 +1,20 @@
 import { BaseController } from './base.controller.js';
 import { validationResult } from 'express-validator';
 import User from '../models/user.js';
+import path from 'path';
 import {
     updateUserProfileService,
     getProfileService,
     getAllUsersService,
     editProfileService
 } from '../services/user.service.js';
+import {
+    uploadAvatarService,
+    deleteAvatarService,
+    getAvatarUrl,
+    getAvatarService
+} from '../services/avatar.service.js';
+import fs from 'fs';
 
 
 export class UserController extends BaseController {
@@ -89,6 +97,111 @@ export class UserController extends BaseController {
 
         } catch (error) {
             return this.handleError(res, error, 'Users list error');
+        }
+    }
+
+
+    async uploadAvatar(req, res){
+        try {
+            if (!req.user || !req.user._id) {
+                return res.status(401).json({
+                    success: false,
+                    message: 'Требуется авторизация'
+                });
+            }
+
+            if(!req.file){
+                return res.status(400).json({
+                    success: false,
+                    message: 'No file uploaded'
+                });
+            }
+
+            if (req.file.error){
+                return res.status(400).json({
+                    success: false,
+                    message: req.file.error
+                });
+            }
+
+            const result = await uploadAvatarService(
+                req.user._id,
+                req.file.buffer,
+                req.file.originalname,
+                req.file.mimetype
+            );
+
+            console.log('[USER] Avatar uploaded:', result.url);
+            if(req.accepts('html')){
+                return res.status(200).redirect('/profile');
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: 'Avatar uploaded successfully',
+                url: result.url
+            });
+
+        } catch (error) {
+            console.error('[USER] Upload avatar error:', error);
+            return this.handleError(res, error, 'Avatar upload error');
+        }
+    }
+
+    async deleteAvatar(req, res) {
+        try {
+            if (!req.user.avatarId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Аватар не установлен'
+                });
+            }
+
+            await deleteAvatarService(req.user.avatarId);
+
+            req.user.avatarId = null;
+            req.user.avatarMimeType = null;
+            req.user.avatarUpdatedAt = null;
+            await req.user.save();
+
+            console.log('[USER] Avatar deleted');
+
+            if (req.accepts('html')) {
+                return res.status(200).redirect('/profile');
+            }
+
+
+            return res.json({
+                success: true,
+                message: 'Аватар успешно удалён'
+            });
+
+        } catch (error) {
+            console.error('[USER] Delete avatar error:', error);
+            return this.handleError(res, error, 'Ошибка удаления аватара');
+        }
+    }
+
+    async getAvatar(req, res, next) {
+        try {
+            const stream = await getAvatarService(req.params.id);
+
+
+            stream.on('error', () => {
+                return res.sendFile(path.join(process.cwd(), 'public/img/default-avatar.png'));
+            });
+
+
+            stream.on('metadata', (metadata) => {
+                res.setHeader('Content-Type', metadata.mimetype || 'image/jpeg');
+            });
+
+
+            stream.pipe(res);
+
+        } catch (error) {
+            console.error('[AVATAR] Get error:', error);
+            return res.sendFile(path.join(process.cwd(), 'public/img/default-avatar.png'));
         }
     }
 }

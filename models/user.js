@@ -33,11 +33,6 @@ const userSchema = new mongoose.Schema(
         },
 
         // ===== PROFILE =====
-        avatar: {
-            type: String,
-            default: '/img/default-avatar.png'
-        },
-
         bio: {
             type: String,
             default: '',
@@ -99,7 +94,19 @@ const userSchema = new mongoose.Schema(
 
         lastLogin: {
             type: Date
-        }
+        },
+        avatarId: {
+            type: String,
+            default: null
+        },
+        avatarMimeType: {
+            type: String,
+            default: null
+        },
+        avatarUpdatedAt: {
+            type: Date,
+            default: null
+        },
     },
     {
         timestamps: true,
@@ -126,4 +133,13 @@ userSchema.virtual('isOnline').get(function () {
     return Date.now() - this.lastSeen.getTime() < fiveMinutes;
 });
 
-export default mongoose.model('User', userSchema);
+userSchema.virtual('avatar').get(function() {
+    if (this.avatarId) {
+        return `/api/avatars/${this.avatarId}`;
+    }
+    return '/img/default-avatar.png';
+});
+
+const User = mongoose.model('User', userSchema);
+
+export default User;
