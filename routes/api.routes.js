@@ -4,10 +4,14 @@ import { isAuth } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.get('/login', (req, res) => res.render('login'));
 router.post('/login', (req, res) => AuthController.login(req, res));
-router.get('/register', (req, res) => res.render('register'));
-router.post('/register', (req, res) => AuthController.register(req, res));
-router.get('/logout', (req, res) => AuthController.logout(req, res));
+router.post('/register', (req, res) => AuthController.apiRegister(req, res));
+
+router.get('/sas', (req, res) => {
+    return res.status(200).json({
+        success: true,
+        message: 'Sas'
+    });
+});
 
 export default router;

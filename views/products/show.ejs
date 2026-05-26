@@ -1,0 +1,43 @@
+<%- include('../partials/header', { title: 'Хабар' }) %>
+
+<div class="container product-cards">
+
+    <div class="grid">
+            <div class="card product-card">
+
+                <img
+                        src="<%= product.image %>"
+                        alt="<%= product.title %>"
+                        class="product-image"
+                >
+
+                <div class="product-content">
+
+                    <div class="product-top">
+
+                        <span class="product-category">
+                            <%= product.category %>
+                        </span>
+
+                        <strong class="product-price">
+                            € <%= product.price %>
+                        </strong>
+
+                    </div>
+
+                    <h3 class="product-title">
+                        <%= product.title %>
+                    </h3>
+
+                    <p class="product-description">
+                        <%= product.description %>
+                    </p>
+                </div>
+
+            </div>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

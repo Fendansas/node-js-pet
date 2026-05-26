@@ -32,7 +32,7 @@ export class AuthController extends BaseController {
         try {
             const user = await loginUser(req.body);
             req.session.user = {
-                id: user.__id,
+                id: user._id,
                 username: user.username
             }
             console.log('[AUTH] User logged in:', user.username);

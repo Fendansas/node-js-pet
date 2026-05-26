@@ -27,7 +27,7 @@ export const getProfileService = async (userId) => {
 }
 
 export const getAllUsersService = async () => {
-    const users = await User.find().populate('role');
+    const users = await User.find().populate('role').populate('inventory.product');
     const onlineUsers = users.filter(user => user.isOnline).length;
     return {users, onlineUsers} ;
 }

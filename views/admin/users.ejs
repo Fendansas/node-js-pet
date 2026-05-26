@@ -44,10 +44,12 @@
                 <th>Имя</th>
                 <th>Email</th>
                 <th>BIO</th>
+                <th>Inventory count</th>
                 <th>Роль</th>
                 <th>Статус</th>
                 <th>Дата регистрации</th>
                 <th>Действия</th>
+
             </tr>
             </thead>
 
@@ -63,6 +65,7 @@
                     <td><%= user.username %></td>
                     <td><%= user.email %></td>
                     <td><%= user.bio %></td>
+                    <td><%=  user.inventory.length %></td>
                     <td>
                         <span class="role admin-role"><%= user.role?.name || 'Нет роли' %></span>
                     </td>
@@ -74,7 +77,6 @@
 
                             <span class="offline">● Offline</span>
                         <% } %>
-<!--                        <span class="status online">ONLINE</span>-->
                     </td>
 
                     <td><%= new Date(user.createdAt).toLocaleDateString('ru-RU') %></td>
@@ -83,6 +85,7 @@
                         <a href="#" class="btn">Редактировать</a>
                         <a href="#" class="btn danger">Удалить</a>
                     </td>
+
                 </tr>
             <% } %>
 

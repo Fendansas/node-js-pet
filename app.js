@@ -29,24 +29,24 @@ app.set('view engine', 'ejs');
 
 // ===== MIDDLEWARES =====
 app.use(express.static('public'));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ===== SESSION =====
 app.use(session({
     secret: process.env.SESSION_SECRET,
-
     resave: false,
-
-    saveUninitialized: false,
-
+    saveUninitialized: true,
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URI
     }),
-
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 1000 * 60 * 60 * 24,
+        httpOnly: true,
+        secure: false
     }
 }));
+
 
 // ===== GLOBAL USER =====
 app.use((req, res, next) => {
@@ -67,7 +67,6 @@ app.use(updateLastSeen);
 // ===== ROUTES =====
 app.use(mainRoute);
 app.use(indexRoutes);
-app.use(authRoutes);
 app.use(profileRoutes);
 app.use(adminRoutes);
 
