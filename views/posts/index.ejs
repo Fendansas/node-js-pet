@@ -1,0 +1,115 @@
+<%- include('../partials/header', { title: 'Посты' }) %>
+
+<div class="container posts-page">
+
+    <div class="posts-top">
+
+        <div>
+            <h1 class="posts-title">
+                POSTS
+            </h1>
+
+            <p class="posts-subtitle">
+                Список всех постов
+            </p>
+        </div>
+
+        <a href="/posts/create" class="btn">
+            + Создать пост
+        </a>
+
+    </div>
+
+    <div class="category-filter">
+        <h3>Фильтр по категориям:</h3>
+        <div class="filter-buttons">
+            <a
+                    href="/posts"
+                    class="filter-btn <%= selectedCategory === 'all' ? 'active' : '' %>"
+            >
+                Все
+            </a>
+            <% categories.forEach(category => { %>
+                <a
+                        href="/posts?category=<%= category %>"
+                        class="filter-btn <%= selectedCategory === category ? 'active' : '' %>"
+                >
+                    <%= category %>
+                </a>
+            <% }) %>
+        </div>
+    </div>
+
+    <div class="posts-grid">
+
+        <% posts.forEach(post => { %>
+
+            <div class="post-card">
+
+                <div class="post-content">
+
+                    <div class="post-meta">
+
+                        <span class="post-category">
+                            <%= post.category %>
+                        </span>
+
+                        <span class="post-date">
+                            <%= post.createdAt.toLocaleDateString() %>
+                        </span>
+
+                    </div>
+
+                    <h2 class="post-card-title">
+                        <%= post.title %>
+                    </h2>
+
+                    <p class="post-description">
+                        <%= post.content.slice(0, 120) %>...
+                    </p>
+
+                    <p>Author: <%= post.author.username %></p>
+
+                    <div class="post-actions">
+
+                        <a
+                                href="/posts/<%= post._id %>"
+                                class="btn"
+                        >
+                            Читать
+                        </a>
+
+                        <% if (user.role?.name === 'admin') { %>
+
+                            <a
+                                    href="/posts/<%= post._id %>/edit"
+                                    class="btn"
+                            >
+                                Редактировать
+                            </a>
+
+                            <form
+                                    action="/posts/<%= post._id %>/delete"
+                                    method="POST"
+                            >
+                                <button class="btn danger">
+                                    Удалить
+                                </button>
+                            </form>
+
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        <% }) %>
+
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

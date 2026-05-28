@@ -1,0 +1,57 @@
+<%- include('../partials/header', { title: post.title }) %>
+
+<div class="container view-post-page">
+
+    <div class="view-post-box">
+
+        <div class="view-post-content">
+
+            <div class="view-post-meta">
+
+                <span class="view-post-category">
+                    <%= post.category %>
+                </span>
+
+                <span class="view-post-date">
+                    <%= post.createdAt.toLocaleDateString() %>
+                </span>
+
+            </div>
+
+            <h1 class="view-post-title">
+                <%= post.title %>
+            </h1>
+
+            <div class="view-post-description">
+                <%= post.content %>
+            </div>
+
+            <div class="post-actions">
+
+                <a
+                        href="/posts"
+                        class="btn"
+                >
+                    Назад
+                </a>
+
+                <% if (user.role?.name === 'admin') { %>
+
+                    <a
+                            href="/posts/<%= post._id %>/edit"
+                            class="btn"
+                    >
+                        Редактировать
+                    </a>
+
+                <% } %>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<%- include('../partials/footer') %>

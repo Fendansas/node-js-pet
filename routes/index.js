@@ -4,6 +4,7 @@ import profileRoutes from "./profile.routes.js";
 import indexRoutes from "./index.routes.js";
 import productRoutes from "./product.routes.js";
 import anomalyRoutes from "./anomaly.routes.js";
+import postRoutes from "./post.routes.js";
 import express from "express";
 
 const mainRoute = express.Router();
@@ -14,5 +15,6 @@ mainRoute.use('/admin', adminRoutes);
 mainRoute.use('/profile', profileRoutes);
 mainRoute.use('/products', productRoutes);
 mainRoute.use('/anomaly', anomalyRoutes);
+mainRoute.use('/posts', postRoutes);
 
 export default mainRoute;
