@@ -1,8 +1,11 @@
-<%- include('../partials/header', { title: 'Хабар' }) %>
+<%- include('../partials/header', { title: 'Создание GPS точки' }) %>
 <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet/dist/leaflet.css"
 />
+<script>
+    const anomalies = <%- JSON.stringify(anomalies || []) %>;
+</script>
 
 <style>
 
@@ -139,38 +142,98 @@
 
 <script>
 
-    // Стартовая позиция карты
-    const map = L.map('map').setView([53.668850, 23.840332], 12);
+    const colors = {
+        R: '#ff3b3b',
+        A: '#9b5cff',
+        M: '#00b7ff',
+        B: '#ff8c42',
+        C: '#00ffd5',
+        H: '#ff5ca8',
+        F: '#ffd000',
+        Z: '#ffffff'
+    };
 
-    // OpenStreetMap
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-            '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    // Создаем карту
+    const map = L.map('map').setView(
+        [53.668850, 23.840332],
+        12
+    );
 
-    // Маркер
+    // Подключаем OpenStreetMap
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
+
+    // Показываем существующие аномалии
+    anomalies.forEach(item => {
+
+        const color = colors[item.type] || '#2dff7a';
+
+        const marker = L.circleMarker(
+            [item.latitude, item.longitude],
+            {
+                radius: 8,
+                color: color,
+                fillColor: color,
+                fillOpacity: 1
+            }
+        ).addTo(map);
+
+        const circle = L.circle(
+            [item.latitude, item.longitude],
+            {
+                radius: Number(item.radius),
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.15
+            }
+        ).addTo(map);
+
+        const popup = `
+            <div style="min-width:200px">
+                <h3>${item.name}</h3>
+                <p><strong>Type:</strong> ${item.type}</p>
+                <p><strong>Radius:</strong> ${item.radius}m</p>
+                <p><strong>Value:</strong> ${item.value}</p>
+            </div>
+        `;
+
+        marker.bindPopup(popup);
+        circle.bindPopup(popup);
+
+    });
+
+    // Маркер новой точки
     let marker = null;
 
-    // Клик по карте
+    // Выбор координат
     map.on('click', function (e) {
 
         const lat = e.latlng.lat.toFixed(6);
         const lng = e.latlng.lng.toFixed(6);
 
-        // Заполняем инпуты
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lng;
 
-        // Если маркер уже есть -> удаляем
         if (marker) {
             map.removeLayer(marker);
         }
 
-        // Создаем новый маркер
-        marker = L.marker([lat, lng]).addTo(map);
+        marker = L.circleMarker(
+            [lat, lng],
+            {
+                radius: 10,
+                color: '#00ff00',
+                fillColor: '#00ff00',
+                fillOpacity: 1
+            }
+        ).addTo(map);
 
         marker.bindPopup(`
-            <b>Координаты</b><br>
+            <b>Новая точка</b><br>
             Lat: ${lat}<br>
             Lng: ${lng}
         `).openPopup();

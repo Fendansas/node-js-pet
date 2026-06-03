@@ -21,8 +21,18 @@ export class AnomalyController extends BaseController {
     }
 
     async createPage(req, res) {
+
         console.log('[ANOMALY] Showing create page');
-        return this.renderView(res, 'anomaly/create');
+        try {
+            const anomalies = await AnomaliesService.getAll();
+            console.log('[ANOMALY] Found', anomalies.length, 'anomalies');
+
+            return this.renderView(res, 'anomaly/create', {anomalies});
+
+        } catch (error) {
+            return this.handleError(res, error, 'Anomalies list error');
+        }
+
     }
 
     async create(req, res) {
