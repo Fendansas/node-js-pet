@@ -104,7 +104,7 @@ class PostController extends BaseController {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            return this.sendValidationError(res, errors, 'products/create');
+            return this.sendValidationError(res, errors, 'products');
         }
 
         try {

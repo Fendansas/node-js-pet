@@ -1,0 +1,65 @@
+<%- include('../partials/header', { title: 'Создать событие' }) %>
+
+<div class="container event-form-page">
+    <div class="event-form-box">
+        <h1 class="event-form-title">✨ Создать событие</h1>
+        <p class="event-form-subtitle">Заполните информацию о новом событии</p>
+
+        <% if (locals.error) { %>
+            <div class="error-message"><%= error %></div>
+        <% } %>
+
+        <form action="/events/<%= event._id %>/edit" method="POST" class="event-form">
+            <div class="form-group">
+                <label>Название события *</label>
+                <input type="text" name="title" value="<%= event.title %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>Описание *</label>
+                <textarea name="description" rows="5" required><%= event.description != null ? event.description : "" %></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Дата и время начала *</label>
+                    <input type="datetime-local"
+                           name="startTime"
+                           value="<%= event.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '' %>"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label>Дата и время окончания *</label>
+                    <input type="datetime-local"
+                           name="endTime"
+                           value="<%= event.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '' %>"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select name="status">
+                        <option value="draft">Черновик</option>
+                        <option value="active">Активно</option>
+                        <option value="completed">Закончено</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn">Создать событие</button>
+                <a href="/events" class="cancel-btn">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+
+</style>
+
+<%- include('../partials/footer') %>

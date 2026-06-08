@@ -1,0 +1,101 @@
+<%- include('../partials/header', { title: event.title }) %>
+
+<div class="container view-event-page">
+    <div class="view-event-box">
+
+        <img src="<%= event.image %>" alt="<%= event.title %>" class="view-event-image">
+
+        <div class="view-event-content">
+
+            <div class="view-event-meta">
+                <span class="event-status <%= event.status %>">
+                    <% if (event.status === 'active') { %>🟢 Активно<% } %>
+                    <% if (event.status === 'draft') { %>📝 Черновик<% } %>
+                    <% if (event.status === 'completed') { %>✅ Завершено<% } %>
+                </span>
+            </div>
+
+            <h1 class="view-event-title"><%= event.title %></h1>
+            <p><%= event.description %></p>
+
+            <div class="event-info-grid">
+                <div class="info-item">
+                    <span>📅 Начало:</span>
+                    <strong>Дата</strong>
+                </div>
+                <div class="info-item">
+                    <span>⏰ Окончание:</span>
+                    <strong>дата</strong>
+                </div>
+
+                <!-- Задачи события -->
+                <div class="event-tasks">
+                    <h3>📋 Задачи события</h3>
+                    <div class="tasks-list">
+
+                        <div class="task-card ">
+                            <div class="task-header">
+                                <h4>Газвание</h4>
+                                <span class="task-reward">+500 ₽</span>
+                            </div>
+                            <p>Название</p>
+
+
+                                <div class="task-status">
+                                    Статус:
+                                </div>
+
+
+
+                        </div>
+                    </div>
+
+
+                    <div class="tasks-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 50%"></div>
+                        </div>
+                        <p>Выполнено 4 задач</p>
+                        <p>Заработано: 20 ₽</p>
+                    </div>
+
+                </div>
+
+
+                <!-- Участники -->
+                <div class="event-participants-list">
+                    <h3>👥 Участники </h3>
+                    <div class="participants-grid">
+
+                        <div class="participant-card">
+                            <span>Имя</span>
+                        </div>
+
+                        <div class="participant-card more">
+                            <span>+12</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="event-actions">
+
+
+                    <a href="/events/<%= event._id %>/edit" class="btn">✏️ Редактировать</a>
+                    <span class="badge registered">✅ Вы участвуете</span>
+
+                    <form action="/events/<%= event._id %>/delete" method="POST">
+                        <button type="submit" class="btn" onclick="return confirm('Вы уверены?')">Удалить</button>
+                    </form>
+
+
+                    <a href="/events" class="btn">← Назад к списку</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+<%- include('../partials/footer') %>

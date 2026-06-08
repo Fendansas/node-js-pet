@@ -28,7 +28,7 @@
                 <h3>📊 Статус</h3>
                 <p>❤️ HP: <span class="good">100</span></p>
                 <p>☢ Радиация: <span class="bad">12%</span></p>
-                <p>💰 Деньги: <span class="glow">500 RU</span></p>
+                <p>💰 Деньги: <span class="glow"><%= user.money %></span></p>
             </div>
 
             <div class="card">
@@ -36,16 +36,13 @@
                 <ul>
                     <% user.inventory.forEach(item => { %>
                         <li>
-
-                            <% console.log(user.inventory)%>
                             <img src="<%= item.product.image %>" width="100">
                             <h3><%= item.product.title %></h3>
-                            <p>Count: <%= item.count %></p>
+                            <p>x <%= item.count %></p>
                         </li>
                     <% }) %>
-                    <li>🥖 Хлеб <span>x3</span></li>
-                    <li>🔋 Батареи <span>x1</span></li>
                 </ul>
+
             </div>
 
             <div class="card">

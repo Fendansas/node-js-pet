@@ -1,0 +1,64 @@
+<%- include('../partials/header', { title: 'События' }) %>
+
+<div class="container events-page">
+
+    <div class="events-top">
+        <div>
+            <h1 class="events-title">СОБЫТИЯ</h1>
+            <p class="events-subtitle">Участвуйте в событиях и выполняйте задания</p>
+        </div>
+
+        <% if (user && (user.role?.name === 'admin' || user.role?.name === 'moderator')) { %>
+            <a href="/events/create" class="btn">+ Создать событие</a>
+        <% } %>
+    </div>
+    <div>
+        <% if (events.length === 0) { %>
+            <div class="empty-state">
+                <p>Событий пока нет</p>
+                <% if (user && (user.role?.name === 'admin' || user.role?.name === 'moderator')) { %>
+                    <a href="/events/create" class="btn">Создать первое событие</a>
+                <% } %>
+            </div>
+        <% } else {%>
+            <a href="/events/create" class="btn">Создать событие</a>
+        <% }%>
+    </div>
+
+    <!-- Сетка событий -->
+    <div class="events-grid">
+
+        <% events.forEach(event => { %>
+            <div class="event-card">
+                <div class="event-content">
+                    <div class="event-badge <%= event.status %>">
+                        <% if (event.status === 'active') { %>Активно
+                        <% } %>
+                        <% if (event.status === 'draft') { %>Черновик
+                        <% } %>
+                        <% if (event.status === 'completed') { %>Завершено
+                        <% } %>
+                        <% if (event.status === 'cancelled') { %>Отменено
+                        <% } %>
+                    </div>
+
+                    <h2 class="event-title"><%= event.title %></h2>
+                    <p class="event-description"><%= event.description.slice(0, 100) %>...</p>
+
+                    <div class="event-details">
+                        <div class="event-date">
+                            📅 <%= new Date(event.startTime).toLocaleDateString() %>
+                        </div>
+                    </div>
+
+                    <a href="/events/<%= event._id %>" class="btn">Подробнее</a>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+
+
+
+</div>
+
+<%- include('../partials/footer') %>
