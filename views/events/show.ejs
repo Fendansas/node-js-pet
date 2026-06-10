@@ -19,37 +19,33 @@
             <p><%= event.description %></p>
 
             <div class="event-info-grid">
-                <div class="info-item">
-                    <span>📅 Начало:</span>
-                    <strong>Дата</strong>
+                <div style="display: flex; justify-content: space-between;">
+                    <h3>📋 Задачи события</h3>
+                    <a href="/tasks/create/?eventId=<%= event._id %>" class="btn"> Create task</a>
                 </div>
-                <div class="info-item">
-                    <span>⏰ Окончание:</span>
-                    <strong>дата</strong>
-                </div>
+                <% for (const task of tasks) { %>
 
                 <!-- Задачи события -->
                 <div class="event-tasks">
-                    <h3>📋 Задачи события</h3>
+
                     <div class="tasks-list">
 
                         <div class="task-card ">
                             <div class="task-header">
-                                <h4>Газвание</h4>
-                                <span class="task-reward">+500 ₽</span>
+                                <h4><%= task.title%></h4>
+                                <span class="task-reward"><%= task.reward%> Руб</span>
                             </div>
-                            <p>Название</p>
+                            <p><%= task.description%></p>
 
 
                                 <div class="task-status">
-                                    Статус:
+                                    <%= task.assignedTo%>
                                 </div>
-
-
-
+                            <a href="/tasks/<%= task._id %>/show">Изменить</a>
                         </div>
-                    </div>
 
+                    </div>
+                    <%}%>
 
                     <div class="tasks-progress">
                         <div class="progress-bar">

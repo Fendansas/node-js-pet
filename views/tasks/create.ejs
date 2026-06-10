@@ -1,0 +1,79 @@
+<%- include('../partials/header', { title: 'Создание задачи' }) %>
+
+<div class="event-form-page">
+    <div class="event-form-box">
+
+        <h1 class="event-form-title">Создать задачу</h1>
+        <p class="event-form-subtitle">
+            Добавьте новую задачу для события
+        </p>
+
+
+        <form action="/tasks/create" method="POST" class="event-form">
+
+            <div class="form-group">
+                <label>TaskID</label>
+                <input
+                        type="text"
+                        name="eventId"
+                        value="<%= eventId %>"
+                        required
+                        >
+            </div>
+            <div class="form-group">
+                <label>Название</label>
+                <input
+                        type="text"
+                        name="title"
+                        required
+                        placeholder="Название задачи">
+            </div>
+
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea
+                        name="description"
+                        rows="6"
+                        required
+                        placeholder="Описание задачи"></textarea>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Награда</label>
+                    <input
+                            type="number"
+                            name="reward"
+                            min="0"
+                            value="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Статус</label>
+                    <select name="status">
+                        <option value="draft">Черновик</option>
+                        <option value="active">Активна</option>
+                        <option value="completed">Завершена</option>
+                    </select>
+                </div>
+
+            </div>
+
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn">
+                    Создать задачу
+                </button>
+
+                <a href="/events" class="cancel-btn">
+                    Отмена
+                </a>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

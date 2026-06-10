@@ -1,0 +1,142 @@
+<%- include('../partials/header', { title: task.title }) %>
+
+<div class="container task-show-page">
+    <div class="task-view-box">
+
+        <!-- Шапка задачи с наградой -->
+        <div class="task-header-area">
+            <div class="task-title-section">
+                <div class="task-status-badge">
+                    <!-- Статус нужно брать из assignedTo или добавить поле status в Task -->
+                    ⏳ Ожидает
+                </div>
+                <h1 class="task-view-title"><%= task.title %></h1>
+            </div>
+            <div class="task-reward-container">
+                <span class="task-reward-amount"><%= task.reward %> ₽</span>
+                <span class="task-reward-label">награда</span>
+            </div>
+        </div>
+
+        <!-- Основной контент -->
+        <div class="task-view-content">
+
+            <!-- Описание задачи -->
+            <div class="task-description-block">
+                <h3>📋 Описание задачи</h3>
+                <p><%= task.description || 'Описание отсутствует' %></p>
+            </div>
+
+            <!-- Информационная сетка -->
+            <div class="task-info-grid">
+
+                <!-- Событие -->
+                <div class="task-info-card">
+                    <div class="task-info-icon">🎯</div>
+                    <div class="task-info-details">
+                        <span class="task-info-label">Событие</span>
+                        <% if (event) { %>
+                            <strong class="task-info-value">
+                                <a href="/events/<%= event._id %>" class="task-event-link">
+                                    <%= event.title %>
+                                </a>
+                            </strong>
+                        <% } else { %>
+                            <strong class="task-info-value">Не привязана</strong>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Дата создания -->
+                <div class="task-info-card">
+                    <div class="task-info-icon">📅</div>
+                    <div class="task-info-details">
+                        <span class="task-info-label">Создана</span>
+                        <strong class="task-info-value"><%= new Date(task.createdAt).toLocaleDateString('ru-RU') %></strong>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Список назначенных пользователей -->
+            <div class="task-assigned-users-block">
+                <h3>👥 Назначенные пользователи (<%= task.assignedTo ? task.assignedTo.length : 0 %>)</h3>
+
+                <% if (task.assignedTo && task.assignedTo.length > 0) { %>
+                    <div class="assigned-users-list">
+                        <% task.assignedTo.forEach(assigned => { %>
+                            <div class="assigned-user-card">
+                                <div class="user-info">
+                                    <p>Емаил: <%= assigned.user.email %></p>
+                                    <strong>Пользователь ID: <%= assigned.user.username %></strong>
+                                    <span class="user-status status-<%= assigned.status %>">
+                                        Статус:
+                                        <% if (assigned.status === 'pending') { %>⏳ Ожидает<% } %>
+                                        <% if (assigned.status === 'in_progress') { %>⚙️ В работе<% } %>
+                                        <% if (assigned.status === 'completed') { %>✅ Выполнено<% } %>
+                                        <% if (assigned.status === 'failed') { %>❌ Провалено<% } %>
+                                    </span>
+                                    <% if (assigned.completedAt) { %>
+                                        <span class="completed-date">Завершено: <%= new Date(assigned.completedAt).toLocaleDateString('ru-RU') %></span>
+                                    <% } %>
+                                    <% if (assigned.rewardGiven) { %>
+                                        <span class="reward-given">💰 Награда выдана</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } else { %>
+                    <p class="no-assigned">Нет назначенных пользователей</p>
+                <% } %>
+            </div>
+
+            <!-- Форма добавления пользователя -->
+            <div class="task-add-user-block">
+                <h3>➕ Добавить пользователя</h3>
+                <form action="/tasks/<%= task._id %>/add-user" method="POST">
+                    <input type="hidden" name="eventId" value="<%= task.eventId %>">
+                    <select name="userId" required class="task-select">
+                        <option value="">Выберите пользователя</option>
+                        <% if (users && Array.isArray(users)) { %>
+                            <% users.forEach(user => { %>
+                                <option value="<%= user._id %>">
+                                    <%= user.username || user.name || 'Без имени' %> - <%= user.email || 'нет email' %>
+                                </option>
+                            <% }) %>
+                        <% } else if (users && users.users && Array.isArray(users.users)) { %>
+                            <% users.users.forEach(user => { %>
+                                <option value="<%= user._id %>">
+                                    <%= user.username || user.name || 'Без имени' %> - <%= user.email || 'нет email' %>
+                                </option>
+                            <% }) %>
+                        <% } else { %>
+                            <option value="">Нет доступных пользователей</option>
+                        <% } %>
+                    </select>
+                    <button type="submit" class="task-btn-assign">Назначить</button>
+
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Действия с задачей -->
+        <div class="task-actions-panel">
+            <a href="/tasks/<%= task._id %>/edit" class="task-btn task-btn-edit">✏️ Редактировать</a>
+
+            <form action="/tasks/<%= task._id %>/delete" method="POST" class="task-inline-form">
+                <button type="submit" class="task-btn task-btn-danger" onclick="return confirm('Вы уверены, что хотите удалить задачу?')">🗑️ Удалить</button>
+            </form>
+
+            <% if (event) { %>
+                <a href="/events/<%= event._id %>" class="task-btn task-btn-back">← Назад к событию</a>
+            <% } else { %>
+                <a href="/tasks" class="task-btn task-btn-back">← Ко всем задачам</a>
+            <% } %>
+        </div>
+
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

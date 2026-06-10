@@ -1,6 +1,7 @@
 import { BaseController } from './base.controller.js';
 import {validationResult} from "express-validator";
 import EventService from "../services/event.service.js";
+import TaskService from "../services/task.service.js";
 import postService from "../services/post.service.js";
 import AnomaliesService from "../services/anomaly.service.js";
 
@@ -61,6 +62,8 @@ class EventController extends BaseController {
     async show(req, res) {
         console.log('[EVENT] Showing event');
         try{
+            const tasks = await TaskService.getTasksByEventId(req.params.id);
+            console.log(tasks);
             const event = await EventService.getEventById(req.params.id);
             console.log('[EVENT] Event found:', event);
             if (!event) {
@@ -68,7 +71,7 @@ class EventController extends BaseController {
                 return res.status(404).send('Event not found');
             }
 
-            return this.renderView(res, 'events/show', {event});
+            return this.renderView(res, 'events/show', {event, tasks});
 
 
         } catch (error){

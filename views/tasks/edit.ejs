@@ -1,0 +1,91 @@
+<%- include('../partials/header', { title: 'Редактирование задачи' }) %>
+
+<div class="event-form-page">
+    <div class="event-form-box">
+
+        <h1 class="event-form-title">
+            Редактирование задачи
+        </h1>
+
+        <p class="event-form-subtitle">
+            Измените параметры задачи
+        </p>
+
+        <form
+                action="/tasks/<%= task._id %>/edit"
+                method="POST"
+                class="event-form">
+
+            <div class="form-group">
+                <label>Название</label>
+                <input
+                        type="text"
+                        name="title"
+                        value="<%= task.title %>"
+                        required>
+            </div>
+
+            <div class="form-group">
+                <label>Описание</label>
+                <textarea
+                        name="description"
+                        rows="6"
+                        required><%= task.description %></textarea>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label>Награда</label>
+                    <input
+                            type="number"
+                            name="reward"
+                            value="<%= task.reward %>">
+                </div>
+
+                <div class="form-group">
+                    <label>Статус</label>
+
+                    <select name="status">
+
+                        <option
+                                value="draft"
+                                <%= task.status === 'draft' ? 'selected' : '' %>>
+                            Черновик
+                        </option>
+
+                        <option
+                                value="active"
+                                <%= task.status === 'active' ? 'selected' : '' %>>
+                            Активна
+                        </option>
+
+                        <option
+                                value="completed"
+                                <%= task.status === 'completed' ? 'selected' : '' %>>
+                            Завершена
+                        </option>
+
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="save-btn">
+                    Сохранить
+                </button>
+
+                <a href="/tasks/<%= task._id %>" class="cancel-btn">
+                    Отмена
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
