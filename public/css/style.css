@@ -2349,3 +2349,91 @@ li {
         width: auto;
     }
 }
+
+.status-update-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.status-select {
+    padding: 6px 12px;
+    background: #0b0f0c;
+    border: 1px solid #2dff7a;
+    border-radius: 6px;
+    color: #c7f9cc;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    outline: none;
+}
+
+.status-select:focus {
+    box-shadow: 0 0 8px rgba(45, 255, 122, 0.4);
+}
+
+.update-status-btn {
+    padding: 6px 15px;
+    background: rgba(45, 255, 122, 0.15);
+    border: 1px solid #2dff7a;
+    border-radius: 6px;
+    color: #2dff7a;
+    font-size: 12px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.update-status-btn:hover {
+    background: #2dff7a;
+    color: black;
+    box-shadow: 0 0 10px rgba(45, 255, 122, 0.3);
+}
+
+.assigned-user-card {
+    background: rgba(10, 20, 10, 0.6);
+    border: 1px solid rgba(45, 255, 122, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.user-info p,
+.user-info strong {
+    margin: 5px 0;
+}
+
+.user-status {
+    display: inline-block;
+    margin: 5px 0;
+}
+
+.completed-date,
+.reward-given {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.reward-given {
+    color: #2dff7a;
+}
+
+.status-pending { color: #ffa500; }
+.status-in_progress { color: #2dff7a; }
+.status-completed { color: #00cc66; }
+.status-failed { color: #ff5555; }
+
+@media (max-width: 600px) {
+    .status-update-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .update-status-btn {
+        width: 100%;
+    }
+}
