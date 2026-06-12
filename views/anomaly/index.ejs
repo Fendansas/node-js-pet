@@ -268,14 +268,14 @@
                             <div class="actions">
 
                                 <a
-                                        href="/anomaly/edit/<%= item._id %>"
+                                        href="/anomaly/<%= item._id %>/edit"
                                         class="btn"
                                 >
                                     Edit
                                 </a>
 
                                 <form
-                                        action="/anomaly/delete/<%= item._id %>"
+                                        action="/anomaly/<%= item._id %>/delete"
                                         method="POST"
                                         onsubmit="return confirm('Удалить аномалию?')"
                                 >

@@ -29,11 +29,48 @@ export const anomalyCreateValidator = [
     body('type')
         .trim()
         .notEmpty()
-        .withMessage('Type is required'),
+        .withMessage('Type is required')
+        .isIn(['R', 'A', 'M', 'B', 'C', 'H', 'F', 'Z'])
+        .withMessage('Type must be one of: R, A, M, B, C, H, F, Z'),
 
     body('value')
         .notEmpty()
         .withMessage('Value is required')
+        .isInt({ min: 0 })
+        .withMessage('Value must be a positive integer'),
+];
+
+export const anomalyUpdateValidator = [
+    body('name')
+        .optional({ checkFalsy: true })
+        .trim()
+        .isLength({ min: 3 })
+        .withMessage('Name must be at least 3 characters long'),
+
+    body('latitude')
+        .optional()
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Latitude must be a valid number between -90 and 90'),
+
+    body('longitude')
+        .optional()
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Longitude must be a valid number between -180 and 180'),
+
+    body('radius')
+        .optional()
+        .isInt({ min: 0 })
+        .withMessage('Radius must be a positive integer'),
+
+    body('type')
+        .trim()
+        .notEmpty()
+        .withMessage('Type is required')
+        .isIn(['R', 'A', 'M', 'B', 'C', 'H', 'F', 'Z'])
+        .withMessage('Type must be one of: R, A, M, B, C, H, F, Z'),
+
+    body('value')
+        .optional()
         .isInt({ min: 0 })
         .withMessage('Value must be a positive integer'),
 ];

@@ -1,7 +1,7 @@
 import express from "express";
 import anomalyController from "../controllers/anomaly.controller.js";
-import {anomalyCreateValidator} from "../validators/anomaly.validator.js";
-
+import {anomalyCreateValidator, anomalyUpdateValidator} from "../validators/anomaly.validator.js";
+import { validate } from "../middleware/validation.middleware.js";
 
 
 const router = express.Router();
@@ -16,21 +16,26 @@ router.get(
     (req, res) => anomalyController.createPage(req, res)
 );
 router.post('/create',
-    anomalyCreateValidator, (req, res) => anomalyController.create(req, res));
+    anomalyCreateValidator,
+    validate,
+    (req, res) => anomalyController.create(req, res));
+
+router.get("/:id", (req, res) => anomalyController.show(req, res));
 
 router.get(
-    '/edit/:id',
+    '/:id/edit',
     (req, res) => anomalyController.editPage(req, res)
 );
 
 router.post(
-    '/edit/:id',
-    anomalyCreateValidator,
+    '/:id/update',
+    anomalyUpdateValidator,
+    validate,
     (req, res) => anomalyController.update(req, res)
 );
 
 router.post(
-    '/delete/:id',
+    '/:id/delete',
     (req, res) => anomalyController.delete(req, res)
 );
 

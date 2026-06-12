@@ -2,7 +2,6 @@ import { BaseController } from './base.controller.js';
 import fs from 'fs';
 import path from 'path';
 import AnomaliesService from '../services/anomaly.service.js';
-import { validationResult } from 'express-validator';
 
 export class AnomalyController extends BaseController {
 
@@ -16,13 +15,14 @@ export class AnomalyController extends BaseController {
             return this.renderView(res, 'anomaly/index', { anomalies });
 
         } catch (error) {
+            console.error('[ANOMALY] Index error:', error);
             return this.handleError(res, error, 'Anomalies list error');
         }
     }
 
     async createPage(req, res) {
-
         console.log('[ANOMALY] Showing create page');
+
         try {
             const anomalies = await AnomaliesService.getAll();
             console.log('[ANOMALY] Found', anomalies.length, 'anomalies');
@@ -30,6 +30,7 @@ export class AnomalyController extends BaseController {
             return this.renderView(res, 'anomaly/create', {anomalies});
 
         } catch (error) {
+            console.error('[ANOMALY] Create page error:', error);
             return this.handleError(res, error, 'Anomalies list error');
         }
 
@@ -38,11 +39,6 @@ export class AnomalyController extends BaseController {
     async create(req, res) {
         console.log('[ANOMALY] Creating anomaly');
 
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return this.sendValidationError(res, errors, 'anomaly/create');
-        }
-
         try {
             const anomaly = await AnomaliesService.create(req.body);
             console.log('[ANOMALY] Anomaly created:', anomaly.name);
@@ -50,7 +46,34 @@ export class AnomalyController extends BaseController {
             return this.successRedirect(res, '/anomaly', 'Anomaly created');
 
         } catch (error) {
+            console.error('[ANOMALY] Create error:', error);
+            if (error.code === 'ANOMALY_ALREADY_EXISTS') {
+                return res.status(409).send('Anomaly with this name already exists');
+            }
             return this.handleError(res, error, 'Create anomaly error');
+        }
+    }
+
+    async show(req, res) {
+        console.log('[ANOMALY] Showing anomaly:', req.params.id);
+
+        try {
+            const anomaly = await AnomaliesService.getById(req.params.id);
+
+            if (!anomaly) {
+                console.log('[ANOMALY] Anomaly not found:', req.params.id);
+                return res.status(404).send('Anomaly not found');
+            }
+
+            return this.renderView(res, 'anomaly/show', { anomaly });
+        } catch (error) {
+            console.error('[ANOMALY] Show error:', error);
+
+            if (error.code === 'ANOMALY_NOT_FOUND') {
+                return res.status(404).send('Anomaly not found');
+            }
+
+            return this.handleError(res, error, 'Show anomaly error');
         }
     }
 
@@ -61,26 +84,25 @@ export class AnomalyController extends BaseController {
             const anomaly = await AnomaliesService.getById(req.params.id);
 
             if (!anomaly) {
+                console.log('[ANOMALY] Anomaly not found:', req.params.id);
                 return res.status(404).send('Anomaly not found');
             }
 
             return this.renderView(res, 'anomaly/edit', { anomaly });
 
         } catch (error) {
+            console.error('[ANOMALY] Edit page error:', error);
+
+            if (error.code === 'ANOMALY_NOT_FOUND') {
+                return res.status(404).send('Anomaly not found');
+            }
+
             return this.handleError(res, error, 'Edit anomaly error');
         }
     }
 
     async update(req, res) {
         console.log('[ANOMALY] Updating anomaly:', req.params.id);
-
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return this.sendValidationError(res, errors, 'anomaly/edit', {
-                anomaly: { _id: req.params.id, ...req.body }
-            });
-        }
 
         try {
             const updateData = {
@@ -94,11 +116,18 @@ export class AnomalyController extends BaseController {
             console.log('[ANOMALY] Update data:', updateData);
 
             await AnomaliesService.update(req.params.id, updateData);
+
             console.log('[ANOMALY] Anomaly updated successfully');
 
             return this.successRedirect(res, '/anomaly', 'Anomaly updated');
 
         } catch (error) {
+            console.error('[ANOMALY] Update error:', error);
+
+            if (error.code === 'ANOMALY_NOT_FOUND') {
+                return res.status(404).send('Anomaly not found');
+            }
+
             return this.handleError(res, error, 'Update anomaly error');
         }
     }
@@ -113,6 +142,12 @@ export class AnomalyController extends BaseController {
             return this.successRedirect(res, '/anomaly', 'Anomaly deleted');
 
         } catch (error) {
+            console.error('[ANOMALY] Delete error:', error);
+
+            if (error.code === 'ANOMALY_NOT_FOUND') {
+                return res.status(404).send('Anomaly not found');
+            }
+
             return this.handleError(res, error, 'Delete anomaly error');
         }
     }
