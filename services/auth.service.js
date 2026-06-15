@@ -12,27 +12,40 @@ export const registerUser = async ({
                                        rank
                                    }) => {
 
-    const exists = await User.findOne({ username });
+    const existsUsername = await User.findOne({ username });
 
-    if (exists) {
-        throw new Error('USER_ALREADY_EXISTS');
+    if (existsUsername) {
+        const error = new Error('USER_ALREADY_EXISTS')
+        error.code = 'USER_ALREADY_EXISTS'
+        throw error;
+    }
+
+    if (email){
+        const existsEmail = await User.findOne({email})
+        if (existsEmail) {
+            const error = new Error('EMAIL_ALREADY_EXISTS')
+            error.code = 'EMAIL_ALREADY_EXISTS'
+            throw error;
+        }
     }
 
     const userRole = await Role.findOne({ name: 'user' });
 
     if (!userRole) {
-        throw new Error('DEFAULT_ROLE_NOT_FOUND');
+        const error = new Error('DEFAULT_ROLE_NOT_FOUND')
+        error.code = 'DEFAULT_ROLE_NOT_FOUND';
+        throw error;
     }
 
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
         username,
-        email,
+        email: email || null,
         password: hashed,
-        bio,
-        avatar,
-        rank,
+        bio: bio || '',
+        avatar: avatar || null,
+        rank: rank || 'stalker',
         role: userRole._id
     });
 
@@ -50,13 +63,23 @@ export const loginUser = async ({ username, password }) => {
         });
 
     if (!user) {
-        throw new Error('INVALID_CREDS');
+        const error = new Error('INVALID_CREDS');
+        error.code = 'INVALID_CREDS';
+        throw error;
+    }
+
+    if (user.status !== 'active') {
+        const error = new Error('USER_BANNED');
+        error.code = 'USER_BANNED';
+        throw error;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new Error('INVALID_CREDS');
+        const error = new Error('INVALID_CREDS');
+        error.code = 'INVALID_CREDS';
+        throw error;
     }
 
     return user;

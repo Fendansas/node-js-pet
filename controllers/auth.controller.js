@@ -22,6 +22,10 @@ export class AuthController extends BaseController {
                 return res.status(500).send('Default role not found');
             }
 
+            if (err.message === 'EMAIL_ALREADY_EXISTS') {
+                return res.status(409).send('Email already exists');
+            }
+
             return this.handlerError(res, err, 'Register error');
         }
     }
@@ -31,14 +35,18 @@ export class AuthController extends BaseController {
 
         try {
             const user = await loginUser(req.body);
+
+            if(user.status !== 'active'){
+                return res.status(403).send('Account is banned');
+            }
             req.session.user = {
                 id: user._id,
                 username: user.username
             }
-            console.log('[AUTH] User logged in:', user.username);
-
             user.lastLogin = new Date();
             await user.save();
+
+            console.log('[AUTH] User logged in:', user.username);
 
             return this.successRedirect(res, '/', 'Login successful');
         } catch (err) {
@@ -53,14 +61,17 @@ export class AuthController extends BaseController {
 
     async logout(req, res) {
         console.log('[AUTH] Logout attempt');
-
-        req.session.destroy(() => {
-            console.log('[AUTH] Session destroyed');
-            return this.successRedirect(res, '/login', 'Logged out successfully');
-        });
+        return new Promise((resolve)=>{
+            req.session.destroy((err)=>{
+                if(err){
+                    console.error('[AUTH] Session destroy error:', err);
+                    return resolve(this.handleError(res, err, 'Logout error'));
+                }
+                console.log('[AUTH] Session destroyed')
+                return resolve(this.successRedirect(res, '/login', 'Logged out successfully'));
+            })
+        })
     }
 }
-
-
 
 export default new AuthController();
