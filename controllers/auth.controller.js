@@ -26,7 +26,7 @@ export class AuthController extends BaseController {
                 return res.status(409).send('Email already exists');
             }
 
-            return this.handlerError(res, err, 'Register error');
+            return this.handleError(res, err, 'Register error');
         }
     }
 
@@ -55,7 +55,7 @@ export class AuthController extends BaseController {
             if (err.message === 'INVALID_CREDS'){
                 return res.status(401).send('Invalid credentials');
             }
-            return this.handlerError(res, err, 'Login error');
+            return this.handleError(res, err, 'Login error');
         }
     }
 
