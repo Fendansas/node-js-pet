@@ -20,15 +20,19 @@ import fs from 'fs';
 export class UserController extends BaseController {
 
     async getProfile(req, res) {
-        console.log('[USER] Loading profile for:', this.getCurrentUser(req, res)?._id);
+        console.log('[USER] Loading profile for:', req.user?._id);
 
         try {
-            const user = await getProfileService(this.getCurrentUser(req, res)?._id);
-            console.log('[USER] Profile loaded successfully');
+            const user = await getProfileService(req.user?._id);
+            if (!user) {
+                console.log('[USER] User not found:', req.user._id);
+                return res.status(404).send('User not found');
+            }
 
             return this.renderView(res, 'profile', { user });
 
         } catch (error) {
+            console.error('[USER] Profile error:', error);
             return this.handleError(res, error, 'Profile error');
         }
     }
@@ -37,12 +41,17 @@ export class UserController extends BaseController {
         console.log('[USER] Loading edit profile page');
 
         try {
-            const user = await editProfileService(this.getCurrentUser(req, res)?._id);
+            const user = await editProfileService(req.user._id);
+            if (!user) {
+                console.log('[USER] User not found:', req.user._id);
+                return res.status(404).send('User not found');
+            }
             console.log('[USER] Edit profile page loaded');
 
             return this.renderView(res, 'edit-profile', { user });
 
         } catch (error) {
+            console.error('[USER] Edit profile page error:', error);
             return this.handleError(res, error, 'Edit profile error');
         }
     }
@@ -50,20 +59,16 @@ export class UserController extends BaseController {
     async updateProfile(req, res) {
         console.log('[USER] Updating profile');
 
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            console.log('[USER] Validation errors:', errors.array());
-
-            const user = await User.findById(this.getCurrentUser(req, res)?._id).populate('role');
-            return this.sendValidationError(res, errors, 'edit-profile', { user });
-        }
-
         try {
             const updatedUser = await updateUserProfileService(
-                this.getCurrentUser(req, res)?._id,
+                req.user._id,
                 req.body
             );
+
+            if (!updatedUser) {
+                console.log('[USER] User not found:', req.user._id);
+                return res.status(404).send('User not found');
+            }
 
             console.log('[USER] Profile updated successfully');
 
@@ -74,14 +79,13 @@ export class UserController extends BaseController {
             });
 
         } catch (error) {
-            console.log('[USER] Update profile error:', error.message);
+            console.error('[USER] Update profile error:', error);
 
-            const user = await User.findById(this.getCurrentUser(req, res)?._id).populate('role');
+            if (error.code === 'EMAIL_ALREADY_EXISTS') {
+                return res.status(409).send('Email already exists');
+            }
 
-            return this.renderView(res, 'edit-profile', {
-                user,
-                errors: [{ msg: 'Something went wrong' }]
-            });
+            return this.handleError(res, error, 'Update profile error');
         }
     }
 

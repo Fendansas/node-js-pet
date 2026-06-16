@@ -1,17 +1,24 @@
 import express from 'express';
 import { isAuth } from '../middleware/auth.middleware.js';
 import upload from '../middleware/upload.middleware.js';
-
+import { updateProfileValidator } from '../validators/user.validator.js';
+import { validate } from '../middleware/validation.middleware.js';
 import UserController from '../controllers/user.controller.js';
 const router = express.Router();
 
 router.get('/profile', (req, res) => UserController.getProfile(req, res));
 
 router.get('/edit-profile', (req, res) => UserController.editProfile(req, res));
-router.post('/edit-profile', (req, res) => UserController.updateProfile(req, res));
+router.post('/edit-profile',
+    isAuth,
+    updateProfileValidator,
+    validate,
+    (req, res) => UserController.updateProfile(req, res));
 
 
-router.post('/avatar', isAuth, upload.single('avatar'),
+router.post('/avatar',
+    isAuth,
+    upload.single('avatar'),
     (req, res) => UserController.uploadAvatar(req, res)
 );
 router.delete(

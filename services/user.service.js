@@ -2,6 +2,23 @@ import User from "../models/user.js";
 
 export const updateUserProfileService = async (userId, data)=>{
 
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+        const error = new Error('USER_NOT_FOUND');
+        error.code = 'USER_NOT_FOUND';
+        throw error;
+    }
+
+    if (data.email && data.email !== existingUser.email){
+        const existsEmail = await User.findOne({ email: data.email });
+        if (existsEmail) {
+            const error = new Error('EMAIL_ALREADY_EXISTS');
+            error.code = 'EMAIL_ALREADY_EXISTS';
+            throw error;
+        }
+    }
+
     const user = await User.findByIdAndUpdate (
         userId,
         {
@@ -23,6 +40,11 @@ export const updateUserProfileService = async (userId, data)=>{
 
 export const getProfileService = async (userId) => {
     const user = await User.findById(userId).populate('role').populate('inventory.product');
+    if (!user) {
+        const error = new Error('USER_NOT_FOUND');
+        error.code = 'USER_NOT_FOUND';
+        throw error;
+    }
     return user;
 }
 
@@ -34,5 +56,8 @@ export const getAllUsersService = async () => {
 
 export const editProfileService = async (userId) => {
     const user = await User.findById(userId).populate('role')
+    if (!user) {
+        return res.status(404).send('User not found');
+    }
     return user;
 }
