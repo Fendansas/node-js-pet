@@ -55,9 +55,11 @@ export const getAllUsersService = async () => {
 }
 
 export const editProfileService = async (userId) => {
-    const user = await User.findById(userId).populate('role')
+    const user = await User.findById(userId).populate('role');
     if (!user) {
-        return res.status(404).send('User not found');
+        const error = new Error('USER_NOT_FOUND');
+        error.code = 'USER_NOT_FOUND';
+        throw error;
     }
     return user;
 }

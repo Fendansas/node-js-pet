@@ -1,20 +1,48 @@
 export class BaseController {
-    handleError(res, error, castomMessage = 'Server error'){
-        console.log('=== ERROR ===');
-        console.log('Error message:', error.message);
-        console.log('Error stack', error.stack);
-        console.log('=== END ERROR ===');
+    handleError(res, error, castomMessage = 'Server error') {
+        console.error('=== ERROR ===');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('=== END ERROR ===');
+
+        // Определяем код ошибки
+        const errorCode = error.code || 'UNKNOWN';
+        let statusCode = 500;
+
+        // Маппинг кодов ошибок на статусы HTTP
+        switch (errorCode) {
+            case 'USER_NOT_FOUND':
+            case 'PRODUCT_NOT_FOUND':
+            case 'ANOMALY_NOT_FOUND':
+            case 'EVENT_NOT_FOUND':
+            case 'POST_NOT_FOUND':
+            case 'TASK_NOT_FOUND':
+                statusCode = 404;
+                break;
+            case 'EMAIL_ALREADY_EXISTS':
+            case 'USER_ALREADY_ASSIGNED':
+            case 'INSUFFICIENT_FUNDS':
+            case 'EVENT_ID_REQUIRED':
+            case 'ASSIGNMENT_NOT_FOUND':
+                statusCode = 400;
+                break;
+            case 'USER_BANNED':
+                statusCode = 403;
+                break;
+            default:
+                statusCode = 500;
+        }
 
         const message = error.message || castomMessage;
-        res.status(500).send(message);
+        return res.status(statusCode).send(message);
     }
 
     sendValidationError(res, errors, renderView = null, viewData = {}) {
-        console.log('=== VALIDATION ERROR ===');
-        console.log('Errors:', JSON.stringify(errors.array(), null, 2));
-        console.log('=== END VALIDATION ERROR ===');
+        console.error('=== VALIDATION ERROR ===');
+        console.error('Errors:', JSON.stringify(errors.array(), null, 2));
+        console.error('=== END VALIDATION ERROR ===');
 
-        if (renderView){
+        if (renderView) {
             return res.status(400).render(renderView, {
                 ...viewData,
                 errors: errors.array(),
@@ -28,16 +56,22 @@ export class BaseController {
     }
 
     getCurrentUser(req, res) {
-        return res.locals.user;
+        return req.user || res.locals.user;
     }
 
     successRedirect(res, url, message) {
-        console.log(`[SUCCESS] Redirecting to ${url} with message: ${message}`)
-        res.status(200).redirect(url);
+        console.log(`[SUCCESS] Redirecting to ${url} with message: ${message}`);
+        
+        // Если поддерживается flash-сообщения
+        if (req.session) {
+            req.session.successMessage = message;
+        }
+        
+        return res.status(200).redirect(url);
     }
 
     renderView(res, view, data = {}) {
         console.log(`[RENDER] View: ${view}`);
-        res.render(view, data);
+        return res.render(view, data);
     }
 }
