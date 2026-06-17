@@ -1,128 +1,118 @@
 import { BaseController } from './base.controller.js';
-import User from "../models/user.js";
-import postService from "../services/post.service.js";
-import {validationResult} from "express-validator";
-import Post from "../models/post.js";
-import productService from "../services/product.service.js";
+import PostService from '../services/post.service.js';
 
 class PostController extends BaseController {
+
     async index(req, res) {
+        console.log('[POST] Listing posts');
 
         try {
-            console.log('[POST] Listing products');
+            const posts = await PostService.getAll();
+            console.log('[POST] Found', posts.length, 'posts');
 
-            const categoryFilter = req.query.category;
-            let filter = {};
-            if (categoryFilter && categoryFilter !== 'all') {
-                filter.category = categoryFilter;
-            }
-            const posts = await postService.getAll(filter);
-            const categories = await postService.getCategories();
-            const selectedCategory = categoryFilter || 'all';
-
-            return this.renderView(res, 'posts/index', {
-                posts,
-                categories,
-                selectedCategory
-            });
-
+            return this.renderView(res, 'posts/index', { posts });
         } catch (error) {
-            return this.handleError(res, error, 'Server Error');
+            console.error('[POST] Index error:', error);
+            return this.handleError(res, error, 'Posts list error');
         }
-
     }
 
     async createPage(req, res) {
         console.log('[POST] Showing create page');
-
-        const statuses = await postService.getStatuses();
-        const categories = await postService.getCategories();
-        console.log(statuses, categories)
-        return this.renderView(res, 'posts/create',{statuses, categories});
+        return this.renderView(res, 'posts/create');
     }
 
     async create(req, res) {
-        console.log('[POST] Creating new product');
-
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return this.sendValidationError(res, errors, 'products/create');
-        }
+        console.log('[POST] Creating new post');
 
         try {
             const { title, content, category, status } = req.body;
 
-            console.log('[PRODUCT] Product data:', { title, content, category, status });
+            const author = req.user ? req.user._id : null;
 
-            await postService.create({
+            await PostService.create({
                 title,
                 content,
                 category,
                 status,
-                author: req.user._id
+                author
             });
 
-            console.log('[PRODUCT] Product created successfully');
+            console.log('[POST] Post created successfully');
             return this.successRedirect(res, '/posts', 'Post created');
-
         } catch (error) {
-            return this.handleError(res, error, 'Server Error');
+            console.error('[POST] Create error:', error);
+            return this.handleError(res, error, 'Create post error');
         }
     }
-    async show(req, res) {
 
-        console.log('[POST] Showing product:', req.params.id);
+    async show(req, res) {
+        console.log('[POST] Showing post:', req.params.id);
 
         try {
-            const post = await postService.getById(req.params.id);
+            const post = await PostService.getById(req.params.id);
 
             if (!post) {
-                console.log('[PRODUCT] Product not found:', req.params.id);
-                return res.status(404).send('Product not found');
+                console.log('[POST] Post not found:', req.params.id);
+                return res.status(404).send('Post not found');
             }
 
             return this.renderView(res, 'posts/show', { post });
-
         } catch (error) {
-            return this.handleError(res, error, 'Server Error');
+            console.error('[POST] Show error:', error);
+            return this.handleError(res, error, 'Show post error');
         }
     }
 
-    async editPage (req, res){
+    async editPage(req, res) {
+        console.log('[POST] Editing post:', req.params.id);
 
-        console.log('[POST] Showing edit page:', req.params.id);
+        try {
+            const post = await PostService.getById(req.params.id);
 
-        return this.renderView(res, 'posts/edit', {
-            post: await postService.getById(req.params.id),
-            statuses: await postService.getStatuses(),
-            categories: await postService.getCategories()
-        });
-    }
-    async edit(req, res){
-        console.log('[POST] Edit new product');
+            if (!post) {
+                console.log('[POST] Post not found:', req.params.id);
+                return res.status(404).send('Post not found');
+            }
 
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-            return this.sendValidationError(res, errors, 'products');
+            return this.renderView(res, 'posts/edit', { post });
+        } catch (error) {
+            console.error('[POST] Edit page error:', error);
+            return this.handleError(res, error, 'Edit post error');
         }
+    }
+
+    async update(req, res) {
+        console.log('[POST] Updating post:', req.params.id);
 
         try {
             const { title, content, category, status } = req.body;
 
-            console.log('[PRODUCT] Product data:', { title, content, category, status });
-            await postService.update(req.params.id,{
+            await PostService.update(req.params.id, {
                 title,
                 content,
                 category,
-                status,
-                author: req.user._id
+                status
             });
 
-            console.log('[PRODUCT] Product created successfully');
+            console.log('[POST] Post updated successfully');
             return this.successRedirect(res, '/posts', 'Post updated');
         } catch (error) {
-            return this.handleError(res, error, 'Server Error');
+            console.error('[POST] Update error:', error);
+            return this.handleError(res, error, 'Update post error');
+        }
+    }
+
+    async delete(req, res) {
+        console.log('[POST] Deleting post:', req.params.id);
+
+        try {
+            await PostService.delete(req.params.id);
+            console.log('[POST] Post deleted successfully');
+            return this.successRedirect(res, '/posts', 'Post deleted');
+        } catch (error) {
+            console.error('[POST] Delete error:', error);
+            return this.handleError(res, error, 'Delete post error');
         }
     }
 }

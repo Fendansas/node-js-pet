@@ -1,45 +1,41 @@
 import { BaseController } from './base.controller.js';
-import {validationResult} from "express-validator";
 import TaskService from '../services/task.service.js';
 import EventService from '../services/event.service.js';
-import {getAllUsersService} from '../services/user.service.js';
-import {Task} from "../models/Task.js";
-// import {validationResult} from "express-validator";
-
+import { getAllUsersService } from '../services/user.service.js';
+import { Task } from "../models/Task.js";
 
 class TaskController extends BaseController {
 
     async createPage(req, res) {
         console.log('[TASK] Showing create page');
-        const {eventId} = req.query;
-        return this.renderView(res, 'tasks/create', {eventId});
+        const { eventId } = req.query;
+        return this.renderView(res, 'tasks/create', { eventId });
     }
 
     async create(req, res) {
         console.log('[TASK] Creating new task');
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            const eventId = req.body.eventId;
-            return this.renderView(res, `tasks/create/?eventId=${eventId}`, {errors});
-        }
 
         try {
-            const {eventId, title, description, reward, status} = req.body;
+            const { eventId, title, description, reward, status } = req.body;
             console.log('[TASK] Task data:', { eventId, title, description, reward, status });
 
-            const task = await TaskService.createTask({eventId, title, description, reward, status});
+            const task = await TaskService.createTask({ eventId, title, description, reward, status });
             console.log('[TASK] Task created successfully:', task._id);
 
             return res.redirect(`/tasks/${task._id}/show`);
-
-        } catch (error){
+        } catch (error) {
             console.error('[TASK] Create error:', error);
-            return this.renderView(res, 'tasks/create', {errors: [error.message]});
+
+            if (error.code === 'EVENT_ID_REQUIRED') {
+                return res.status(400).send('Event ID is required');
+            }
+
+            return this.renderView(res, 'tasks/create', { errors: [error.message] });
         }
     }
 
     async showPage(req, res) {
-        console.log('[TASK] Showing show page');
+        console.log('[TASK] Showing task:', req.params.id);
 
         try {
             const task = await TaskService.getTaskById(req.params.id);
@@ -60,30 +56,36 @@ class TaskController extends BaseController {
 
             const users = await getAllUsersService();
 
-            return this.renderView(res, 'tasks/show', {task, event, users});
+            return this.renderView(res, 'tasks/show', { task, event, users });
         } catch (error) {
             console.error('[TASK] Show page error:', error);
-
-            if (error.message.includes('not found') || error.name === 'CastError') {
-                return res.status(404).send('Task not found');
-            }
-
-            return res.status(500).send('Server error while loading task');
+            return this.handleError(res, error, 'Show task error');
         }
     }
 
-    async addUser(req,res){
-        console.log('[TASK] Add user to task');
+    async addUser(req, res) {
+        console.log('[TASK] Adding user to task');
+
         try {
-            console.log('user',req.body.userId )
-            console.log('task',req.body.taskId )
-            const userId = req.body.userId
-            await TaskService.addUserToTask(req.body.taskId, req.body.userId);
-            return res.redirect(`/tasks/${req.body.taskId}/show`);
+            const { taskId, userId } = req.body;
+            console.log('[TASK] User:', userId, 'Task:', taskId);
 
+            await TaskService.addUserToTask(taskId, userId);
+            console.log('[TASK] User added to task successfully');
+
+            return res.redirect(`/tasks/${taskId}/show`);
         } catch (error) {
-            console.error('[TASK] Error adding user:', error);
+            console.error('[TASK] Add user error:', error);
 
+            if (error.code === 'TASK_NOT_FOUND') {
+                return res.status(404).send('Task not found');
+            }
+
+            if (error.code === 'USER_ALREADY_ASSIGNED') {
+                return res.status(400).send('User already assigned to this task');
+            }
+
+            return this.handleError(res, error, 'Add user error');
         }
     }
 
@@ -124,7 +126,6 @@ class TaskController extends BaseController {
                 updateData['assignedTo.$.completedAt'] = new Date();
             }
 
-            // Добавляем условие поиска элемента массива через assignmentId
             const updatedTask = await Task.findOneAndUpdate(
                 {
                     _id: taskId,
@@ -152,7 +153,6 @@ class TaskController extends BaseController {
 
             console.log('[TASK] Status updated successfully');
             return res.redirect(`/tasks/${taskId}/show`);
-
         } catch (error) {
             console.error('[TASK] Update status error:', error);
             return res.status(500).json({ error: error.message });
@@ -160,15 +160,20 @@ class TaskController extends BaseController {
     }
 
     async editPage(req, res) {
-        console.log('[TASK] Showing edit page');
+        console.log('[TASK] Editing task:', req.params.id);
 
         try {
             const task = await TaskService.getTaskById(req.params.id);
 
+            if (!task) {
+                console.log('[TASK] Task not found:', req.params.id);
+                return res.status(404).send('Task not found');
+            }
+
             return this.renderView(res, 'tasks/edit', { task });
         } catch (error) {
             console.error('[TASK] Edit page error:', error);
-            return this.handleError(res, error, 'Edit page error');
+            return this.handleError(res, error, 'Edit task error');
         }
     }
 }

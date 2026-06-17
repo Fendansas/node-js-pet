@@ -1,6 +1,4 @@
-import {Task} from "../models/Task.js";
-
-
+import { Task } from "../models/Task.js";
 
 class TaskService {
 
@@ -10,7 +8,9 @@ class TaskService {
         console.log('[TaskService] Creating task with eventId:', eventId);
 
         if (!eventId) {
-            throw new Error('Event ID is required');
+            const error = new Error('EVENT_ID_REQUIRED');
+            error.code = 'EVENT_ID_REQUIRED';
+            throw error;
         }
 
         return await Task.create({
@@ -32,16 +32,22 @@ class TaskService {
     async addUserToTask(taskId, userId) {
         const task = await Task.findById(taskId);
 
-        console.log('111111111111111',userId)
+        console.log('[TaskService] Adding user:', userId, 'to task:', taskId);
+
         if (!task) {
-            throw new Error('Task not found');
+            const error = new Error('TASK_NOT_FOUND');
+            error.code = 'TASK_NOT_FOUND';
+            throw error;
         }
 
         const alreadyAssigned = task.assignedTo.some(
             assigned => assigned.user.toString() === userId
         );
+
         if (alreadyAssigned) {
-            throw new Error('User already assigned to this task');
+            const error = new Error('USER_ALREADY_ASSIGNED');
+            error.code = 'USER_ALREADY_ASSIGNED';
+            throw error;
         }
 
         return await Task.findByIdAndUpdate(
@@ -56,7 +62,7 @@ class TaskService {
                     }
                 }
             },
-            { new: true } // Возвращаем обновленный документ
+            { new: true }
         );
     }
 
@@ -64,13 +70,15 @@ class TaskService {
         return await Task.find({ eventId });
     }
 
-    async getAssignmentById(assignmentId){
+    async getAssignmentById(assignmentId) {
         const task = await Task.findOne({
             'assignedTo._id': assignmentId
         }).populate('assignedTo.user', 'username email');
 
         if (!task) {
-            throw new Error('Assignment not found');
+            const error = new Error('ASSIGNMENT_NOT_FOUND');
+            error.code = 'ASSIGNMENT_NOT_FOUND';
+            throw error;
         }
 
         const assignment = task.assignedTo.find(
@@ -78,12 +86,12 @@ class TaskService {
         );
 
         if (!assignment) {
-            throw new Error('Assignment not found');
+            const error = new Error('ASSIGNMENT_NOT_FOUND');
+            error.code = 'ASSIGNMENT_NOT_FOUND';
+            throw error;
         }
-        return {
-            task,
-            assignment
-        };
+
+        return { task, assignment };
     }
 }
 
