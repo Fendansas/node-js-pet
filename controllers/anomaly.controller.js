@@ -43,7 +43,7 @@ export class AnomalyController extends BaseController {
             const anomaly = await AnomaliesService.create(req.body);
             console.log('[ANOMALY] Anomaly created:', anomaly.name);
 
-            return this.successRedirect(res, '/anomaly', 'Anomaly created');
+            return this.successRedirect(req, res, '/anomaly', 'Anomaly created');
 
         } catch (error) {
             console.error('[ANOMALY] Create error:', error);
@@ -119,7 +119,7 @@ export class AnomalyController extends BaseController {
 
             console.log('[ANOMALY] Anomaly updated successfully');
 
-            return this.successRedirect(res, '/anomaly', 'Anomaly updated');
+            return this.successRedirect(req, res, '/anomaly', 'Anomaly updated');
 
         } catch (error) {
             console.error('[ANOMALY] Update error:', error);
@@ -139,7 +139,7 @@ export class AnomalyController extends BaseController {
             await AnomaliesService.delete(req.params.id);
             console.log('[ANOMALY] Anomaly deleted successfully');
 
-            return this.successRedirect(res, '/anomaly', 'Anomaly deleted');
+            return this.successRedirect(req, res, '/anomaly', 'Anomaly deleted');
 
         } catch (error) {
             console.error('[ANOMALY] Delete error:', error);

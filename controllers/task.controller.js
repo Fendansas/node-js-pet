@@ -3,6 +3,7 @@ import TaskService from '../services/task.service.js';
 import EventService from '../services/event.service.js';
 import { getAllUsersService } from '../services/user.service.js';
 import { Task } from "../models/Task.js";
+import User from '../models/user.js'; 
 
 class TaskController extends BaseController {
 
@@ -138,6 +139,15 @@ class TaskController extends BaseController {
             ).populate('assignedTo.user', 'username email');
 
             if (status === 'completed' && !assignment.rewardGiven) {
+
+                const user = await User.findById(userId);
+
+                if (user) {
+                    user.money += updatedTask.reward;
+                    await user.save();
+
+
+                }
                 await Task.findOneAndUpdate(
                     {
                         _id: taskId,

@@ -59,7 +59,7 @@ export class BaseController {
         return req.user || res.locals.user;
     }
 
-    successRedirect(res, url, message) {
+    successRedirect(req, res, url, message) {
         console.log(`[SUCCESS] Redirecting to ${url} with message: ${message}`);
         
         // Если поддерживается flash-сообщения

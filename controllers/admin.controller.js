@@ -27,7 +27,7 @@ export class AdminController extends BaseController {
             await RbacService.createPermission(name.trim(), description?.trim());
             console.log('[ADMIN] Permission created');
 
-            return this.successRedirect(res, '/admin/rbac', 'Permission created');
+            return this.successRedirect(req, res, '/admin/rbac', 'Permission created');
         } catch (error) {
             console.error('[ADMIN] Create permission error:', error);
 
@@ -49,7 +49,7 @@ export class AdminController extends BaseController {
             await RbacService.createRole(name.trim());
             console.log('[ADMIN] Role created:', name);
 
-            return this.successRedirect(res, '/admin/rbac', 'Role created');
+            return this.successRedirect(req, res, '/admin/rbac', 'Role created');
         } catch (error) {
             console.error('[ADMIN] Create role error:', error);
 
@@ -71,7 +71,7 @@ export class AdminController extends BaseController {
             await RbacService.addPermissionToRole(roleId, permissionId);
             console.log('[ADMIN] Permission assigned to role');
 
-            return this.successRedirect(res, '/admin/rbac', 'Permission assigned');
+            return this.successRedirect(req, res, '/admin/rbac', 'Permission assigned');
         } catch (error) {
             console.error('[ADMIN] Assign permission error:', error);
             return this.handleError(res, error, 'Assign permission error');
@@ -88,7 +88,7 @@ export class AdminController extends BaseController {
             await RbacService.removePermissionFromRole(roleId, permissionId);
             console.log('[ADMIN] Permission unassigned from role');
 
-            return this.successRedirect(res, '/admin/rbac', 'Permission unassigned');
+            return this.successRedirect(req, res, '/admin/rbac', 'Permission unassigned');
         } catch (error) {
             console.error('[ADMIN] Unassign permission error:', error);
             return this.handleError(res, error, 'Unassign permission error');

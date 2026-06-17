@@ -39,7 +39,7 @@ class PostController extends BaseController {
             });
 
             console.log('[POST] Post created successfully');
-            return this.successRedirect(res, '/posts', 'Post created');
+            return this.successRedirect(req, res, '/posts', 'Post created');
         } catch (error) {
             console.error('[POST] Create error:', error);
             return this.handleError(res, error, 'Create post error');
@@ -96,7 +96,7 @@ class PostController extends BaseController {
             });
 
             console.log('[POST] Post updated successfully');
-            return this.successRedirect(res, '/posts', 'Post updated');
+            return this.successRedirect(req, res, '/posts', 'Post updated');
         } catch (error) {
             console.error('[POST] Update error:', error);
             return this.handleError(res, error, 'Update post error');
@@ -109,7 +109,7 @@ class PostController extends BaseController {
         try {
             await PostService.delete(req.params.id);
             console.log('[POST] Post deleted successfully');
-            return this.successRedirect(res, '/posts', 'Post deleted');
+            return this.successRedirect(req, res, '/posts', 'Post deleted');
         } catch (error) {
             console.error('[POST] Delete error:', error);
             return this.handleError(res, error, 'Delete post error');

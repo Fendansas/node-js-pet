@@ -9,7 +9,7 @@ export class AuthController extends BaseController {
             await registerUser(req.body);
             console.log('[AUTH] User registered successfully');
 
-            return this.successRedirect(res, '/login', 'Registration successful');
+            return this.successRedirect(req, res, '/login', 'Registration successful');
 
         } catch (err) {
 
@@ -36,9 +36,6 @@ export class AuthController extends BaseController {
         try {
             const user = await loginUser(req.body);
 
-            if(user.status !== 'active'){
-                return res.status(403).send('Account is banned');
-            }
             req.session.user = {
                 id: user._id,
                 username: user.username
@@ -48,13 +45,18 @@ export class AuthController extends BaseController {
 
             console.log('[AUTH] User logged in:', user.username);
 
-            return this.successRedirect(res, '/', 'Login successful');
+            return this.successRedirect(req, res, '/', 'Login successful');
         } catch (err) {
             console.log('[AUTH] Login error:', err.message);
 
             if (err.message === 'INVALID_CREDS'){
                 return res.status(401).send('Invalid credentials');
             }
+
+            if (err.message === 'USER_BANNED'){
+                return res.status(403).send('Account is banned');
+            }
+
             return this.handleError(res, err, 'Login error');
         }
     }
@@ -68,7 +70,7 @@ export class AuthController extends BaseController {
                     return resolve(this.handleError(res, err, 'Logout error'));
                 }
                 console.log('[AUTH] Session destroyed')
-                return resolve(this.successRedirect(res, '/login', 'Logged out successfully'));
+                return resolve(this.successRedirect(req, res, '/login', 'Logged out successfully'));
             })
         })
     }

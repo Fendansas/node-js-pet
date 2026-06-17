@@ -45,7 +45,7 @@ class EventController extends BaseController {
             });
 
             console.log('[EVENT] Event created successfully');
-            return this.successRedirect(res, '/events', 'Event created');
+            return this.successRedirect(req, res, '/events', 'Event created');
 
         } catch (error) {
             console.error('[EVENT] Create error:', error);
@@ -109,7 +109,7 @@ class EventController extends BaseController {
             });
 
             console.log('[EVENT] Event updated successfully');
-            return this.successRedirect(res, '/events', 'Event updated');
+            return this.successRedirect(req, res, '/events', 'Event updated');
 
         } catch (error) {
             console.error('[EVENT] Update error:', error);
@@ -122,7 +122,7 @@ class EventController extends BaseController {
         try {
             await EventService.delete(req.params.id);
             console.log('[EVENTS] Event deleted successfully');
-            return this.successRedirect(res, '/events', 'Event deleted');
+            return this.successRedirect(req, res, '/events', 'Event deleted');
 
         } catch (error){
             console.error('[EVENTS] Delete error:', error);

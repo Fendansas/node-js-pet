@@ -65,7 +65,7 @@ class ProductController extends BaseController {
             });
 
             console.log('[PRODUCT] Product created successfully');
-            return this.successRedirect(res, '/products', 'Product created');
+            return this.successRedirect(req, res, '/products', 'Product created');
 
         } catch (error) {
             console.error('[PRODUCT] Create error:', error);
@@ -126,7 +126,7 @@ class ProductController extends BaseController {
             await productService.update(req.params.id, updateData);
             console.log('[PRODUCT] Product updated successfully');
 
-            return this.successRedirect(res, '/products', 'Product updated');
+            return this.successRedirect(req, res, '/products', 'Product updated');
 
         } catch (error) {
             console.error('[PRODUCT] Update error:', error);
@@ -140,7 +140,7 @@ class ProductController extends BaseController {
         try {
             await productService.delete(req.params.id);
             console.log('[PRODUCT] Product deleted successfully');
-            return this.successRedirect(res, '/products', 'Product deleted');
+            return this.successRedirect(req, res, '/products', 'Product deleted');
 
         } catch (error) {
             console.error('[PRODUCT] Delete error:', error);
@@ -160,7 +160,7 @@ class ProductController extends BaseController {
             const result = await productService.buyProduct(userId, productId);
             console.log('[PRODUCT] Product purchased successfully');
 
-            return this.successRedirect(res, '/products', 'Product purchased');
+            return this.successRedirect(req, res, '/products', 'Product purchased');
 
         } catch (error) {
             console.log('[PRODUCT] Buy error:', error.message);

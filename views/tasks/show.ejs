@@ -147,6 +147,7 @@
                                     <h3>➕ Добавить пользователя</h3>
                                     <form action="/tasks/<%= task._id %>/add-user" method="POST">
                                         <input type="hidden" name="eventId" value="<%= task.eventId %>">
+                                        <input type="hidden" name="taskId" value="<%= task._id %>">
                                         <select name="userId" required class="task-select">
                                             <option value="">Выберите пользователя</option>
                                             <% if (users && Array.isArray(users)) { %>
