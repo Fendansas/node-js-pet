@@ -1,198 +1,188 @@
 <%- include('../partials/header', { title: 'Создание GPS точки' }) %>
-<link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet/dist/leaflet.css"
-/>
-<script>
-    const anomalies = <%- JSON.stringify(anomalies || []) %>;
-</script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script>
+        const anomalies = <% - JSON.stringify(anomalies || []) %>;
+        // Получаем пометки из URL параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        const savedScreenshot = urlParams.get('screenshot');
+        let savedMarkers = [];
+        const markersParam = urlParams.get('markers');
+        if (markersParam) {
+            try {
+                savedMarkers = JSON.parse(markersParam);
+            } catch (e) {
+                console.error('Failed to parse markers:', e);
+            }
+        }
+        const savedCoords = {
+            lat: urlParams.get('latitude') || null,
+            lng: urlParams.get('longitude') || null,
+            radius: urlParams.get('radius') || null,
+            screenshot: savedScreenshot || null
+        };
+    </script>
 
-<style>
+    <style>
+        .wrapper {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+        }
 
-    .wrapper{
-        display: grid;
-        grid-template-columns: 400px 1fr;
-        gap: 20px;
-    }
+        .form-block {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+        }
 
-    .form-block{
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-    }
+        #map {
+            width: 100%;
+            height: 700px;
+            border-radius: 10px;
+        }
 
-    #map{
-        width: 100%;
-        height: 700px;
-        border-radius: 10px;
-    }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
 
-    .form-group{
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 15px;
-    }
-
-    input,
-    select,
-    button{
-        padding: 10px;
-    }
-
-</style>
+        input,
+        select,
+        button {
+            padding: 10px;
+        }
+    </style>
 
 
-<div class="container">
+    <div class="container">
 
-    <h1>Создание GPS точки</h1>
+        <h1>Создание GPS точки</h1>
 
-    <div class="wrapper">
+        <div class="wrapper">
 
-        <div class="form-block">
+            <div class="form-block">
 
-            <form action="/anomaly/create" method="POST">
+                <form action="/anomaly/create" method="POST">
 
-                <div class="form-group">
-                    <label>Название</label>
-                    <input
-                            type="text"
-                            name="name"
-                            required
-                            placeholder="Введите название"
-                    />
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" name="name" required placeholder="Введите название" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Latitude</label>
+                        <input type="text" id="latitude" name="latitude" required readonly />
+                        <input type="hidden" name="screenshot" value="<%= req.query.screenshot || '' %>">
+                        <input type="hidden" name="markers" value="<%= req.query.markers || '' %>">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Longitude</label>
+                        <input type="text" id="longitude" name="longitude" required readonly />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Radius</label>
+                        <input type="number" name="radius" required placeholder="Например 100" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Type</label>
+
+                        <select name="type" required>
+                            <option value="">Выберите тип</option>
+                            <option value="R">R=Radiation</option>
+                            <option value="A">A=Anomal</option>
+                            <option value="M">M=Mental</option>
+                            <option value="B">B=Burer</option>
+                            <option value="C">C=Controller</option>
+                            <option value="H">H=Health</option>
+                            <option value="F">F=Artifact</option>
+                            <option value="Z">Z=Monolith</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Value</label>
+                        <input type="number" name="value" required placeholder="Введите значение" />
+                    </div>
+
+                    <button type="submit">
+                        Создать точку
+                    </button>
+
+                </form>
+
+                <div class="coords-info">
+                    Нажмите на карту чтобы выбрать координаты
                 </div>
 
-                <div class="form-group">
-                    <label>Latitude</label>
-                    <input
-                            type="text"
-                            id="latitude"
-                            name="latitude"
-                            required
-                            readonly
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label>Longitude</label>
-                    <input
-                            type="text"
-                            id="longitude"
-                            name="longitude"
-                            required
-                            readonly
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label>Radius</label>
-                    <input
-                            type="number"
-                            name="radius"
-                            required
-                            placeholder="Например 100"
-                    />
-                </div>
-
-                <div class="form-group">
-                    <label>Type</label>
-
-                    <select name="type" required>
-                        <option value="">Выберите тип</option>
-                        <option value="R">R=Radiation</option>
-                        <option value="A">A=Anomal</option>
-                        <option value="M">M=Mental</option>
-                        <option value="B">B=Burer</option>
-                        <option value="C">C=Controller</option>
-                        <option value="H">H=Health</option>
-                        <option value="F">F=Artifact</option>
-                        <option value="Z">Z=Monolith</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Value</label>
-                    <input
-                            type="number"
-                            name="value"
-                            required
-                            placeholder="Введите значение"
-                    />
-                </div>
-
-                <button type="submit">
-                    Создать точку
-                </button>
-
-            </form>
-
-            <div class="coords-info">
-                Нажмите на карту чтобы выбрать координаты
             </div>
+
+            <div id="map"></div>
 
         </div>
 
-        <div id="map"></div>
-
     </div>
 
-</div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
 
-<script>
+        const colors = {
+            R: '#ff3b3b',
+            A: '#9b5cff',
+            M: '#00b7ff',
+            B: '#ff8c42',
+            C: '#00ffd5',
+            H: '#ff5ca8',
+            F: '#ffd000',
+            Z: '#ffffff'
+        };
 
-    const colors = {
-        R: '#ff3b3b',
-        A: '#9b5cff',
-        M: '#00b7ff',
-        B: '#ff8c42',
-        C: '#00ffd5',
-        H: '#ff5ca8',
-        F: '#ffd000',
-        Z: '#ffffff'
-    };
+        // Создаем карту
+        const map = L.map('map').setView(
+            savedCoords.lat && savedCoords.lng
+                ? [parseFloat(savedCoords.lat), parseFloat(savedCoords.lng)]
+                : [53.668850, 23.840332],
+            14
+        );
 
-    // Создаем карту
-    const map = L.map('map').setView(
-        [53.668850, 23.840332],
-        12
-    );
-
-    // Подключаем OpenStreetMap
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            attribution: '&copy; OpenStreetMap contributors'
-        }
-    ).addTo(map);
-
-    // Показываем существующие аномалии
-    anomalies.forEach(item => {
-
-        const color = colors[item.type] || '#2dff7a';
-
-        const marker = L.circleMarker(
-            [item.latitude, item.longitude],
+        // Подключаем OpenStreetMap
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             {
-                radius: 8,
-                color: color,
-                fillColor: color,
-                fillOpacity: 1
+                attribution: '&copy; OpenStreetMap contributors'
             }
         ).addTo(map);
 
-        const circle = L.circle(
-            [item.latitude, item.longitude],
-            {
-                radius: Number(item.radius),
-                color: color,
-                fillColor: color,
-                fillOpacity: 0.15
-            }
-        ).addTo(map);
+        // Показываем существующие аномалии
+        anomalies.forEach(item => {
 
-        const popup = `
+            const color = colors[item.type] || '#2dff7a';
+
+            const marker = L.circleMarker(
+                [item.latitude, item.longitude],
+                {
+                    radius: 8,
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 1
+                }
+            ).addTo(map);
+
+            const circle = L.circle(
+                [item.latitude, item.longitude],
+                {
+                    radius: Number(item.radius),
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.15
+                }
+            ).addTo(map);
+
+            const popup = `
             <div style="min-width:200px">
                 <h3>${item.name}</h3>
                 <p><strong>Type:</strong> ${item.type}</p>
@@ -201,45 +191,102 @@
             </div>
         `;
 
-        marker.bindPopup(popup);
-        circle.bindPopup(popup);
+            marker.bindPopup(popup);
+            circle.bindPopup(popup);
 
-    });
+        });
 
-    // Маркер новой точки
-    let marker = null;
+        // Отображаем сохранённые пометки
+        if (savedMarkers && savedMarkers.length > 0) {
+            savedMarkers.forEach(function (m) {
+                const dangerColors = { none: '#7cb342', low: '#f9a825', medium: '#e65100', high: '#c62828', extreme: '#880e4f' };
+                const color = dangerColors[m.danger] || '#7cb342';
 
-    // Выбор координат
-    map.on('click', function (e) {
+                if (m.type === 'circle') {
+                    L.circle([m.lat, m.lng], {
+                        radius: 50,
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.15,
+                        weight: 2,
+                        dashArray: '5,5'
+                    }).bindPopup(`
+                        <div style="font-family: Courier New, monospace;">
+                            <div style="color: ${color}; font-weight: bold; font-size: 14px;">${m.label}</div>
+                            <div style="color: #888; font-size: 11px;">Угроза: ${m.danger || 'нейтрально'}</div>
+                            ${m.notes ? '<div style="color: #c4b998; font-size: 11px; margin-top: 4px; font-style: italic;">"' + m.notes + '"</div>' : ''}
+                        </div>
+                    `).addTo(map);
+                } else {
+                    // Создаём кастомную иконку через SVG
+                    const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44">
+                        <path d="M16 44 L16 18 Q16 8 6 2 Q12 4 16 4 Q20 4 26 2 Q16 8 16 18 Z" fill="${color}" stroke="${color === '#7cb342' ? '#9ccc65' : '#ff5252'}" stroke-width="1"/>
+                        <path d="M16 38 L16 20 Q16 12 10 7 Q13 8 16 8 Q19 8 22 7 Q16 12 16 20 Z" fill="${color === '#7cb342' ? '#558b2f' : '#8b0000'}" stroke="none"/>
+                        <rect x="10" y="38" width="12" height="4" rx="1" fill="#4a4a4a" stroke="#666"/>
+                    </svg>`;
 
-        const lat = e.latlng.lat.toFixed(6);
-        const lng = e.latlng.lng.toFixed(6);
+                    const icon = L.icon({
+                        iconUrl: 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon))),
+                        iconSize: [32, 44],
+                        iconAnchor: [16, 44],
+                        popupAnchor: [0, -44]
+                    });
 
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-
-        if (marker) {
-            map.removeLayer(marker);
+                    L.marker([m.lat, m.lng], { icon }).bindPopup(`
+                        <div style="font-family: Courier New, monospace;">
+                            <div style="color: ${color}; font-weight: bold; font-size: 14px;">${m.label}</div>
+                            <div style="color: #888; font-size: 11px;">Угроза: ${m.danger || 'нейтрально'}</div>
+                            ${m.faction && m.faction !== 'none' ? '<div style="color: #888; font-size: 11px;">Фракция: ' + m.faction + '</div>' : ''}
+                            ${m.notes ? '<div style="color: #c4b998; font-size: 11px; margin-top: 4px; font-style: italic;">"' + m.notes + '"</div>' : ''}
+                        </div>
+                    `).addTo(map);
+                }
+            });
         }
 
-        marker = L.circleMarker(
-            [lat, lng],
-            {
-                radius: 10,
-                color: '#00ff00',
-                fillColor: '#00ff00',
-                fillOpacity: 1
+        // Если есть сохранённые координаты, заполняем форму
+        if (savedCoords.lat && savedCoords.lng) {
+            document.getElementById('latitude').value = savedCoords.lat;
+            document.getElementById('longitude').value = savedCoords.lng;
+            if (savedCoords.radius) {
+                document.querySelector('input[name="radius"]').value = savedCoords.radius;
             }
-        ).addTo(map);
+        }
 
-        marker.bindPopup(`
+        // Маркер новой точки
+        let marker = null;
+
+        // Выбор координат
+        map.on('click', function (e) {
+
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            marker = L.circleMarker(
+                [lat, lng],
+                {
+                    radius: 10,
+                    color: '#00ff00',
+                    fillColor: '#00ff00',
+                    fillOpacity: 1
+                }
+            ).addTo(map);
+
+            marker.bindPopup(`
             <b>Новая точка</b><br>
             Lat: ${lat}<br>
             Lng: ${lng}
         `).openPopup();
 
-    });
+        });
 
-</script>
+    </script>
 
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>

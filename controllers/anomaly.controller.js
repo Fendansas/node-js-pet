@@ -40,7 +40,17 @@ export class AnomalyController extends BaseController {
         console.log('[ANOMALY] Creating anomaly');
 
         try {
-            const anomaly = await AnomaliesService.create(req.body);
+            const { screenshot, markers, ...body } = req.body;
+            const queryScreenshot = req.query.screenshot;
+            const queryMarkers = req.query.markers;
+            
+            const data = {
+                ...body,
+                screenshot: screenshot || queryScreenshot || null,
+                markers: markers || (queryMarkers ? JSON.parse(queryMarkers) : [])
+            };
+
+            const anomaly = await AnomaliesService.create(data);
             console.log('[ANOMALY] Anomaly created:', anomaly.name);
 
             return this.successRedirect(req, res, '/anomaly', 'Anomaly created');
@@ -187,6 +197,83 @@ export class AnomalyController extends BaseController {
         } catch (error) {
             console.log('[ANOMALY] Export error:', error.message);
             return this.handleError(res, error, 'Export error');
+        }
+    }
+
+    /**
+     * Показ страницы с картой
+     */
+    async showMapPage(req, res) {
+        console.log('[ANOMALY] Showing map page');
+
+        try {
+            const anomalies = await AnomaliesService.getAll();
+            console.log('[ANOMALY] Found', anomalies.length, 'anomalies for map');
+
+            return this.renderView(res, 'anomaly/map', { anomalies });
+        } catch (error) {
+            console.error('[ANOMALY] Map page error:', error);
+            return this.handleError(res, error, 'Map page error');
+        }
+    }
+
+    /**
+     * Сохранение скриншота области карты
+     */
+    async saveScreenshot(req, res) {
+        console.log('[ANOMALY] Saving screenshot');
+
+        try {
+            if (!req.file) {
+                console.log('[ANOMALY] No file in request');
+                return res.status(400).json({
+                    success: false,
+                    message: 'Файл не загружен'
+                });
+            }
+
+            const filename = req.file.filename;
+            const screenshotPath = `/uploads/screenshots/${filename}`;
+            
+            // Парсим пометки из body
+            let markers = [];
+            if (req.body.markers) {
+                try {
+                    markers = JSON.parse(req.body.markers);
+                    console.log('[ANOMALY] Markers count:', markers.length);
+                } catch (e) {
+                    console.log('[ANOMALY] Failed to parse markers:', e.message);
+                }
+            }
+            
+            // Парсим координаты из body
+            let coordinates = {};
+            if (req.body.coordinates) {
+                try {
+                    coordinates = JSON.parse(req.body.coordinates);
+                } catch (e) {
+                    console.log('[ANOMALY] Failed to parse coordinates:', e.message);
+                }
+            }
+
+            console.log('[ANOMALY] Screenshot saved:', screenshotPath);
+            console.log('[ANOMALY] Original name:', req.file.originalname);
+
+            return res.json({
+                success: true,
+                message: 'Скриншот сохранён',
+                path: screenshotPath,
+                filename: filename,
+                markers: markers,
+                coordinates: coordinates
+            });
+
+        } catch (error) {
+            console.error('[ANOMALY] Save screenshot error:', error);
+            return res.status(500).json({
+                success: false,
+                message: 'Ошибка сохранения скриншота'
+            });
         }
     }
 }

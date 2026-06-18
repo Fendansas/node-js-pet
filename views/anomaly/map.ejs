@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта Аномалий - S.T.A.L.K.E.R.</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #c4b998;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #map {
+            flex: 1;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: #252525;
+            border-left: 2px solid #4a4a4a;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar h2 {
+            color: #7cb342;
+            border-bottom: 1px solid #4a4a4a;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .sidebar h3 {
+            color: #9ccc65;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar h3::before {
+            content: '▸ ';
+            color: #7cb342;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #8bc34a;
+            font-size: 11px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 10px;
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+            color: #c4b998;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #7cb342;
+        }
+
+        .form-group input:read-only {
+            background: #2a2a2a;
+            color: #888;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #1a1a1a;
+            color: #c4b998;
+        }
+
+        .coords-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: 1px solid #4a4a4a;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #7cb342;
+            color: #1a1a1a;
+            border-color: #7cb342;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #9ccc65;
+            box-shadow: 0 0 10px rgba(124, 179, 66, 0.3);
+        }
+
+        .btn-secondary {
+            background: #4a4a4a;
+            color: #c4b998;
+        }
+
+        .btn-secondary:hover {
+            background: #5a5a5a;
+        }
+
+        .btn-danger {
+            background: #c62828;
+            color: #fff;
+            border-color: #c62828;
+        }
+
+        .btn-danger:hover {
+            background: #e53935;
+            box-shadow: 0 0 10px rgba(198, 40, 40, 0.3);
+        }
+
+        .btn-warning {
+            background: #e65100;
+            color: #fff;
+            border-color: #e65100;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 11px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .preview-area {
+            margin-top: 15px;
+            padding: 10px;
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+            display: none;
+        }
+
+        .preview-area.active {
+            display: block;
+        }
+
+        .preview-area img {
+            width: 100%;
+            border: 1px solid #4a4a4a;
+        }
+
+        .preview-area .preview-info {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            background: #1a1a1a;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #4a4a4a;
+        }
+
+        .stat-item .value {
+            font-size: 22px;
+            color: #7cb342;
+        }
+
+        .stat-item .label {
+            font-size: 10px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .error-message {
+            background: #c62828;
+            color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: none;
+            border-left: 3px solid #ff5252;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .success-message {
+            background: #2e7d32;
+            color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            display: none;
+            border-left: 3px solid #7cb342;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #4a4a4a;
+            border-top: 3px solid #7cb342;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .instructions {
+            background: #2a2a2a;
+            padding: 15px;
+            border: 1px solid #4a4a4a;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .instructions h4 {
+            color: #9ccc65;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .leaflet-draw-toolbar a {
+            background-color: #252525 !important;
+        }
+
+        .anomaly-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .anomaly-item {
+            background: #1a1a1a;
+            padding: 8px;
+            margin-bottom: 5px;
+            border: 1px solid #4a4a4a;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .anomaly-item:hover {
+            border-color: #7cb342;
+            background: #2a2a2a;
+        }
+
+        .anomaly-item .name {
+            color: #9ccc65;
+            font-weight: bold;
+        }
+
+        .anomaly-item .coords {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .markers-section {
+            border-top: 1px solid #4a4a4a;
+            padding-top: 15px;
+        }
+
+        .marker-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .marker-item {
+            background: #1a1a1a;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border: 1px solid #4a4a4a;
+            border-left: 3px solid #7cb342;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .marker-item:hover {
+            border-color: #7cb342;
+            background: #2a2a2a;
+        }
+
+        .marker-item.danger-high {
+            border-left-color: #c62828;
+        }
+
+        .marker-item.danger-medium {
+            border-left-color: #e65100;
+        }
+
+        .marker-item.danger-low {
+            border-left-color: #f9a825;
+        }
+
+        .marker-item.danger-none {
+            border-left-color: #7cb342;
+        }
+
+        .marker-item .marker-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .marker-item .marker-type {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8bc34a;
+        }
+
+        .marker-item .marker-label {
+            font-size: 13px;
+            color: #c4b998;
+            font-weight: bold;
+        }
+
+        .marker-item .marker-danger {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .marker-danger.high {
+            background: #c62828;
+            color: #fff;
+        }
+
+        .marker-danger.medium {
+            background: #e65100;
+            color: #fff;
+        }
+
+        .marker-danger.low {
+            background: #f9a825;
+            color: #1a1a1a;
+        }
+
+        .marker-danger.none {
+            background: #4a4a4a;
+            color: #888;
+        }
+
+        .marker-item .marker-notes {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .marker-item .marker-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+        }
+
+        .marker-item .marker-delete:hover {
+            color: #c62828;
+        }
+
+        .marker-form {
+            background: #1a1a1a;
+            padding: 12px;
+            border: 1px solid #4a4a4a;
+            margin-bottom: 10px;
+        }
+
+        .marker-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .marker-form .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .leaflet-draw-toolbar {
+            margin-top: 10px;
+        }
+
+        .stalker-tooltip {
+            background: #1a1a1a !important;
+            border: 1px solid #7cb342 !important;
+            color: #c4b998 !important;
+            font-family: 'Courier New', monospace !important;
+            font-size: 12px !important;
+            padding: 6px 10px !important;
+            border-radius: 0 !important;
+        }
+
+        .leaflet-tooltip-top:before {
+            border-top-color: #7cb342 !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: #1a1a1a !important;
+            border: 1px solid #7cb342 !important;
+            border-radius: 0 !important;
+            color: #c4b998 !important;
+            font-family: 'Courier New', monospace !important;
+        }
+
+        .leaflet-popup-tip {
+            background: #1a1a1a !important;
+            border: 1px solid #7cb342 !important;
+        }
+
+        .leaflet-popup-close-button {
+            color: #7cb342 !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+            border: 1px solid #4a4a4a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a4a4a;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #7cb342;
+        }
+
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px 0;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #4a4a4a;
+        }
+
+        .section-divider span {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(124, 179, 66, 0.1);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .flash-overlay.active {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <h2>🗺️ Карта Зоны</h2>
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Обработка...</p>
+            </div>
+
+            <div class="section-divider"><span>область</span></div>
+
+            <div class="instructions">
+                <h4>📋 Инструкция:</h4>
+                <ul>
+                    <li>Выбери инструмент <b>прямоугольник</b> на панели карты</li>
+                    <li>Выдели область аномалии</li>
+                    <li>Добавь пометки на карту</li>
+                    <li>Нажми "Сохранить скриншот"</li>
+                </ul>
+            </div>
+
+            <h3>📍 Координаты области</h3>
+            <div class="coords-grid">
+                <div class="form-group"><label>↖ NW Широта</label><input type="text" id="nwLat" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↖ NW Долгота</label><input type="text" id="nwLng" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↗ NE Широта</label><input type="text" id="neLat" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↗ NE Долгота</label><input type="text" id="neLng" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↙ SW Широта</label><input type="text" id="swLat" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↙ SW Долгота</label><input type="text" id="swLng" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↘ SE Широта</label><input type="text" id="seLat" readonly
+                        placeholder="--"></div>
+                <div class="form-group"><label>↘ SE Долгота</label><input type="text" id="seLng" readonly
+                        placeholder="--"></div>
+            </div>
+            <div class="form-group"><label>Центр (широта)</label><input type="text" id="centerLat" readonly
+                    placeholder="--"></div>
+            <div class="form-group"><label>Центр (долгота)</label><input type="text" id="centerLng" readonly
+                    placeholder="--"></div>
+            <div class="form-group"><label>Радиус (м)</label><input type="number" id="radius"
+                    placeholder="Введите радиус" min="1"></div>
+
+            <h3>📸 Скриншот области</h3>
+            <button id="saveScreenshot" class="btn btn-primary btn-full" disabled>📷 Сохранить скриншот</button>
+            <div id="preview-area" class="preview-area">
+                <img id="screenshot-preview" src="" alt="Превью">
+                <div class="preview-info">Файл: <span id="screenshot-name"></span></div>
+            </div>
+
+            <h3>📊 Статистика области</h3>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="value" id="area-size">0</div>
+                    <div class="label">Площадь (м²)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="value" id="rect-size">0 x 0</div>
+                    <div class="label">Размер (м)</div>
+                </div>
+            </div>
+
+            <div class="section-divider"><span>пометки</span></div>
+
+            <div class="markers-section">
+                <h3>📌 Добавить пометку</h3>
+                <div class="marker-form">
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Название пометки</label>
+                            <input type="text" id="markerLabel" placeholder="Например: Вылазка Бандитов">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Тип</label>
+                            <select id="markerType">
+                                <option value="marker">📍 Маркер</option>
+                                <option value="circle">⭕ Область</option>
+                                <option value="text">📝 Надпись</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Уровень угрозы</label>
+                            <select id="markerDanger">
+                                <option value="none">Нейтрально</option>
+                                <option value="low">Низкая</option>
+                                <option value="medium">Средняя</option>
+                                <option value="high">Высокая</option>
+                                <option value="extreme">Экстрим</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Фракция</label>
+                            <select id="markerFaction">
+                                <option value="none">Никто</option>
+                                <option value="stalker">Бродяга</option>
+                                <option value="military">Военные</option>
+                                <option value="bandit">Бандиты</option>
+                                <option value="ecologist">Экологи</option>
+                                <option value="clearsky">Рассвет</option>
+                                <option value="monolith">Монолит</option>
+                                <option value="dolg">Долг</option>
+                                <option value="svoboda">Свобода</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип аномалии</label>
+                            <select id="markerAnomalyType">
+                                <option value="none">Нет</option>
+                                <option value="electro">⚡ Электро</option>
+                                <option value="thermic">🔥 Тепловик</option>
+                                <option value="gravitational">🌀 Гравитационная</option>
+                                <option value="psionic">🧠 Псайк</option>
+                                <option value="chemical">☠️ Химия</option>
+                                <option value="extrime">💀 Экстремальная</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row full">
+                        <div class="form-group">
+                            <label>Заметка</label>
+                            <textarea id="markerNotes" placeholder="Дополнительная информация..." rows="2"></textarea>
+                        </div>
+                    </div>
+                    <button id="addMarker" class="btn btn-warning btn-full btn-small">📌 Добавить пометку на
+                        карту</button>
+                    <p style="font-size: 11px; color: #666; margin-top: 8px; text-align: center;">Кликни на карту чтобы
+                        разместить пометку</p>
+                </div>
+                <h3>📋 Список пометок (<span id="marker-count">0</span>)</h3>
+                <div class="marker-list" id="marker-list"></div>
+            </div>
+
+            <div class="section-divider"><span>аномалии</span></div>
+
+            <h3>🗂️ Аномалии на карте</h3>
+            <div class="anomaly-list" id="anomaly-list">
+                <% if (typeof anomalies !=='undefined' && anomalies.length> 0) { %>
+                    <% anomalies.forEach(function(anomaly) { %>
+                        <div class="anomaly-item" data-lat="<%= anomaly.latitude %>" data-lng="<%= anomaly.longitude %>"
+                            data-radius="<%= anomaly.radius %>">
+                            <div class="name">
+                                <%= anomaly.name %>
+                            </div>
+                            <div class="coords">
+                                <%= anomaly.latitude.toFixed(6) %>, <%= anomaly.longitude.toFixed(6) %><br>Радиус: <%=
+                                            anomaly.radius %>м
+                            </div>
+                        </div>
+                        <% }); %>
+                            <% } else { %>
+                                <p style="color: #666; font-size: 12px;">Нет аномалий</p>
+                                <% } %>
+            </div>
+
+            <div class="btn-group">
+                <button id="centerMap" class="btn btn-secondary">🎯 Центрировать</button>
+                <button id="clearSelection" class="btn btn-secondary">✕ Очистить</button>
+            </div>
+            <button id="createAnomaly" class="btn btn-primary btn-full" disabled style="margin-top: 15px;">⚡ Создать
+                аномалию</button>
+        </div>
+    </div>
+
+    <div class="flash-overlay" id="flash-overlay"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        // ===== Инициализация карты =====
+        const map = L.map('map').setView([51.505, 30.32], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+
+        // ===== Переменные состояния =====
+        let drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+        let currentRectangle = null;
+        let screenshotPath = null;
+        let savedScreenshotPath = null;
+        let markers = [];
+        let markerLayers = [];
+        let markerIdCounter = 0;
+
+        // ===== Утилиты =====
+        function dangerColor(d) {
+            const c = { none: '#7cb342', low: '#f9a825', medium: '#e65100', high: '#c62828', extreme: '#880e4f' };
+            return c[d] || c.none;
+        }
+        function dangerLabel(d) {
+            const l = { none: 'Нейтрально', low: 'Низкая', medium: 'Средняя', high: 'Высокая', extreme: 'Экстрим' };
+            return l[d] || l.none;
+        }
+        function factionLabel(f) {
+            const l = { none: '', stalker: 'Бродяга', military: 'Военные', bandit: 'Бандиты', ecologist: 'Экологи', clearsky: 'Рассвет', monolith: 'Монолит', dolg: 'Долг', svoboda: 'Свобода' };
+            return l[f] || '';
+        }
+        function anomalyTypeLabel(t) {
+            const l = { none: '', electro: '⚡ Электро', thermic: '🔥 Тепловик', gravitational: '🌀 Гравитация', psionic: '🧠 Псайк', chemical: '☠️ Химия', extrime: '💀 Экстрим' };
+            return l[t] || '';
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        }
+        function toRad(d) { return d * Math.PI / 180; }
+
+        function createSVGMarkerIcon(type, danger, label) {
+            if (type === 'text') {
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40">
+                    <rect x="1" y="1" width="118" height="38" rx="2" fill="#1a1a1a" stroke="${dangerColor(danger)}" stroke-width="2"/>
+                    <rect x="2" y="2" width="116" height="36" rx="1" fill="none" stroke="#333" stroke-width="1"/>
+                    <text x="60" y="25" text-anchor="middle" fill="${dangerColor(danger)}" font-family="Courier New, monospace" font-size="12" font-weight="bold">${(label || 'Метка').substring(0, 10)}</text>
+                </svg>`;
+                return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+            }
+            if (type === 'circle') {
+                const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+                    <circle cx="24" cy="24" r="20" fill="none" stroke="${dangerColor(danger)}" stroke-width="2" stroke-dasharray="5,5" opacity="0.8"/>
+                    <circle cx="24" cy="24" r="4" fill="${dangerColor(danger)}" opacity="0.6"/>
+                    <circle cx="24" cy="24" r="2" fill="#fff"/>
+                    <text x="24" y="44" text-anchor="middle" fill="${dangerColor(danger)}" font-family="Courier New, monospace" font-size="9" font-weight="bold">${(label || 'M').substring(0, 10)}</text>
+                </svg>`;
+                return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+            }
+            // Шип
+            let mainColor = '#7cb342', fillColor = '#558b2f', strokeColor = '#9ccc65';
+            if (danger === 'high' || danger === 'extreme') { mainColor = '#c62828'; fillColor = '#8b0000'; strokeColor = '#ff5252'; }
+            else if (danger === 'medium') { mainColor = '#e65100'; fillColor = '#bf360c'; strokeColor = '#ff9800'; }
+            else if (danger === 'low') { mainColor = '#f9a825'; fillColor = '#f57f17'; strokeColor = '#ffee58'; }
+
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44">
+                <defs><filter id="g"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                <path d="M16 44 L16 18 Q16 8 6 2 Q12 4 16 4 Q20 4 26 2 Q16 8 16 18 Z" fill="${mainColor}" stroke="${strokeColor}" stroke-width="1" filter="url(#g)"/>
+                <path d="M16 38 L16 20 Q16 12 10 7 Q13 8 16 8 Q19 8 22 7 Q16 12 16 20 Z" fill="${fillColor}" stroke="none"/>
+                <circle cx="16" cy="14" r="3" fill="${mainColor === '#7cb342' ? '#9ccc65' : '#ff1744'}" opacity="0.6" filter="url(#g)"/>
+                <rect x="10" y="38" width="12" height="4" rx="1" fill="#4a4a4a" stroke="#666"/>
+            </svg>`;
+            return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+        }
+
+        function createPopupContent(label, danger, faction, anomalyType, notes) {
+            let html = `<div style="font-family: Courier New, monospace; min-width: 180px;">
+                <div style="color: ${dangerColor(danger)}; font-weight: bold; font-size: 14px; margin-bottom: 6px; text-transform: uppercase;">${label}</div>
+                <div style="color: #888; font-size: 11px; margin-bottom: 4px;">Угроза: <span style="color: ${dangerColor(danger)}">${dangerLabel(danger)}</span></div>`;
+            if (faction && faction !== 'none') html += `<div style="color: #888; font-size: 11px; margin-bottom: 4px;">Фракция: ${factionLabel(faction)}</div>`;
+            if (anomalyType && anomalyType !== 'none') html += `<div style="color: #888; font-size: 11px; margin-bottom: 4px;">Тип: ${anomalyTypeLabel(anomalyType)}</div>`;
+            if (notes) html += `<div style="color: #c4b998; font-size: 11px; margin-top: 6px; font-style: italic; border-top: 1px solid #4a4a4a; padding-top: 6px;">"${notes}"</div>`;
+            html += '</div>';
+            return html;
+        }
+
+        // ===== Инструменты рисования =====
+        const drawControl = new L.Control.Draw({
+            draw: { rectangle: { shapeOptions: { color: '#7cb342', weight: 3, fillOpacity: 0.2 } }, polygon: false, circle: false, marker: false, polyline: false, circlemarker: false },
+            edit: { featureGroup: drawnItems, remove: true }
+        });
+        map.addControl(drawControl);
+
+        // ===== Прямоугольник =====
+        map.on(L.Draw.Event.CREATED, function (e) {
+            const layer = e.layer;
+            if (currentRectangle) map.removeLayer(currentRectangle);
+            drawnItems.clearLayers();
+            drawnItems.addLayer(layer);
+            currentRectangle = layer;
+            const bounds = layer.getBounds();
+
+            // 4 угла прямоугольника
+            const nw = bounds.getNorthWest();
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            const se = bounds.getSouthEast();
+
+            document.getElementById('nwLat').value = Number(nw.lat).toFixed(6);
+            document.getElementById('nwLng').value = Number(nw.lng).toFixed(6);
+            document.getElementById('neLat').value = Number(ne.lat).toFixed(6);
+            document.getElementById('neLng').value = Number(ne.lng).toFixed(6);
+            document.getElementById('swLat').value = Number(sw.lat).toFixed(6);
+            document.getElementById('swLng').value = Number(sw.lng).toFixed(6);
+            document.getElementById('seLat').value = Number(se.lat).toFixed(6);
+            document.getElementById('seLng').value = Number(se.lng).toFixed(6);
+
+            const center = bounds.getCenter();
+            document.getElementById('centerLat').value = Number(center.lat).toFixed(6);
+            document.getElementById('centerLng').value = Number(center.lng).toFixed(6);
+
+            const lat1 = Number(bounds.getNorth()), lng1 = Number(bounds.getWest()), lat2 = Number(bounds.getSouth()), lng2 = Number(bounds.getEast());
+            const w = calculateDistance(lat1, lng1, lat1, lng2), h = calculateDistance(lat1, lng1, lat2, lng1);
+            document.getElementById('rect-size').textContent = Math.round(w) + ' x ' + Math.round(h);
+            document.getElementById('area-size').textContent = Math.round(w * h);
+            document.getElementById('saveScreenshot').disabled = false;
+            document.getElementById('createAnomaly').disabled = false;
+            hideMessages();
+        });
+
+        // ===== Редактирование прямоугольника =====
+        map.on(L.Draw.Event.EDITED, function (e) {
+            const layers = e.layers;
+            layers.eachLayer(function (layer) {
+                if (layer === currentRectangle) {
+                    const bounds = layer.getBounds();
+                    const nw = bounds.getNorthWest();
+                    const ne = bounds.getNorthEast();
+                    const sw = bounds.getSouthWest();
+                    const se = bounds.getSouthEast();
+
+                    document.getElementById('nwLat').value = Number(nw.lat).toFixed(6);
+                    document.getElementById('nwLng').value = Number(nw.lng).toFixed(6);
+                    document.getElementById('neLat').value = Number(ne.lat).toFixed(6);
+                    document.getElementById('neLng').value = Number(ne.lng).toFixed(6);
+                    document.getElementById('swLat').value = Number(sw.lat).toFixed(6);
+                    document.getElementById('swLng').value = Number(sw.lng).toFixed(6);
+                    document.getElementById('seLat').value = Number(se.lat).toFixed(6);
+                    document.getElementById('seLng').value = Number(se.lng).toFixed(6);
+
+                    const center = bounds.getCenter();
+                    document.getElementById('centerLat').value = Number(center.lat).toFixed(6);
+                    document.getElementById('centerLng').value = Number(center.lng).toFixed(6);
+
+                    const lat1 = Number(bounds.getNorth()), lng1 = Number(bounds.getWest()), lat2 = Number(bounds.getSouth()), lng2 = Number(bounds.getEast());
+                    const w = calculateDistance(lat1, lng1, lat1, lng2), h = calculateDistance(lat1, lng1, lat2, lng1);
+                    document.getElementById('rect-size').textContent = Math.round(w) + ' x ' + Math.round(h);
+                    document.getElementById('area-size').textContent = Math.round(w * h);
+                }
+            });
+        });
+
+        // ===== Режим добавления пометки =====
+        document.getElementById('addMarker').addEventListener('click', function () {
+            const label = document.getElementById('markerLabel').value.trim();
+            if (!label) { showError('Введите название пометки'); return; }
+            addMarkerToMap();
+        });
+
+        function addMarkerToMap() {
+            const clickHandler = function (e) {
+                map.off('click', clickHandler);
+                map.getContainer().style.cursor = '';
+
+                const { lat, lng } = e.latlng;
+                const label = document.getElementById('markerLabel').value.trim();
+                const type = document.getElementById('markerType').value;
+                const danger = document.getElementById('markerDanger').value;
+                const faction = document.getElementById('markerFaction').value;
+                const anomalyType = document.getElementById('markerAnomalyType').value;
+                const notes = document.getElementById('markerNotes').value.trim();
+
+                const id = ++markerIdCounter;
+                const iconUrl = createSVGMarkerIcon(type, danger, label);
+                const icon = L.icon({ iconUrl, iconSize: type === 'text' ? [120, 40] : [32, 44], iconAnchor: type === 'text' ? [60, 20] : [16, 44], popupAnchor: [0, -44] });
+
+                let layer;
+                if (type === 'circle') {
+                    layer = L.circle([lat, lng], { radius: 50, color: dangerColor(danger), fillColor: dangerColor(danger), fillOpacity: 0.15, weight: 2, dashArray: '5,5' });
+                } else {
+                    layer = L.marker([lat, lng], { icon }).bindPopup(createPopupContent(label, danger, faction, anomalyType, notes));
+                }
+                layer.addTo(map);
+
+                markerLayers.push({ id, type: type, layer: layer, data: { label, danger, faction, anomalyType, notes, lat, lng } });
+                markers.push({ id, lat, lng, label, type, danger, faction, anomalyType, notes });
+                updateMarkerList();
+
+                document.getElementById('markerLabel').value = '';
+                document.getElementById('markerNotes').value = '';
+                document.getElementById('markerType').value = 'marker';
+                document.getElementById('markerDanger').value = 'none';
+                document.getElementById('markerFaction').value = 'none';
+                document.getElementById('markerAnomalyType').value = 'none';
+
+                showSuccess('Пометка добавлена: ' + label);
+            };
+
+            map.on('click', clickHandler);
+            map.getContainer().style.cursor = 'crosshair';
+            showSuccess('Кликни на карту чтобы разместить пометку');
+        }
+
+        // ===== Список пометок =====
+        function updateMarkerList() {
+            const list = document.getElementById('marker-list');
+            document.getElementById('marker-count').textContent = markers.length;
+            if (markers.length === 0) { list.innerHTML = '<p style="color: #666; font-size: 12px; text-align: center; padding: 10px;">Нет пометок</p>'; return; }
+            list.innerHTML = markers.map(m => `<div class="marker-item danger-${m.danger}" data-id="${m.id}">
+                <div class="marker-header"><span class="marker-label">${m.label}</span><span class="marker-danger ${m.danger}">${dangerLabel(m.danger)}</span></div>
+                ${m.faction && m.faction !== 'none' ? `<div style="font-size: 11px; color: #888;">Фракция: ${factionLabel(m.faction)}</div>` : ''}
+                ${m.anomalyType && m.anomalyType !== 'none' ? `<div style="font-size: 11px; color: #888;">${anomalyTypeLabel(m.anomalyType)}</div>` : ''}
+                ${m.notes ? `<div class="marker-notes">"${m.notes}"</div>` : ''}
+                <button class="marker-delete" data-id="${m.id}" title="Удалить">✕</button></div>`).join('');
+
+            list.querySelectorAll('.marker-item').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('marker-delete')) return;
+                    const id = parseInt(this.dataset.id);
+                    const marker = markers.find(m => m.id === id);
+                    if (marker) { map.setView([marker.lat, marker.lng], 17); const ml = markerLayers.find(ml => ml.id === id); if (ml && ml.layer) ml.layer.openPopup(); }
+                });
+            });
+            list.querySelectorAll('.marker-delete').forEach(btn => {
+                btn.addEventListener('click', function (e) { e.stopPropagation(); deleteMarker(parseInt(this.dataset.id)); });
+            });
+        }
+
+        function deleteMarker(id) {
+            const idx = markers.findIndex(m => m.id === id);
+            if (idx === -1) return;
+            const markerData = markerLayers.find(ml => ml.id === id);
+            if (markerData) { map.removeLayer(markerData.layer); markerLayers.splice(markerLayers.indexOf(markerData), 1); }
+            const label = markers[idx].label;
+            markers.splice(idx, 1);
+            updateMarkerList();
+            showSuccess('Пометка удалена: ' + label);
+        }
+
+        // ===== Сохранение скриншота =====
+        document.getElementById('saveScreenshot').addEventListener('click', async function () {
+            if (!currentRectangle) { showError('Сначала выделите область на карте'); return; }
+            const flash = document.getElementById('flash-overlay');
+            flash.classList.add('active'); setTimeout(() => flash.classList.remove('active'), 500);
+            const loading = document.getElementById('loading');
+            loading.classList.add('active');
+            try {
+                const mapElement = document.getElementById('map');
+                const canvas = await html2canvas(mapElement, { useCORS: true, allowTaint: true, logging: false, backgroundColor: '#1a1a1a' });
+                const bounds = currentRectangle.getBounds();
+
+                // Получаем координаты 4 углов напрямую из карты
+                const northWest = bounds.getNorthWest();
+                const northEast = bounds.getNorthEast();
+                const southWest = bounds.getSouthWest();
+                const southEast = bounds.getSouthEast();
+
+                const coords = {
+                    topLeft: { lat: Number(northWest.lat), lng: Number(northWest.lng) },
+                    topRight: { lat: Number(northEast.lat), lng: Number(northEast.lng) },
+                    bottomLeft: { lat: Number(southWest.lat), lng: Number(southWest.lng) },
+                    bottomRight: { lat: Number(southEast.lat), lng: Number(southEast.lng) },
+                    center: { lat: Number(bounds.getCenter().lat), lng: Number(bounds.getCenter().lng) },
+                    radius: parseFloat(document.getElementById('radius').value) || 100
+                };
+
+                console.log('📍 Координаты 4 углов:', coords);
+
+                const nw = map.latLngToContainerPoint(northWest);
+                const se = map.latLngToContainerPoint(southEast);
+                const crop = document.createElement('canvas');
+                const pad = 80;
+                crop.width = Math.min(canvas.width - nw.x, se.x - nw.x + pad * 2);
+                crop.height = Math.min(canvas.height - nw.y, se.y - nw.y + pad * 2);
+                const ctx = crop.getContext('2d');
+                ctx.drawImage(canvas, nw.x - pad, nw.y - pad, crop.width, crop.height, 0, 0, crop.width, crop.height);
+                crop.toBlob(async function (blob) {
+                    const formData = new FormData();
+                    const filename = `anomaly_${coords.topLeft.lat}_${coords.topLeft.lng}_${coords.bottomRight.lat}_${coords.bottomRight.lng}_${Date.now()}.png`;
+                    formData.append('screenshot', blob, filename);
+                    formData.append('coordinates', JSON.stringify(coords));
+                    formData.append('markers', JSON.stringify(markers));
+                    try {
+                        const response = await fetch('/anomaly/save-screenshot', { method: 'POST', body: formData });
+                        const result = await response.json();
+                        if (result.success) {
+                            savedScreenshotPath = result.path; screenshotPath = result.path;
+                            document.getElementById('screenshot-preview').src = result.path;
+                            document.getElementById('screenshot-name').textContent = result.filename;
+                            document.getElementById('preview-area').classList.add('active');
+                            showSuccess('Скриншот сохранён!');
+                        } else { showError(result.message || 'Ошибка сохранения'); }
+                    } catch (error) { console.error('Error saving screenshot:', error); showError('Ошибка отправки на сервер'); }
+                    finally { loading.classList.remove('active'); }
+                }, 'image/png');
+            } catch (error) { console.error('Error creating screenshot:', error); showError('Ошибка создания скриншота'); loading.classList.remove('active'); }
+        });
+
+        // ===== Создание аномалии =====
+        document.getElementById('createAnomaly').addEventListener('click', function () {
+            const params = new URLSearchParams({
+                latitude: document.getElementById('centerLat').value,
+                longitude: document.getElementById('centerLng').value,
+                radius: document.getElementById('radius').value || 100,
+                screenshot: screenshotPath || '',
+                markers: JSON.stringify(markers)
+            });
+            window.location.href = '/anomaly/create?' + params.toString();
+        });
+
+        // ===== Центрировать / Очистить =====
+        document.getElementById('centerMap').addEventListener('click', function () {
+            if (currentRectangle) map.fitBounds(currentRectangle.getBounds(), { padding: [50, 50] });
+        });
+
+        document.getElementById('clearSelection').addEventListener('click', function () {
+            if (currentRectangle) { map.removeLayer(currentRectangle); currentRectangle = null; }
+            drawnItems.clearLayers();
+            ['nwLat', 'nwLng', 'neLat', 'neLng', 'swLat', 'swLng', 'seLat', 'seLng', 'centerLat', 'centerLng'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('radius').value = '';
+            document.getElementById('rect-size').textContent = '0 x 0';
+            document.getElementById('area-size').textContent = '0';
+            document.getElementById('preview-area').classList.remove('active');
+            screenshotPath = null; savedScreenshotPath = null;
+            document.getElementById('saveScreenshot').disabled = true;
+            document.getElementById('createAnomaly').disabled = true;
+            markerLayers.forEach(ml => map.removeLayer(ml.layer));
+            markerLayers = []; markers = []; updateMarkerList();
+        });
+
+        // ===== Клик по аномалии =====
+        document.querySelectorAll('.anomaly-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                const lat = parseFloat(this.dataset.lat), lng = parseFloat(this.dataset.lng), radius = parseFloat(this.dataset.radius);
+                map.setView([lat, lng], 16);
+                if (currentRectangle) map.removeLayer(currentRectangle);
+                currentRectangle = L.circle([lat, lng], { radius, color: '#c62828', fillColor: '#c62828', fillOpacity: 0.3, weight: 2 }).addTo(map);
+                const r = radius, latRad = toRad(lat);
+                const dLat = r / 111000, dLng = r / (111000 * Math.cos(latRad));
+
+                const nwLat = Number(lat + dLat), nwLng = Number(lng - dLng);
+                const neLat = Number(lat + dLat), neLng = Number(lng + dLng);
+                const swLat = Number(lat - dLat), swLng = Number(lng - dLng);
+                const seLat = Number(lat - dLat), seLng = Number(lng + dLng);
+
+                document.getElementById('nwLat').value = nwLat.toFixed(6);
+                document.getElementById('nwLng').value = nwLng.toFixed(6);
+                document.getElementById('neLat').value = neLat.toFixed(6);
+                document.getElementById('neLng').value = neLng.toFixed(6);
+                document.getElementById('swLat').value = swLat.toFixed(6);
+                document.getElementById('swLng').value = swLng.toFixed(6);
+                document.getElementById('seLat').value = seLat.toFixed(6);
+                document.getElementById('seLng').value = seLng.toFixed(6);
+                document.getElementById('centerLat').value = Number(lat).toFixed(6);
+                document.getElementById('centerLng').value = Number(lng).toFixed(6);
+                document.getElementById('radius').value = radius;
+                document.getElementById('rect-size').textContent = Math.round(radius * 2) + ' x ' + Math.round(radius * 2);
+                document.getElementById('area-size').textContent = Math.round(Math.PI * radius * radius);
+                document.getElementById('createAnomaly').disabled = false;
+            });
+        });
+
+        // ===== Утилиты =====
+        function showError(m) { const el = document.getElementById('error-message'); el.textContent = m; el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 5000); }
+        function showSuccess(m) { const el = document.getElementById('success-message'); el.textContent = m; el.classList.add('active'); setTimeout(() => el.classList.remove('active'), 3000); }
+        function hideMessages() { document.getElementById('error-message').classList.remove('active'); document.getElementById('success-message').classList.remove('active'); }
+    </script>
+</body>
+
+</html>

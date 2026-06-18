@@ -145,7 +145,9 @@ class TaskController extends BaseController {
                 if (user) {
                     user.money += updatedTask.reward;
                     await user.save();
-
+                    console.log(`[TASK] Reward ${updatedTask.reward} given to user ${userId}. New balance: ${user.money}`);
+                } else {
+                    console.log(`[TASK] User not found for reward: ${userId}`);
 
                 }
                 await Task.findOneAndUpdate(

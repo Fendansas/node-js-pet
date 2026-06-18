@@ -1,47 +1,50 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
-    <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
 
     <link rel="stylesheet" href="/css/style.css">
 
     <!-- Шрифт под атмосферу -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
 
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet/dist/leaflet.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 
 <body>
 
-<header class="header">
-    <div class="logo">
-        <a href="/">☢ STALKER ZONE</a>
+    <header class="header">
+        <div class="logo">
+            <a href="/">☢ STALKER ZONE</a>
 
-    </div>
+        </div>
 
-    <nav class="nav">
-        <a href="/">Главная</a>
-        <a href="/anomaly">Карта аномалий</a>
-        <a href="/posts">Статьи</a>
-        <a href="/products">Продукты</a>
-        <a href="/profile">ПДА</a>
-        <% if (user) { %>
-            <a href="/admin/rbac">RBAC</a>
-        <% } %>
+        <nav class="nav">
+            <a href="/">Главная</a>
+            <a href="/anomaly">Карта аномалий</a>
+            <a href="/anomaly/map">Карта (выделение)</a>
+            <a href="/posts">Статьи</a>
+            <a href="/products">Продукты</a>
+            <a href="/profile">ПДА</a>
+            <% if (user) { %>
+                <a href="/admin/rbac">RBAC</a>
+                <% } %>
 
-        <% if (user) { %>
-            <img class="avatar" src="<%= user.avatar || '/img/default-avatar.png' %>" />
-            <span class="username"><%= user.username %></span>
-            <a href="/logout">Выход</a>
-        <% } else { %>
-            <a href="/login">Вход</a>
-            <a href="/register">Регистрация</a>
-        <% } %>
-    </nav>
-</header>
+                    <% if (user) { %>
+                        <img class="avatar" src="<%= user.avatar || '/img/default-avatar.png' %>" />
+                        <span class="username">
+                            <%= user.username %>
+                        </span>
+                        <a href="/logout">Выход</a>
+                        <% } else { %>
+                            <a href="/login">Вход</a>
+                            <a href="/register">Регистрация</a>
+                            <% } %>
+        </nav>
+    </header>
 
-<div class="container">
+    <div class="container">
