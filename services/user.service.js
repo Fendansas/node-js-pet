@@ -51,8 +51,34 @@ export const getProfileService = async (userId) => {
 export const getAllUsersService = async () => {
     const users = await User.find().populate('role').populate('inventory.product');
     const onlineUsers = users.filter(user => user.isOnline).length;
-    return {users, onlineUsers} ;
-}
+
+    const { Task } = await import('../models/Task.js');
+
+    for (const user of users) {
+        const tasks = await Task.find({
+            'assignedTo.user': user._id
+        });
+
+        let total = 0;
+        let completed = 0;
+
+        for (const task of tasks) {
+            const assignment = task.assignedTo.find(
+                a => a.user.toString() === user._id.toString()
+            );
+            if (assignment) {
+                total++;
+                if (assignment.status === 'completed') {
+                    completed++;
+                }
+            }
+        }
+
+        user.taskStats = { total, completed };
+    }
+
+    return { users, onlineUsers };
+};
 
 export const editProfileService = async (userId) => {
     const user = await User.findById(userId).populate('role');
