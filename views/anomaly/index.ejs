@@ -136,6 +136,29 @@
                 Мониторинг GPS аномалий и радиусов воздействия
             </div>
 
+            <div class="anomaly-coords" style="display:flex;gap:10px;margin-top:15px;align-items:center;">
+                <input type="text" id="coordInput" placeholder="53.896472,24.193361" style="
+                    width:250px;
+                    padding:8px 12px;
+                    background:rgba(10,20,10,.92);
+                    border:1px solid #2dff7a;
+                    border-radius:8px;
+                    color:#2dff7a;
+                    font-size:14px;
+                    outline:none;
+                ">
+                <button onclick="goToCoordinates()" style="
+                    padding:8px 16px;
+                    background:#2dff7a;
+                    border:none;
+                    border-radius:8px;
+                    color:#0a140a;
+                    font-weight:bold;
+                    cursor:pointer;
+                    font-size:14px;
+                ">Перейти</button>
+            </div>
+
         </div>
 
         <div class="anomaly-actions">
@@ -388,6 +411,22 @@
         circle.bindPopup(popup);
 
     });
+
+    function goToCoordinates() {
+        const input = document.getElementById('coordInput').value.trim();
+        const parts = input.split(',');
+        if (parts.length === 2) {
+            const lat = parseFloat(parts[0].trim());
+            const lng = parseFloat(parts[1].trim());
+            if (!isNaN(lat) && !isNaN(lng)) {
+                map.setView([lat, lng], 12);
+            } else {
+                alert('Введите корректные координаты');
+            }
+        } else {
+            alert('Введите координаты в формате: 53.896472,24.193361');
+        }
+    }
 
 </script>
 
