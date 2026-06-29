@@ -8,9 +8,14 @@ class PostController extends BaseController {
 
         try {
             const posts = await PostService.getAll();
+            const selectedCategory = req.query.category || 'all';
+            
+            const allCategories = [...new Set(posts.map(p => p.category).filter(Boolean))];
+            const categories = ['all', ...allCategories];
+
             console.log('[POST] Found', posts.length, 'posts');
 
-            return this.renderView(res, 'posts/index', { posts });
+            return this.renderView(res, 'posts/index', { posts, selectedCategory, categories });
         } catch (error) {
             console.error('[POST] Index error:', error);
             return this.handleError(res, error, 'Posts list error');

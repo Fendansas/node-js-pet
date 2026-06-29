@@ -9,34 +9,38 @@ import {validate} from "../middleware/validation.middleware.js";
 
 const router = express.Router();
 
-router.get('/rbac', (req, res) => AdminController.showRbacPage(req, res));
+router.get('/rbac',
+    allow('rbac:manage'),
+    (req, res) => AdminController.showRbacPage(req, res));
+
 router.post('/permissions',
+    allow('rbac:manage'),
     createPermissionValidator,
     validate,
     (req, res) => AdminController.createPermission(req, res)
-)
+);
+
 router.post('/roles',
+    allow('rbac:manage'),
     createRoleValidator,
     validate,
     (req, res) => AdminController.createRole(req, res)
 );
+
 router.post('/roles/add-permission',
-    isAuth,
-    allow('role:update'),
+    allow('rbac:manage'),
     rolePermissionValidator,
     validate,
     (req, res) => AdminController.assignPermissionToRole(req, res));
 
 router.post('/roles/remove-permission',
-    isAuth,
-    allow('role:update'),
+    allow('rbac:manage'),
     rolePermissionValidator,
     validate,
     (req, res) => AdminController.unassignPermissionToRole(req, res));
 
 router.get('/users',
-    isAuth,
-    allow('role:read'),
+    allow('user:read'),
     (req, res) => UserController.getAllUsers(req, res)
 );
 
