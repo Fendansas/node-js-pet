@@ -1,5 +1,6 @@
 import express from 'express';
 import { isAuth } from '../middleware/auth.middleware.js';
+import { isAdmin } from '../middleware/admin.middleware.js';
 import { allow } from '../middleware/permission.middleware.js';
 
 import AdminController from '../controllers/admin.controller.js';
@@ -8,6 +9,8 @@ import {createPermissionValidator, createRoleValidator, rolePermissionValidator}
 import {validate} from "../middleware/validation.middleware.js";
 
 const router = express.Router();
+
+router.use(isAdmin);
 
 router.get('/rbac',
     allow('rbac:manage'),

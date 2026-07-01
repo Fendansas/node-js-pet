@@ -1,6 +1,6 @@
-export function isAdmin(req, res, next) {
-    if (!req.session.user || req.session.user.role !== 'admin') {
-        return res.status(403).send('Access denied');
+export const isAdmin = (req, res, next) => {
+    if (!req.user || req.user.role?.name !== 'admin') {
+        return res.status(403).render('errors/403');
     }
     next();
-}
+};
