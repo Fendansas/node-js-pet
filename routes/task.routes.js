@@ -6,6 +6,10 @@ import { validate } from '../middleware/validation.middleware.js';
 
 const router = express.Router();
 
+router.get('/',
+    allow('task:read'),
+    (req, res) => TaskController.index(req, res));
+
 router.get('/create',
     allow('task:create'),
     (req, res) => TaskController.createPage(req, res));
@@ -34,5 +38,9 @@ router.post('/:id/update-status',
 router.get('/:id/edit',
     allow('task:update'),
     (req, res) => TaskController.editPage(req, res));
+
+router.post('/:id/delete',
+    allow('task:delete'),
+    (req, res) => TaskController.delete(req, res));
 
 export default router;

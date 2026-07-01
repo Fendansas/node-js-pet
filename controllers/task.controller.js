@@ -7,6 +7,20 @@ import User from '../models/user.js';
 
 class TaskController extends BaseController {
 
+    async index(req, res) {
+        console.log('[TASK] Listing all tasks');
+
+        try {
+            const tasks = await Task.find().sort({ createdAt: -1 }).populate('assignedTo.user', 'username email');
+            console.log('[TASK] Found', tasks.length, 'tasks');
+
+            return this.renderView(res, 'tasks/index', { tasks });
+        } catch (error) {
+            console.error('[TASK] Index error:', error);
+            return this.handleError(res, error, 'Tasks list error');
+        }
+    }
+
     async createPage(req, res) {
         console.log('[TASK] Showing create page');
         const { eventId } = req.query;
@@ -186,6 +200,25 @@ class TaskController extends BaseController {
         } catch (error) {
             console.error('[TASK] Edit page error:', error);
             return this.handleError(res, error, 'Edit task error');
+        }
+    }
+
+    async delete(req, res) {
+        console.log('[TASK] Deleting task:', req.params.id);
+
+        try {
+            const task = await Task.findByIdAndDelete(req.params.id);
+
+            if (!task) {
+                console.log('[TASK] Task not found:', req.params.id);
+                return res.status(404).send('Task not found');
+            }
+
+            console.log('[TASK] Task deleted successfully');
+            return this.successRedirect(req, res, '/tasks', 'Task deleted');
+        } catch (error) {
+            console.error('[TASK] Delete error:', error);
+            return this.handleError(res, error, 'Delete task error');
         }
     }
 }

@@ -7,6 +7,7 @@ import anomalyRoutes from "./anomaly.routes.js";
 import postRoutes from "./post.routes.js";
 import eventRoutes from "./event.routes.js";
 import taskRoutes from "./task.routes.js";
+import apiRoutes from "./api.routes.js";
 import express from "express";
 
 const mainRoute = express.Router();
@@ -20,5 +21,6 @@ mainRoute.use('/anomaly', anomalyRoutes);
 mainRoute.use('/posts', postRoutes);
 mainRoute.use('/events', eventRoutes);
 mainRoute.use('/tasks', taskRoutes);
+mainRoute.use('/api', apiRoutes);
 
 export default mainRoute;

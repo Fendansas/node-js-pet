@@ -24,7 +24,9 @@ class PostController extends BaseController {
 
     async createPage(req, res) {
         console.log('[POST] Showing create page');
-        return this.renderView(res, 'posts/create');
+        const categories = ['weapon', 'anomaly', 'news', 'blog'];
+        const statuses = ['draft', 'published'];
+        return this.renderView(res, 'posts/create', { categories, statuses });
     }
 
     async create(req, res) {
@@ -80,7 +82,10 @@ class PostController extends BaseController {
                 return res.status(404).send('Post not found');
             }
 
-            return this.renderView(res, 'posts/edit', { post });
+            const categories = ['weapon', 'anomaly', 'news', 'blog'];
+            const statuses = ['draft', 'published'];
+
+            return this.renderView(res, 'posts/edit', { post, categories, statuses });
         } catch (error) {
             console.error('[POST] Edit page error:', error);
             return this.handleError(res, error, 'Edit post error');

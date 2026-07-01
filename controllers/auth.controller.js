@@ -74,6 +74,53 @@ export class AuthController extends BaseController {
             })
         })
     }
+
+    async apiRegister(req, res) {
+        console.log('[API] Register attempt:', req.body.username);
+
+        try {
+            const user = await registerUser(req.body);
+            console.log('[API] User registered successfully:', user._id);
+
+            return res.status(201).json({
+                success: true,
+                message: 'User registered successfully',
+                data: {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email
+                }
+            });
+        } catch (err) {
+            console.log('[API] Register error:', err.message);
+
+            if (err.message === 'USER_ALREADY_EXISTS') {
+                return res.status(409).json({
+                    success: false,
+                    message: 'User already exists'
+                });
+            }
+
+            if (err.message === 'EMAIL_ALREADY_EXISTS') {
+                return res.status(409).json({
+                    success: false,
+                    message: 'Email already exists'
+                });
+            }
+
+            if (err.message === 'DEFAULT_ROLE_NOT_FOUND') {
+                return res.status(500).json({
+                    success: false,
+                    message: 'Default role not found'
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Server error'
+            });
+        }
+    }
 }
 
 export default new AuthController();

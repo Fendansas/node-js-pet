@@ -2437,3 +2437,40 @@ li {
         width: 100%;
     }
 }
+/* =========================
+   FLASH MESSAGES
+   ========================= */
+
+.flash-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 25px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    animation: flashFadeIn 0.3s ease-out;
+}
+
+.flash-success {
+    background: rgba(45, 255, 122, 0.15);
+    border-bottom: 2px solid #2dff7a;
+    color: #2dff7a;
+}
+
+.flash-error {
+    background: rgba(255, 59, 59, 0.15);
+    border-bottom: 2px solid #ff3b3b;
+    color: #ff6b6b;
+}
+
+@keyframes flashFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

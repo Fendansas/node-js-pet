@@ -47,4 +47,19 @@
         </nav>
     </header>
 
+    <!-- Flash Messages -->
+    <% if (typeof successMessage !== 'undefined' && successMessage) { %>
+        <div class="flash-message flash-success">
+            <span>✅</span>
+            <span><%= successMessage %></span>
+        </div>
+    <% } %>
+
+    <% if (typeof validationErrors !== 'undefined' && validationErrors && validationErrors.length > 0) { %>
+        <div class="flash-message flash-error">
+            <span>❌</span>
+            <span><%= validationErrors.map(e => e.msg || e).join(', ') %></span>
+        </div>
+    <% } %>
+
     <div class="container">
