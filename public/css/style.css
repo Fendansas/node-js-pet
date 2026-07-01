@@ -2474,3 +2474,23 @@ li {
         transform: translateY(0);
     }
 }
+
+.search-query {
+    font-size: 14px;
+    font-weight: 400;
+    color: #ffae00;
+    margin-left: 10px;
+}
+
+.search-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+    font-size: 16px;
+}

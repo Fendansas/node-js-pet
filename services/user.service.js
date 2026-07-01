@@ -48,8 +48,17 @@ export const getProfileService = async (userId) => {
     return user;
 }
 
-export const getAllUsersService = async () => {
-    const users = await User.find().populate('role').populate('inventory.product');
+export const getAllUsersService = async (search = '') => {
+    const filter = search
+        ? {
+              $or: [
+                  { username: { $regex: search, $options: 'i' } },
+                  { email: { $regex: search, $options: 'i' } }
+              ]
+          }
+        : {};
+
+    const users = await User.find(filter).populate('role').populate('inventory.product');
     const onlineUsers = users.filter(user => user.isOnline).length;
 
     const { Task } = await import('../models/Task.js');

@@ -93,11 +93,12 @@ export class UserController extends BaseController {
         console.log('[USER] Loading all users (admin)');
 
         try {
-            const { users, onlineUsers } = await getAllUsersService();
+            const search = req.query.search || '';
+            const { users, onlineUsers } = await getAllUsersService(search);
 
-            console.log('[USER] Found', users.length, 'users,', onlineUsers.length, 'online');
+            console.log('[USER] Found', users.length, 'users,', onlineUsers, 'online');
 
-            return this.renderView(res, 'admin/users', { users, onlineUsers });
+            return this.renderView(res, 'admin/users', { users, onlineUsers, search });
 
         } catch (error) {
             return this.handleError(res, error, 'Users list error');

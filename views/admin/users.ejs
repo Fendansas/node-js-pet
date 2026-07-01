@@ -30,9 +30,15 @@
     <div class="table-box">
 
         <div class="table-header">
-            <h2>Список пользователей</h2>
+            <h2>Список пользователей <% if (search) { %><span class="search-query">«<%= search %>»</span><% } %></h2>
 
-            <input type="text" placeholder="Поиск пользователя..." class="search-input">
+            <form action="/admin/users" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Поиск пользователя..." value="<%= typeof search !== 'undefined' ? search : '' %>" class="search-input">
+                <button type="submit" class="btn">Найти</button>
+                <% if (search) { %>
+                    <a href="/admin/users" class="btn">Сбросить</a>
+                <% } %>
+            </form>
         </div>
 
         <table class="admin-table">
@@ -96,6 +102,12 @@
             </tbody>
 
         </table>
+
+        <% if (users.length === 0) { %>
+            <div class="empty-state">
+                <p>Пользователей по запросу «<%= search %>» не найдено</p>
+            </div>
+        <% } %>
 
     </div>
 
