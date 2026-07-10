@@ -1,0 +1,180 @@
+<%- include('../partials/header', { title: anomaly.name }) %>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+    .anomaly-detail {
+        padding: 20px;
+    }
+    .anomaly-detail-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .anomaly-detail-title {
+        margin: 0;
+        color: #2dff7a;
+        text-shadow: 0 0 10px rgba(45,255,122,.4);
+    }
+    .anomaly-detail-map {
+        width: 100%;
+        height: 500px;
+        border: 1px solid #2dff7a;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-bottom: 25px;
+        box-shadow: 0 0 25px rgba(45,255,122,.08);
+    }
+    .anomaly-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .anomaly-info-card {
+        background: rgba(10,20,10,.92);
+        border: 1px solid #2dff7a;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .anomaly-info-card h3 {
+        color: #2dff7a;
+        margin: 0 0 10px 0;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    .anomaly-info-card p {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .anomaly-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .anomaly-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+    .anomaly-screenshot {
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid #2dff7a;
+        margin-bottom: 25px;
+    }
+</style>
+
+<div class="container anomaly-detail">
+
+    <div class="anomaly-detail-top">
+        <div>
+            <h1 class="anomaly-detail-title"><%= anomaly.name %></h1>
+            <%
+                let color = '#2dff7a';
+                switch(anomaly.type) {
+                    case 'R': color = '#ff3b3b'; break;
+                    case 'A': color = '#9b5cff'; break;
+                    case 'M': color = '#00b7ff'; break;
+                    case 'B': color = '#ff8c42'; break;
+                    case 'C': color = '#00ffd5'; break;
+                    case 'H': color = '#ff5ca8'; break;
+                    case 'F': color = '#ffd000'; break;
+                    case 'Z': color = '#ffffff'; break;
+                }
+            %>
+            <div class="anomaly-type-badge" style="background: <%= color %>20; border: 1px solid <%= color %>; color: <%= color %>;">
+                <div class="dot" style="background: <%= color %>"></div>
+                <%= anomaly.type %>
+            </div>
+        </div>
+
+        <div class="anomaly-actions">
+            <a href="/anomaly" class="btn">← Назад</a>
+            <a href="/anomaly/<%= anomaly._id %>/edit" class="btn">✏️ Редактировать</a>
+            <form action="/anomaly/<%= anomaly._id %>/delete" method="POST" onsubmit="return confirm('Удалить аномалию?')">
+                <button type="submit" class="btn danger">🗑️ Удалить</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="map" class="anomaly-detail-map"></div>
+
+    <div class="anomaly-info-grid">
+        <div class="anomaly-info-card">
+            <h3>Широта</h3>
+            <p><%= anomaly.latitude %></p>
+        </div>
+        <div class="anomaly-info-card">
+            <h3>Долгота</h3>
+            <p><%= anomaly.longitude %></p>
+        </div>
+        <div class="anomaly-info-card">
+            <h3>Радиус</h3>
+            <p><%= anomaly.radius %> m</p>
+        </div>
+        <div class="anomaly-info-card">
+            <h3>Значение</h3>
+            <p><%= anomaly.value %></p>
+        </div>
+        <div class="anomaly-info-card">
+            <h3>Дата</h3>
+            <p><%= new Date(anomaly.createdAt).toLocaleDateString('ru-RU') %></p>
+        </div>
+    </div>
+
+    <% if (anomaly.screenshot) { %>
+        <h3>📷 Скриншот</h3>
+        <img src="<%= anomaly.screenshot %>" alt="Screenshot" class="anomaly-screenshot">
+    <% } %>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    const anomaly = <%- JSON.stringify(anomaly) %>;
+    const map = L.map('map').setView([anomaly.latitude, anomaly.longitude], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const colors = {
+        R: '#ff3b3b', A: '#9b5cff', M: '#00b7ff', B: '#ff8c42',
+        C: '#00ffd5', H: '#ff5ca8', F: '#ffd000', Z: '#ffffff'
+    };
+    const color = colors[anomaly.type] || '#2dff7a';
+
+    L.circleMarker([anomaly.latitude, anomaly.longitude], {
+        radius: 10, color: color, fillColor: color, fillOpacity: 1
+    }).addTo(map).bindPopup('<b>' + anomaly.name + '</b>');
+
+    L.circle([anomaly.latitude, anomaly.longitude], {
+        radius: Number(anomaly.radius), color: color, fillColor: color, fillOpacity: 0.15
+    }).addTo(map).bindPopup('<b>' + anomaly.name + '</b><br>Radius: ' + anomaly.radius + 'm');
+
+    // Show markers if they exist
+    if (anomaly.markers && anomaly.markers.length > 0) {
+        anomaly.markers.forEach(function(m) {
+            L.circleMarker([m.lat, m.lng], {
+                radius: 6, color: '#ff5252', fillColor: '#ff5252', fillOpacity: 1
+            }).addTo(map).bindPopup(m.label || 'Marker');
+        });
+    }
+</script>
+
+<%- include('../partials/footer') %>
