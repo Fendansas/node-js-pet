@@ -107,6 +107,169 @@
         opacity: .7;
     }
 
+    .overlay-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        padding: 8px 14px;
+        background: #0a140aee;
+        border: 1px solid #2dff7a;
+        border-radius: 8px;
+        color: #2dff7a;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: bold;
+    }
+
+    .overlay-panel {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        width: 300px;
+        max-height: 500px;
+        overflow-y: auto;
+        background: #0a140aee;
+        border: 1px solid #2dff7a;
+        border-radius: 10px;
+        padding: 15px;
+        display: none;
+    }
+
+    .overlay-panel.open {
+        display: block;
+    }
+
+    .overlay-panel h3 {
+        margin: 0 0 12px;
+        color: #2dff7a;
+        font-size: 15px;
+    }
+
+    .overlay-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+        border-bottom: 1px solid #2dff7a22;
+        font-size: 13px;
+    }
+
+    .overlay-item:last-child {
+        border-bottom: none;
+    }
+
+    .overlay-item label {
+        flex: 1;
+        color: #c4c4c4;
+        cursor: pointer;
+    }
+
+    .overlay-item input[type="checkbox"] {
+        accent-color: #2dff7a;
+    }
+
+    .overlay-item .edit-btn {
+        background: none;
+        border: none;
+        color: #ff8c42;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 0 4px;
+    }
+
+    .overlay-item .del-btn {
+        background: none;
+        border: none;
+        color: #ff3b3b;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0 4px;
+    }
+
+    .overlay-add-form {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .overlay-add-form input,
+    .overlay-add-form input[type="file"] {
+        padding: 6px 10px;
+        background: #1a2a1a;
+        border: 1px solid #2dff7a44;
+        border-radius: 6px;
+        color: #2dff7a;
+        font-size: 13px;
+    }
+
+    .overlay-add-form input::file-selector-button {
+        background: #2dff7a;
+        border: none;
+        border-radius: 4px;
+        color: #0a140a;
+        font-weight: bold;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .overlay-add-form .btn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .overlay-status {
+        font-size: 12px;
+        color: #888;
+        margin-top: 4px;
+    }
+
+    .overlay-hint {
+        font-size: 11px;
+        color: #2dff7a88;
+        margin-top: 4px;
+    }
+
+    .map-wrapper {
+        position: relative;
+    }
+
+    .coords-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .coords-grid input {
+        padding: 5px 8px;
+        background: #1a2a1a;
+        border: 1px solid #2dff7a44;
+        border-radius: 6px;
+        color: #2dff7a;
+        font-size: 12px;
+    }
+
+    .overlay-opacity-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #c4c4c4;
+    }
+
+    .overlay-opacity-row input[type="range"] {
+        flex: 1;
+        accent-color: #2dff7a;
+    }
+
+    .overlay-edit-label {
+        font-size: 11px;
+        color: #ff8c42;
+        margin-bottom: 4px;
+    }
+
     @media(max-width: 1000px){
 
         .anomaly-table{
@@ -147,7 +310,7 @@
                     font-size:14px;
                     outline:none;
                 ">
-                <button onclick="goToCoordinates()" style="
+                <button id="goToCoordsBtn" style="
                     padding:8px 16px;
                     background:#2dff7a;
                     border:none;
@@ -171,7 +334,53 @@
 
     </div>
 
-    <div id="map" class="anomaly-map"></div>
+    <div class="map-wrapper">
+
+        <div id="map" class="anomaly-map"></div>
+
+        <button class="overlay-btn" id="overlayToggleBtn">🗺 Слои</button>
+
+        <div class="overlay-panel" id="overlayPanel">
+
+            <h3>Изображения на карте</h3>
+
+            <div id="overlayList"></div>
+
+            <div class="overlay-add-form">
+
+                <input type="text" id="overlayName" placeholder="Название слоя">
+
+                <input type="file" id="overlayFileInput" accept="image/*">
+
+                <div class="overlay-hint">
+                    Или введите координаты углов вручную:
+                </div>
+
+                <div class="coords-grid">
+                    <input type="text" id="overlayLat1" placeholder="Lat 1 (верх.лев)">
+                    <input type="text" id="overlayLng1" placeholder="Lng 1 (верх.лев)">
+                    <input type="text" id="overlayLat2" placeholder="Lat 2 (ниж.прав)">
+                    <input type="text" id="overlayLng2" placeholder="Lng 2 (ниж.прав)">
+                </div>
+
+                <button class="btn" id="overlayPickBtn" type="button">📍 Выбрать на карте</button>
+
+                <div class="overlay-opacity-row">
+                    <span>Прозрачность:</span>
+                    <input type="range" id="overlayOpacity" min="0" max="1" step="0.05" value="0.8">
+                    <span id="opacityValue">0.8</span>
+                </div>
+
+                <div class="overlay-status" id="overlayStatus"></div>
+
+                <button class="btn" id="overlaySaveBtn" disabled>Сохранить</button>
+                <button class="btn danger" id="overlayCancelBtn" style="display:none">Отмена</button>
+
+            </div>
+
+        </div>
+
+    </div>
 
     <div class="anomaly-table-box">
         <a href="/anomaly/export" class="btn">
@@ -412,7 +621,7 @@
 
     });
 
-    function goToCoordinates() {
+    document.getElementById('goToCoordsBtn').addEventListener('click', function() {
         const input = document.getElementById('coordInput').value.trim();
         const parts = input.split(',');
         if (parts.length === 2) {
@@ -426,7 +635,351 @@
         } else {
             alert('Введите координаты в формате: 53.896472,24.193361');
         }
+    });
+
+    // ===== IMAGE OVERLAY SYSTEM =====
+    let overlays = [];
+    let overlayLayers = {};
+    let pendingOverlay = null;
+    let editingId = null;
+    let cornerCount = 0;
+    let corners = [];
+    let rectPreview = null;
+    let pickActive = false;
+
+    const overlayPanel = document.getElementById('overlayPanel');
+    const overlayList = document.getElementById('overlayList');
+    const overlayName = document.getElementById('overlayName');
+    const overlayFileInput = document.getElementById('overlayFileInput');
+    const overlayStatus = document.getElementById('overlayStatus');
+    const overlaySaveBtn = document.getElementById('overlaySaveBtn');
+    const overlayCancelBtn = document.getElementById('overlayCancelBtn');
+    const overlayPickBtn = document.getElementById('overlayPickBtn');
+    const overlayLat1 = document.getElementById('overlayLat1');
+    const overlayLng1 = document.getElementById('overlayLng1');
+    const overlayLat2 = document.getElementById('overlayLat2');
+    const overlayLng2 = document.getElementById('overlayLng2');
+    const overlayOpacity = document.getElementById('overlayOpacity');
+    const opacityValue = document.getElementById('opacityValue');
+
+    document.getElementById('overlayToggleBtn').addEventListener('click', function() {
+        overlayPanel.classList.toggle('open');
+    });
+
+    overlayOpacity.addEventListener('input', function() {
+        opacityValue.textContent = this.value;
+    });
+
+    // Загрузка существующих оверлеев
+    async function loadOverlays() {
+        try {
+            const res = await fetch('/overlays');
+            const json = await res.json();
+            if (json.success) {
+                overlays = json.data;
+                renderOverlayList();
+                overlays.forEach(addOverlayToMap);
+            }
+        } catch (e) {
+            console.error('Failed to load overlays:', e);
+        }
     }
+
+    function addOverlayToMap(ov) {
+        if (overlayLayers[ov._id]) {
+            map.removeLayer(overlayLayers[ov._id]);
+            delete overlayLayers[ov._id];
+        }
+
+        const layer = L.imageOverlay(
+            ov.imageUrl,
+            [[ov.bounds.lat1, ov.bounds.lng1], [ov.bounds.lat2, ov.bounds.lng2]],
+            { opacity: ov.opacity, zIndex: ov.zIndex }
+        ).addTo(map);
+
+        overlayLayers[ov._id] = layer;
+    }
+
+    function renderOverlayList() {
+        if (!overlays.length) {
+            overlayList.innerHTML = '<div class="overlay-status">Нет добавленных слоёв</div>';
+            return;
+        }
+
+        overlayList.innerHTML = overlays.map(ov => `
+            <div class="overlay-item">
+                <input type="checkbox" checked data-id="${ov._id}" class="ov-toggle">
+                <label>${ov.name}</label>
+                <button class="edit-btn" data-id="${ov._id}" title="Редактировать">&#9998;</button>
+                <button class="del-btn" data-id="${ov._id}" title="Удалить">&times;</button>
+            </div>
+        `).join('');
+
+        overlayList.querySelectorAll('.ov-toggle').forEach(cb => {
+            cb.addEventListener('change', function() {
+                const layer = overlayLayers[this.dataset.id];
+                if (layer) {
+                    if (this.checked) {
+                        map.addLayer(layer);
+                    } else {
+                        map.removeLayer(layer);
+                    }
+                }
+            });
+        });
+
+        overlayList.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.dataset.id;
+                const ov = overlays.find(o => o._id === id);
+                if (ov) startEdit(ov);
+            });
+        });
+
+        overlayList.querySelectorAll('.del-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
+                if (!confirm('Удалить этот слой?')) return;
+
+                try {
+                    const res = await fetch('/overlays/' + id, { method: 'DELETE' });
+                    const json = await res.json();
+                    if (json.success) {
+                        if (overlayLayers[id]) {
+                            map.removeLayer(overlayLayers[id]);
+                            delete overlayLayers[id];
+                        }
+                        overlays = overlays.filter(o => o._id !== id);
+                        renderOverlayList();
+                    }
+                } catch (e) {
+                    console.error('Delete failed:', e);
+                }
+            });
+        });
+    }
+
+    function startEdit(ov) {
+        editingId = ov._id;
+        overlayName.value = ov.name;
+        overlayLat1.value = ov.bounds.lat1;
+        overlayLng1.value = ov.bounds.lng1;
+        overlayLat2.value = ov.bounds.lat2;
+        overlayLng2.value = ov.bounds.lng2;
+        overlayOpacity.value = ov.opacity;
+        opacityValue.textContent = ov.opacity;
+        pendingOverlay = ov.imageUrl;
+        overlayStatus.textContent = 'Редактирование: ' + ov.name;
+        overlaySaveBtn.disabled = false;
+        overlayCancelBtn.style.display = 'inline-block';
+        overlayPanel.classList.add('open');
+
+        corners = [
+            { lat: ov.bounds.lat1, lng: ov.bounds.lng1 },
+            { lat: ov.bounds.lat2, lng: ov.bounds.lng2 }
+        ];
+        cornerCount = 2;
+
+        if (rectPreview) map.removeLayer(rectPreview);
+        rectPreview = L.rectangle(
+            [[corners[0].lat, corners[0].lng], [corners[1].lat, corners[1].lng]],
+            { color: '#ff8c42', weight: 2, fillOpacity: 0.1 }
+        ).addTo(map);
+    }
+
+    // Загрузка файла
+    overlayFileInput.addEventListener('change', async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        overlayStatus.textContent = 'Загрузка...';
+
+        try {
+            const res = await fetch('/overlays/upload', { method: 'POST', body: formData });
+            const json = await res.json();
+
+            if (json.success) {
+                pendingOverlay = json.data.imageUrl;
+                overlayStatus.textContent = 'Изображение загружено.';
+            } else {
+                overlayStatus.textContent = 'Ошибка загрузки';
+            }
+        } catch (e) {
+            overlayStatus.textContent = 'Ошибка загрузки';
+            console.error(e);
+        }
+    });
+
+    // Выбор области на карте
+    overlayPickBtn.addEventListener('click', function() {
+        if (pickActive) {
+            stopPickMode();
+            return;
+        }
+        pickActive = true;
+        cornerCount = 0;
+        corners = [];
+
+        if (rectPreview) {
+            map.removeLayer(rectPreview);
+            rectPreview = null;
+        }
+
+        map.getContainer().style.cursor = 'crosshair';
+        overlayStatus.textContent = 'Кликните 1-й угол (верхний левый)';
+        overlayPickBtn.textContent = '⏹ Отмена выбора';
+
+        map.on('click', onPickClick);
+    });
+
+    function onPickClick(e) {
+        if (cornerCount === 0) {
+            corners[0] = e.latlng;
+            cornerCount = 1;
+            overlayLat1.value = e.latlng.lat.toFixed(6);
+            overlayLng1.value = e.latlng.lng.toFixed(6);
+            overlayStatus.textContent = 'Кликните 2-й угол (нижний правый)';
+        } else if (cornerCount === 1) {
+            corners[1] = e.latlng;
+            cornerCount = 2;
+            overlayLat2.value = e.latlng.lat.toFixed(6);
+            overlayLng2.value = e.latlng.lng.toFixed(6);
+
+            stopPickMode();
+
+            rectPreview = L.rectangle([corners[0], corners[1]], {
+                color: '#2dff7a',
+                weight: 2,
+                fillOpacity: 0.1
+            }).addTo(map);
+
+            overlayStatus.textContent = 'Область выбрана. Нажмите «Сохранить».';
+            overlaySaveBtn.disabled = false;
+        }
+    }
+
+    function stopPickMode() {
+        pickActive = false;
+        map.getContainer().style.cursor = '';
+        map.off('click', onPickClick);
+        overlayPickBtn.textContent = '📍 Выбрать на карте';
+    }
+
+    // Валидация полей координат
+    function getCoordsFromFields() {
+        const lat1 = parseFloat(overlayLat1.value);
+        const lng1 = parseFloat(overlayLng1.value);
+        const lat2 = parseFloat(overlayLat2.value);
+        const lng2 = parseFloat(overlayLng2.value);
+
+        if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) {
+            return null;
+        }
+        return { lat1, lng1, lat2, lng2 };
+    }
+
+    overlaySaveBtn.addEventListener('click', async function() {
+        const name = overlayName.value.trim();
+        if (!name) {
+            alert('Введите название слоя');
+            return;
+        }
+
+        const coords = getCoordsFromFields();
+        if (!coords) {
+            alert('Введите корректные координаты 4 углов');
+            return;
+        }
+        if (!pendingOverlay) {
+            alert('Загрузите изображение');
+            return;
+        }
+
+        const data = new URLSearchParams();
+        data.append('name', name);
+        data.append('imageUrl', pendingOverlay);
+        data.append('lat1', coords.lat1);
+        data.append('lng1', coords.lng1);
+        data.append('lat2', coords.lat2);
+        data.append('lng2', coords.lng2);
+        data.append('opacity', overlayOpacity.value);
+
+        try {
+            let res;
+            if (editingId) {
+                res = await fetch('/overlays/' + editingId, {
+                    method: 'PUT',
+                    body: data,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+            } else {
+                res = await fetch('/overlays', {
+                    method: 'POST',
+                    body: data,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+            }
+
+            const json = await res.json();
+
+            if (json.success) {
+                if (editingId) {
+                    const idx = overlays.findIndex(o => o._id === editingId);
+                    if (idx !== -1) overlays[idx] = json.data;
+                    addOverlayToMap(json.data);
+                } else {
+                    overlays.push(json.data);
+                    addOverlayToMap(json.data);
+                }
+                renderOverlayList();
+                resetAddForm();
+                overlayStatus.textContent = editingId ? 'Слой обновлён!' : 'Слой добавлен!';
+            } else {
+                overlayStatus.textContent = 'Ошибка сохранения';
+            }
+        } catch (e) {
+            overlayStatus.textContent = 'Ошибка сохранения';
+            console.error(e);
+        }
+    });
+
+    overlayCancelBtn.addEventListener('click', function() {
+        resetAddForm();
+        overlayStatus.textContent = editingId ? 'Редактирование отменено' : 'Добавление отменено';
+    });
+
+    function resetAddForm() {
+        editingId = null;
+        pendingOverlay = null;
+        cornerCount = 0;
+        corners = [];
+        pickActive = false;
+        overlayName.value = '';
+        overlayFileInput.value = '';
+        overlayLat1.value = '';
+        overlayLng1.value = '';
+        overlayLat2.value = '';
+        overlayLng2.value = '';
+        overlayOpacity.value = '0.8';
+        opacityValue.textContent = '0.8';
+        overlaySaveBtn.disabled = true;
+        overlayCancelBtn.style.display = 'none';
+        map.getContainer().style.cursor = '';
+        overlayPickBtn.textContent = '📍 Выбрать на карте';
+
+        if (rectPreview) {
+            map.removeLayer(rectPreview);
+            rectPreview = null;
+        }
+
+        map.off('click', onPickClick);
+    }
+
+    // Загружаем оверлеи при старте
+    loadOverlays();
 
 </script>
 

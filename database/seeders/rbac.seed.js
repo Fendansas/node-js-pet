@@ -28,6 +28,8 @@ const permissionsList = [
     // Аномалии
     'anomaly:read', 'anomaly:create', 'anomaly:update', 'anomaly:delete',
     'anomaly:export',
+    // Оверлеи (изображения на карте)
+    'overlay:read', 'overlay:create', 'overlay:update', 'overlay:delete',
     // Админка и Профиль
     'dashboard:read', 'rbac:manage',
     'profile:read', 'profile:update', 'avatar:manage'
@@ -61,7 +63,8 @@ const create = async () => {
         // 3. Role: User (базовые права)
         const userPermissions = createdPermissions.filter(p => 
             ['product:read', 'post:read', 'event:read', 'task:read', 
-             'anomaly:read', 'profile:read', 'profile:update', 'avatar:manage'].includes(p.name)
+             'anomaly:read', 'overlay:read',
+             'profile:read', 'profile:update', 'avatar:manage'].includes(p.name)
         );
         
         const userRole = await Role.findOneAndUpdate(

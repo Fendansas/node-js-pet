@@ -1,7 +1,7 @@
 <%- include('../partials/header', { title: 'Создание GPS точки' }) %>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script>
-        const anomalies = <% - JSON.stringify(anomalies || []) %>;
+        const anomalies = <%- JSON.stringify(anomalies || []) %>;
         // Получаем пометки из URL параметров
         const urlParams = new URLSearchParams(window.location.search);
         const savedScreenshot = urlParams.get('screenshot');
@@ -72,14 +72,14 @@
 
                     <div class="form-group">
                         <label>Latitude</label>
-                        <input type="text" id="latitude" name="latitude" required readonly />
+                        <input type="text" id="latitude" name="latitude" required />
                         <input type="hidden" name="screenshot"  value="<%= screenshot || '' %>">
                         <input type="hidden" name="markers"  value="<%= markers || '' %>">
                     </div>
 
                     <div class="form-group">
                         <label>Longitude</label>
-                        <input type="text" id="longitude" name="longitude" required readonly />
+                        <input type="text" id="longitude" name="longitude" required />
                     </div>
 
                     <div class="form-group">

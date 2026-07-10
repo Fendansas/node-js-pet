@@ -8,6 +8,7 @@ import postRoutes from "./post.routes.js";
 import eventRoutes from "./event.routes.js";
 import taskRoutes from "./task.routes.js";
 import apiRoutes from "./api.routes.js";
+import overlayRoutes from "./overlay.routes.js";
 import express from "express";
 
 const mainRoute = express.Router();
@@ -22,5 +23,6 @@ mainRoute.use('/posts', postRoutes);
 mainRoute.use('/events', eventRoutes);
 mainRoute.use('/tasks', taskRoutes);
 mainRoute.use('/api', apiRoutes);
+mainRoute.use('/overlays', overlayRoutes);
 
 export default mainRoute;

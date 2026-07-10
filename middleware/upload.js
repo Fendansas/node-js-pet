@@ -61,5 +61,34 @@ const uploadScreenshot = multer({
     }
 });
 
-export { upload, uploadScreenshot };
+// Storage для overlay-картинок
+const overlayStorage = multer.diskStorage({
+    destination: (req, file, cd) => {
+        const uploadPath = 'public/uploads/overlays';
+
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cd(null, uploadPath);
+    },
+
+    filename: (req, file, cd) => {
+        cd(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const uploadOverlay = multer({
+    storage: overlayStorage,
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cd) => {
+        if (file.mimetype.startsWith('image/')) {
+            cd(null, true);
+        } else {
+            cd(new Error('Только изображения!'));
+        }
+    }
+});
+
+export { upload, uploadScreenshot, uploadOverlay };
 export default upload;

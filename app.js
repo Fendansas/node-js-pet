@@ -36,7 +36,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ===== SECURITY =====
-app.use(helmet());
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+            imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org"],
+            connectSrc: ["'self'"],
+            fontSrc: ["'self'", "https:", "data:"],
+            objectSrc: ["'none'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
+            frameAncestors: ["'self'"],
+            upgradeInsecureRequests: []
+        }
+    }
+}));
 
 app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:3001',
