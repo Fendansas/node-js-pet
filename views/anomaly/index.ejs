@@ -270,6 +270,40 @@
         margin-bottom: 4px;
     }
 
+    .arrow-row {
+        display: flex;
+        gap: 6px;
+        justify-content: center;
+        margin-top: 4px;
+    }
+
+    .arrow-btn {
+        width: 36px;
+        height: 36px;
+        background: #1a2a1a;
+        border: 1px solid #2dff7a44;
+        border-radius: 6px;
+        color: #2dff7a;
+        font-size: 18px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: .15s;
+    }
+
+    .arrow-btn:hover {
+        border-color: #2dff7a;
+        background: #2a3a2a;
+    }
+
+    .arrow-hint {
+        font-size: 11px;
+        color: #2dff7a88;
+        text-align: center;
+        margin-top: 4px;
+    }
+
     @media(max-width: 1000px){
 
         .anomaly-table{
@@ -364,6 +398,15 @@
                 </div>
 
                 <button class="btn" id="overlayPickBtn" type="button">📍 Выбрать на карте</button>
+
+                <div class="arrow-hint">Сдвинуть область:</div>
+
+                <div class="arrow-row">
+                    <button class="arrow-btn" data-dir="up" title="Вверх">↑</button>
+                    <button class="arrow-btn" data-dir="down" title="Вниз">↓</button>
+                    <button class="arrow-btn" data-dir="left" title="Влево">←</button>
+                    <button class="arrow-btn" data-dir="right" title="Вправо">→</button>
+                </div>
 
                 <div class="overlay-opacity-row">
                     <span>Прозрачность:</span>
@@ -866,6 +909,56 @@
         map.getContainer().style.cursor = '';
         map.off('click', onPickClick);
         overlayPickBtn.textContent = '📍 Выбрать на карте';
+    }
+
+    // Стрелки сдвига
+    document.querySelectorAll('.arrow-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const dir = this.dataset.dir;
+            const step = 0.00001;
+
+            let lat1 = parseFloat(overlayLat1.value);
+            let lng1 = parseFloat(overlayLng1.value);
+            let lat2 = parseFloat(overlayLat2.value);
+            let lng2 = parseFloat(overlayLng2.value);
+
+            if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) return;
+
+            switch (dir) {
+                case 'up':    lat1 += step; lat2 += step; break;
+                case 'down':  lat1 -= step; lat2 -= step; break;
+                case 'left':  lng1 -= step; lng2 -= step; break;
+                case 'right': lng1 += step; lng2 += step; break;
+            }
+
+            overlayLat1.value = lat1.toFixed(6);
+            overlayLng1.value = lng1.toFixed(6);
+            overlayLat2.value = lat2.toFixed(6);
+            overlayLng2.value = lng2.toFixed(6);
+
+            updatePreviewRect();
+        });
+    });
+
+    function updatePreviewRect() {
+        const coords = getCoordsFromFields();
+        if (!coords) return;
+
+        if (rectPreview) {
+            map.removeLayer(rectPreview);
+        }
+
+        rectPreview = L.rectangle(
+            [[coords.lat1, coords.lng1], [coords.lat2, coords.lng2]],
+            { color: '#2dff7a', weight: 2, fillOpacity: 0.1 }
+        ).addTo(map);
+
+        corners = [
+            { lat: coords.lat1, lng: coords.lng1 },
+            { lat: coords.lat2, lng: coords.lng2 }
+        ];
+        cornerCount = 2;
+        overlaySaveBtn.disabled = false;
     }
 
     // Валидация полей координат
