@@ -1,9 +1,9 @@
-import user from "../models/user.js";
+import User from '../models/User.js';
 
 export const updateLastSeen = async (req, res, next) => {
     try {
         if(req.session?.user?.id){
-            await user.findByIdAndUpdate(
+            await User.findByIdAndUpdate(
                 req.session.user.id,
                 {lastSeen: new Date()}
             );

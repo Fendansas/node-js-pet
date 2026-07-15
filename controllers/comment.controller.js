@@ -1,5 +1,5 @@
-import {BaseController} from "./base.controller.js";
-import CommentService from "../services/comment.service.js";
+import { BaseController } from './base.controller.js';
+import CommentService from '../services/comment.service.js';
 
 
 class CommentController extends BaseController {
@@ -26,7 +26,7 @@ class CommentController extends BaseController {
             const isAdmin = req.user.role?.name === 'admin';
 
             if(!isOwner && !isAdmin){
-                return res.status(403).send('нет прав доступа');
+                return res.status(403).json({ success: false, message: 'Нет прав доступа' });
             }
 
             await CommentService.delete(commentId);

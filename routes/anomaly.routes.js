@@ -1,9 +1,9 @@
-import express from "express";
-import anomalyController from "../controllers/anomaly.controller.js";
-import { allow } from "../middleware/permission.middleware.js";
-import {anomalyCreateValidator, anomalyUpdateValidator} from "../validators/anomaly.validator.js";
-import { validate } from "../middleware/validation.middleware.js";
-import { uploadScreenshot } from "../middleware/upload.js";
+import express from 'express';
+import anomalyController from '../controllers/anomaly.controller.js';
+import { allow } from '../middleware/permission.middleware.js';
+import {anomalyCreateValidator, anomalyUpdateValidator} from '../validators/anomaly.validator.js';
+import { validate } from '../middleware/validation.middleware.js';
+import { uploadScreenshot } from '../middleware/upload.js';
 
 
 const router = express.Router();

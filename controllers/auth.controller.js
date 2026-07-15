@@ -1,12 +1,12 @@
 import { BaseController } from './base.controller.js';
-import { registerUser, loginUser } from '../services/auth.service.js';
+import AuthService from '../services/auth.service.js';
 
 export class AuthController extends BaseController {
     async register(req, res) {
         console.log('[AUTH] Register attempt:', req.body.username);
 
         try {
-            await registerUser(req.body);
+            await AuthService.register(req.body);
             console.log('[AUTH] User registered successfully');
 
             return this.successRedirect(req, res, '/login', 'Registration successful');
@@ -15,15 +15,15 @@ export class AuthController extends BaseController {
 
             console.log('[AUTH] Register error:', err.message);
             if (err.message === 'USER_ALREADY_EXISTS'){
-                return res.status(409).send('User already exists');
+                return res.status(409).json({ success: false, message: 'User already exists' });
             }
 
             if(err.message === 'DEFAULT_ROLE_NOT_FOUND'){
-                return res.status(500).send('Default role not found');
+                return res.status(500).json({ success: false, message: 'Default role not found' });
             }
 
             if (err.message === 'EMAIL_ALREADY_EXISTS') {
-                return res.status(409).send('Email already exists');
+                return res.status(409).json({ success: false, message: 'Email already exists' });
             }
 
             return this.handleError(res, err, 'Register error');
@@ -34,14 +34,12 @@ export class AuthController extends BaseController {
         console.log('[AUTH] Login attempt:', req.body.username);
 
         try {
-            const user = await loginUser(req.body);
+            const user = await AuthService.login(req.body);
 
             req.session.user = {
                 id: user._id,
                 username: user.username
             }
-            user.lastLogin = new Date();
-            await user.save();
 
             console.log('[AUTH] User logged in:', user.username);
 
@@ -50,11 +48,11 @@ export class AuthController extends BaseController {
             console.log('[AUTH] Login error:', err.message);
 
             if (err.message === 'INVALID_CREDS'){
-                return res.status(401).send('Invalid credentials');
+                return res.status(401).json({ success: false, message: 'Invalid credentials' });
             }
 
             if (err.message === 'USER_BANNED'){
-                return res.status(403).send('Account is banned');
+                return res.status(403).json({ success: false, message: 'Account is banned' });
             }
 
             return this.handleError(res, err, 'Login error');
@@ -79,7 +77,7 @@ export class AuthController extends BaseController {
         console.log('[API] Register attempt:', req.body.username);
 
         try {
-            const user = await registerUser(req.body);
+            const user = await AuthService.register(req.body);
             console.log('[API] User registered successfully:', user._id);
 
             return res.status(201).json({

@@ -1,5 +1,5 @@
 import { BaseController } from './base.controller.js';
-import {getProfileService} from "../services/user.service.js";
+import UserService from '../services/user.service.js';
 
 export class IndexController extends BaseController {
 
@@ -13,7 +13,7 @@ export class IndexController extends BaseController {
 
             let user = null;
             if (userId) {
-                user = await getProfileService(userId);
+                user = await UserService.getProfile(userId);
                 console.log('[USER] Profile loaded successfully');
             }
 

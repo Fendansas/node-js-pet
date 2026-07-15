@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import mongoose from 'mongoose';
-import Permission from "../../models/permission.js";
-import Role from "../../models/role.js";
+import Permission from "../../models/Permission.js";
+import Role from "../../models/Role.js";
 
 // Connect to database
 await mongoose.connect(process.env.MONGO_URI);

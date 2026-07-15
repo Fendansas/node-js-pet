@@ -1,20 +1,14 @@
 import { BaseController } from './base.controller.js';
 import { validationResult } from 'express-validator';
-import User from '../models/user.js';
 import path from 'path';
-import {
-    updateUserProfileService,
-    getProfileService,
-    getAllUsersService,
-    editProfileService
-} from '../services/user.service.js';
+import UserService from '../services/user.service.js';
 import {
     uploadAvatarService,
     deleteAvatarService,
+    clearUserAvatarFields,
     getAvatarUrl,
     getAvatarService
 } from '../services/avatar.service.js';
-import fs from 'fs';
 
 
 export class UserController extends BaseController {
@@ -23,16 +17,16 @@ export class UserController extends BaseController {
         console.log('[USER] Loading profile for:', req.user?._id);
 
         try {
-            const user = await getProfileService(req.user?._id);
-            if (!user) {
-                console.log('[USER] User not found:', req.user._id);
-                return res.status(404).send('User not found');
-            }
-
+            const user = await UserService.getProfile(req.user?._id);
             return this.renderView(res, 'profile', { user });
 
         } catch (error) {
             console.error('[USER] Profile error:', error);
+
+            if (error.code === 'USER_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
             return this.handleError(res, error, 'Profile error');
         }
     }
@@ -41,17 +35,18 @@ export class UserController extends BaseController {
         console.log('[USER] Loading edit profile page');
 
         try {
-            const user = await editProfileService(req.user._id);
-            if (!user) {
-                console.log('[USER] User not found:', req.user._id);
-                return res.status(404).send('User not found');
-            }
+            const user = await UserService.getEditProfile(req.user._id);
             console.log('[USER] Edit profile page loaded');
 
             return this.renderView(res, 'edit-profile', { user });
 
         } catch (error) {
             console.error('[USER] Edit profile page error:', error);
+
+            if (error.code === 'USER_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'User not found' });
+            }
+
             return this.handleError(res, error, 'Edit profile error');
         }
     }
@@ -60,15 +55,10 @@ export class UserController extends BaseController {
         console.log('[USER] Updating profile');
 
         try {
-            const updatedUser = await updateUserProfileService(
+            const updatedUser = await UserService.updateProfile(
                 req.user._id,
                 req.body
             );
-
-            if (!updatedUser) {
-                console.log('[USER] User not found:', req.user._id);
-                return res.status(404).send('User not found');
-            }
 
             console.log('[USER] Profile updated successfully');
 
@@ -82,7 +72,11 @@ export class UserController extends BaseController {
             console.error('[USER] Update profile error:', error);
 
             if (error.code === 'EMAIL_ALREADY_EXISTS') {
-                return res.status(409).send('Email already exists');
+                return res.status(409).json({ success: false, message: 'Email already exists' });
+            }
+
+            if (error.code === 'USER_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             return this.handleError(res, error, 'Update profile error');
@@ -94,7 +88,7 @@ export class UserController extends BaseController {
 
         try {
             const search = req.query.search || '';
-            const { users, onlineUsers } = await getAllUsersService(search);
+            const { users, onlineUsers } = await UserService.getAll(search);
 
             console.log('[USER] Found', users.length, 'users,', onlineUsers, 'online');
 
@@ -163,11 +157,7 @@ export class UserController extends BaseController {
             }
 
             await deleteAvatarService(req.user.avatarId);
-
-            req.user.avatarId = null;
-            req.user.avatarMimeType = null;
-            req.user.avatarUpdatedAt = null;
-            await req.user.save();
+            await clearUserAvatarFields(req.user._id);
 
             console.log('[USER] Avatar deleted');
 

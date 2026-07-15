@@ -37,7 +37,7 @@ export class BaseController {
         }
 
         const message = error.message || castomMessage;
-        return res.status(statusCode).send(message);
+        return res.status(statusCode).json({ success: false, message });
     }
 
     sendValidationError(res, errors, renderView = null, viewData = {}) {

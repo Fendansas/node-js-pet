@@ -1,5 +1,5 @@
 import { BaseController } from './base.controller.js';
-import * as RbacService from '../services/rbac.service.js';
+import RbacService from '../services/rbac.service.js';
 
 export class AdminController extends BaseController {
 
@@ -7,7 +7,7 @@ export class AdminController extends BaseController {
         console.log('[ADMIN] Loading RBAC page');
 
         try {
-            const data = await RbacService.getRbacPageData();
+            const data = await RbacService.getPageData();
             console.log('[ADMIN] RBAC data loaded:', data.roles.length, 'roles,', data.permissions.length, 'permissions');
 
             return this.renderView(res, 'admin/rbac', data);
@@ -32,7 +32,7 @@ export class AdminController extends BaseController {
             console.error('[ADMIN] Create permission error:', error);
 
             if (error.code === 'PERMISSION_ALREADY_EXISTS') {
-                return res.status(409).send('Permission with this name already exists');
+                return res.status(409).json({ success: false, message: 'Permission with this name already exists' });
             }
 
             return this.handleError(res, error, 'Create permission error');
@@ -54,7 +54,7 @@ export class AdminController extends BaseController {
             console.error('[ADMIN] Create role error:', error);
 
             if (error.code === 'ROLE_ALREADY_EXISTS') {
-                return res.status(409).send('Role with this name already exists');
+                return res.status(409).json({ success: false, message: 'Role with this name already exists' });
             }
 
             return this.handleError(res, error, 'Create role error');

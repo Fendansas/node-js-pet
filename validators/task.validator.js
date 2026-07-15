@@ -1,4 +1,4 @@
-import {body} from "express-validator";
+import {body} from 'express-validator';
 
 export const TaskValidator = [
     body('eventId','Id События').notEmpty().withMessage('Поле не может быть пустым'),

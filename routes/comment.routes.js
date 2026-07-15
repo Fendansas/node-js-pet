@@ -1,8 +1,8 @@
-import {Router} from "express";
-import CommentController from "../controllers/comment.controller.js";
-import {allow} from "../middleware/permission.middleware.js";
-import {createCommentValidator} from "../validators/comment.validator.js";
-import {validate} from "../middleware/validation.middleware.js";
+import {Router} from 'express';
+import CommentController from '../controllers/comment.controller.js';
+import {allow} from '../middleware/permission.middleware.js';
+import {createCommentValidator} from '../validators/comment.validator.js';
+import {validate} from '../middleware/validation.middleware.js';
 
 const router = Router();
 

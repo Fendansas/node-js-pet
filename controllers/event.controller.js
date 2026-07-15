@@ -1,6 +1,6 @@
 import { BaseController } from './base.controller.js';
-import EventService from "../services/event.service.js";
-import TaskService from "../services/task.service.js";
+import EventService from '../services/event.service.js';
+import TaskService from '../services/task.service.js';
 
 
 
@@ -9,14 +9,14 @@ class EventController extends BaseController {
 
     async index(req, res) {
         try {
-            console.log('[EVENTS] Listing events');
+            console.log('[EVENT] Listing events');
 
             const events = await EventService.getAllEvents();
-            console.log('[EVENTS] Found', events.length, 'events');
+            console.log('[EVENT] Found', events.length, 'events');
 
             return this.renderView(res, 'events/index', {events});
         } catch (err) {
-            console.error('[EVENTS] Index error:', err);
+            console.error('[EVENT] Index error:', err);
             return this.handleError(res, err, 'Event error');
 
         }
@@ -61,7 +61,7 @@ class EventController extends BaseController {
             console.log('[EVENT] Event found:', event);
             if (!event) {
                 console.log('[EVENT] Event not found:', req.params.id);
-                return res.status(404).send('Event not found');
+                return res.status(404).json({ success: false, message: 'Event not found' });
             }
 
             const tasks = await TaskService.getTasksByEventId(req.params.id);
@@ -80,7 +80,7 @@ class EventController extends BaseController {
             const event = await EventService.getEventById(req.params.id);
             if (!event) {
                 console.log('[EVENT] Event not found:', req.params.id);
-                return res.status(404).send('Event not found');
+                return res.status(404).json({ success: false, message: 'Event not found' });
             }
 
             return this.renderView(res, 'events/edit', {event});
@@ -118,14 +118,14 @@ class EventController extends BaseController {
     }
 
     async delete (req, res){
-        console.log('[EVENTS] Deleting event:', req.params.id);
+        console.log('[EVENT] Deleting event:', req.params.id);
         try {
             await EventService.delete(req.params.id);
-            console.log('[EVENTS] Event deleted successfully');
+            console.log('[EVENT] Event deleted successfully');
             return this.successRedirect(req, res, '/events', 'Event deleted');
 
         } catch (error){
-            console.error('[EVENTS] Delete error:', error);
+            console.error('[EVENT] Delete error:', error);
             return this.handleError(res, error, 'Delete event error');
         }
     }

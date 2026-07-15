@@ -62,7 +62,7 @@ export class AnomalyController extends BaseController {
         } catch (error) {
             console.error('[ANOMALY] Create error:', error);
             if (error.code === 'ANOMALY_ALREADY_EXISTS') {
-                return res.status(409).send('Anomaly with this name already exists');
+                return res.status(409).json({ success: false, message: 'Anomaly with this name already exists' });
             }
             return this.handleError(res, error, 'Create anomaly error');
         }
@@ -76,7 +76,7 @@ export class AnomalyController extends BaseController {
 
             if (!anomaly) {
                 console.log('[ANOMALY] Anomaly not found:', req.params.id);
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.renderView(res, 'anomaly/show', { anomaly });
@@ -84,7 +84,7 @@ export class AnomalyController extends BaseController {
             console.error('[ANOMALY] Show error:', error);
 
             if (error.code === 'ANOMALY_NOT_FOUND') {
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.handleError(res, error, 'Show anomaly error');
@@ -99,7 +99,7 @@ export class AnomalyController extends BaseController {
 
             if (!anomaly) {
                 console.log('[ANOMALY] Anomaly not found:', req.params.id);
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.renderView(res, 'anomaly/edit', { anomaly });
@@ -108,7 +108,7 @@ export class AnomalyController extends BaseController {
             console.error('[ANOMALY] Edit page error:', error);
 
             if (error.code === 'ANOMALY_NOT_FOUND') {
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.handleError(res, error, 'Edit anomaly error');
@@ -139,7 +139,7 @@ export class AnomalyController extends BaseController {
             console.error('[ANOMALY] Update error:', error);
 
             if (error.code === 'ANOMALY_NOT_FOUND') {
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.handleError(res, error, 'Update anomaly error');
@@ -159,7 +159,7 @@ export class AnomalyController extends BaseController {
             console.error('[ANOMALY] Delete error:', error);
 
             if (error.code === 'ANOMALY_NOT_FOUND') {
-                return res.status(404).send('Anomaly not found');
+                return res.status(404).json({ success: false, message: 'Anomaly not found' });
             }
 
             return this.handleError(res, error, 'Delete anomaly error');
@@ -192,7 +192,7 @@ export class AnomalyController extends BaseController {
 
             console.log('[ANOMALY] Export completed:', filePath);
 
-            return res.send({
+            return res.json({
                 success: true,
                 message: 'Файл успешно обновлен',
                 path: filePath

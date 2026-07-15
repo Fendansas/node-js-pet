@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
-import {GridFSBucket} from "mongodb";
-import User from "../models/user.js";
+import mongoose from 'mongoose';
+import {GridFSBucket} from 'mongodb';
+import User from '../models/User.js';
 
 let bucket;
 
@@ -91,6 +91,20 @@ export const deleteAvatarService = async (avatarID) =>{
         console.error('Error deleting avatar:', error);
         throw error;
     }
+}
+
+export const clearUserAvatarFields = async (userId) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error('User not found');
+    }
+
+    user.avatarId = null;
+    user.avatarMimeType = null;
+    user.avatarUpdatedAt = null;
+    await user.save();
+
+    return { success: true };
 }
 
 export const getAvatarUrl = (userId, avatarId) => {

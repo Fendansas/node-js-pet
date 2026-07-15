@@ -1,9 +1,7 @@
 import { BaseController } from './base.controller.js';
 import TaskService from '../services/task.service.js';
 import EventService from '../services/event.service.js';
-import { getAllUsersService } from '../services/user.service.js';
-import { Task } from "../models/Task.js";
-import User from '../models/user.js'; 
+import UserService from '../services/user.service.js';
 
 class TaskController extends BaseController {
 
@@ -11,7 +9,7 @@ class TaskController extends BaseController {
         console.log('[TASK] Listing all tasks');
 
         try {
-            const tasks = await Task.find().sort({ createdAt: -1 }).populate('assignedTo.user', 'username email');
+            const tasks = await TaskService.getAllTasks();
             console.log('[TASK] Found', tasks.length, 'tasks');
 
             return this.renderView(res, 'tasks/index', { tasks });
@@ -42,7 +40,7 @@ class TaskController extends BaseController {
             console.error('[TASK] Create error:', error);
 
             if (error.code === 'EVENT_ID_REQUIRED') {
-                return res.status(400).send('Event ID is required');
+                return res.status(400).json({ success: false, message: 'Event ID is required' });
             }
 
             return this.renderView(res, 'tasks/create', { errors: [error.message] });
@@ -55,11 +53,6 @@ class TaskController extends BaseController {
         try {
             const task = await TaskService.getTaskById(req.params.id);
 
-            if (!task) {
-                console.log('[TASK] Task not found:', req.params.id);
-                return res.status(404).send('Task not found');
-            }
-
             let event = null;
             if (task.eventId) {
                 try {
@@ -69,11 +62,16 @@ class TaskController extends BaseController {
                 }
             }
 
-            const users = await getAllUsersService();
+            const { users } = await UserService.getAll();
 
             return this.renderView(res, 'tasks/show', { task, event, users });
         } catch (error) {
             console.error('[TASK] Show page error:', error);
+
+            if (error.code === 'TASK_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+
             return this.handleError(res, error, 'Show task error');
         }
     }
@@ -93,11 +91,11 @@ class TaskController extends BaseController {
             console.error('[TASK] Add user error:', error);
 
             if (error.code === 'TASK_NOT_FOUND') {
-                return res.status(404).send('Task not found');
+                return res.status(404).json({ success: false, message: 'Task not found' });
             }
 
             if (error.code === 'USER_ALREADY_ASSIGNED') {
-                return res.status(400).send('User already assigned to this task');
+                return res.status(400).json({ success: false, message: 'User already assigned to this task' });
             }
 
             return this.handleError(res, error, 'Add user error');
@@ -111,77 +109,22 @@ class TaskController extends BaseController {
             const taskId = req.params.id;
             const { userId, status, assignmentId } = req.body;
 
-            console.log('[TASK] Task ID:', taskId);
-            console.log('[TASK] Assignment ID:', assignmentId);
-            console.log('[TASK] User ID:', userId);
-            console.log('[TASK] Status:', status);
-
-            const validStatuses = ['pending', 'in_progress', 'completed', 'failed'];
-
-            if (!validStatuses.includes(status)) {
-                return res.status(400).json({ error: 'Invalid status' });
-            }
-
-            const { task, assignment } = await TaskService.getAssignmentById(assignmentId);
-
-            if (!task) {
-                console.log('[TASK] Task not found:', taskId);
-                return res.status(404).json({ error: 'Task not found' });
-            }
-
-            if (assignment.user._id.toString() !== userId) {
-                return res.status(400).json({ error: 'User is not assigned to this task' });
-            }
-
-            const updateData = {
-                'assignedTo.$.status': status
-            };
-
-            if (status === 'completed' && !assignment.completedAt) {
-                updateData['assignedTo.$.completedAt'] = new Date();
-            }
-
-            const updatedTask = await Task.findOneAndUpdate(
-                {
-                    _id: taskId,
-                    'assignedTo._id': assignmentId
-                },
-                {
-                    $set: updateData
-                },
-                { new: true }
-            ).populate('assignedTo.user', 'username email');
-
-            if (status === 'completed' && !assignment.rewardGiven) {
-
-                const user = await User.findById(userId);
-
-                if (user) {
-                    user.money += updatedTask.reward;
-                    await user.save();
-                    console.log(`[TASK] Reward ${updatedTask.reward} given to user ${userId}. New balance: ${user.money}`);
-                } else {
-                    console.log(`[TASK] User not found for reward: ${userId}`);
-
-                }
-                await Task.findOneAndUpdate(
-                    {
-                        _id: taskId,
-                        'assignedTo._id': assignmentId
-                    },
-                    {
-                        $set: { 'assignedTo.$.rewardGiven': true }
-                    }
-                );
-
-                console.log(`[TASK] Reward ${updatedTask.reward} given to user ${userId}`);
-            }
+            await TaskService.updateAssignmentStatus(taskId, assignmentId, userId, status);
 
             console.log('[TASK] Status updated successfully');
             return res.redirect(`/tasks/${taskId}/show`);
         } catch (error) {
             console.error('[TASK] Update status error:', error);
-            return res.status(500).json({ error: error.message });
+
+            if (error.code === 'INVALID_STATUS') {
+                return res.status(400).json({ success: false, message: 'Invalid status' });
+            }
+
+            if (error.code === 'USER_NOT_ASSIGNED') {
+                return res.status(400).json({ success: false, message: 'User is not assigned to this task' });
+            }
+
+            return this.handleError(res, error, 'Update status error');
         }
     }
 
@@ -190,15 +133,14 @@ class TaskController extends BaseController {
 
         try {
             const task = await TaskService.getTaskById(req.params.id);
-
-            if (!task) {
-                console.log('[TASK] Task not found:', req.params.id);
-                return res.status(404).send('Task not found');
-            }
-
             return this.renderView(res, 'tasks/edit', { task });
         } catch (error) {
             console.error('[TASK] Edit page error:', error);
+
+            if (error.code === 'TASK_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+
             return this.handleError(res, error, 'Edit task error');
         }
     }
@@ -207,17 +149,16 @@ class TaskController extends BaseController {
         console.log('[TASK] Deleting task:', req.params.id);
 
         try {
-            const task = await Task.findByIdAndDelete(req.params.id);
-
-            if (!task) {
-                console.log('[TASK] Task not found:', req.params.id);
-                return res.status(404).send('Task not found');
-            }
-
+            await TaskService.deleteTask(req.params.id);
             console.log('[TASK] Task deleted successfully');
             return this.successRedirect(req, res, '/tasks', 'Task deleted');
         } catch (error) {
             console.error('[TASK] Delete error:', error);
+
+            if (error.code === 'TASK_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Task not found' });
+            }
+
             return this.handleError(res, error, 'Delete task error');
         }
     }

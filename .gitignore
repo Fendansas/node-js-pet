@@ -87,3 +87,6 @@ downloads/
 secrets.json
 private-key.json
 service-account.json
+
+# Файлы куки
+cookies.txt

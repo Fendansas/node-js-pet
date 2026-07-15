@@ -1,8 +1,5 @@
 import { BaseController } from './base.controller.js';
 import productService from '../services/product.service.js';
-import { validationResult } from 'express-validator';
-import User from '../models/user.js';
-import Product from '../models/Product.js'
 
 
 class ProductController extends BaseController {
@@ -11,9 +8,8 @@ class ProductController extends BaseController {
     async index(req, res){
         console.log('[PRODUCT] Listing products')
         try {
-            const user = await User.findById(req.user._id).populate('role');
-            if (!user) {
-                return res.status(404).send('User not found');
+            if (!req.user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             const category = req.query.category;
@@ -26,7 +22,7 @@ class ProductController extends BaseController {
 
             return this.renderView(res, 'products/index', {
                 products,
-                user,
+                user: req.user,
                 categories,
                 selectedCategory: category || ''
             });
@@ -47,7 +43,7 @@ class ProductController extends BaseController {
         console.log('[PRODUCT] Creating new product');
 
         if (!req.file){
-            return res.status(400).send('No file uploaded');
+            return res.status(400).json({ success: false, message: 'No file uploaded' });
         }
 
 
@@ -78,16 +74,15 @@ class ProductController extends BaseController {
 
         try {
             const product = await productService.getById(req.params.id);
-
-            if (!product) {
-                console.log('[PRODUCT] Product not found:', req.params.id);
-                return res.status(404).send('Product not found');
-            }
-
             return this.renderView(res, 'products/show', { product });
 
         } catch (error) {
             console.error('[PRODUCT] Show error:', error);
+
+            if (error.code === 'PRODUCT_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Product not found' });
+            }
+
             return this.handleError(res, error, 'Server Error');
         }
     }
@@ -98,15 +93,15 @@ class ProductController extends BaseController {
 
         try {
             const product = await productService.getById(req.params.id);
-
-            if (!product) {
-                console.log('[PRODUCT] Product not found:', req.params.id);
-                return res.status(404).send('Product not found');
-            }
-
             return this.renderView(res, 'products/edit', { product, errors: [] });
 
         } catch (error) {
+            console.error('[PRODUCT] Edit page error:', error);
+
+            if (error.code === 'PRODUCT_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Product not found' });
+            }
+
             return this.handleError(res, error, 'Server Error');
         }
     }
@@ -166,15 +161,15 @@ class ProductController extends BaseController {
             console.log('[PRODUCT] Buy error:', error.message);
 
             if (error.code === 'USER_NOT_FOUND') {
-                return res.status(404).send('User not found');
+                return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             if (error.code === 'PRODUCT_NOT_FOUND') {
-                return res.status(404).send('Product not found');
+                return res.status(404).json({ success: false, message: 'Product not found' });
             }
 
             if (error.code === 'INSUFFICIENT_FUNDS') {
-                return res.status(400).send('Not enough money');
+                return res.status(400).json({ success: false, message: 'Not enough money' });
             }
 
             return this.handleError(res, error, 'Buy error');
@@ -187,17 +182,15 @@ class ProductController extends BaseController {
         console.log('[PRODUCT] Loading inventory');
 
         try {
-            const user = await User.findById(req.user._id)
-                .populate('role')
-                .populate('inventory.product');
-
-            if (!user){
-                return res.status(404).send('User not found');
+            if (!req.user) {
+                return res.status(404).json({ success: false, message: 'User not found' });
             }
 
+            const inventory = await productService.getUserInventory(req.user._id);
+
             return this.renderView(res, 'products/inventory', {
-                inventory: user.inventory,
-                user
+                inventory,
+                user: req.user
             });
 
         } catch (error) {

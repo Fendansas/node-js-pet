@@ -5,12 +5,20 @@ import { allow } from '../middleware/permission.middleware.js';
 
 import AdminController from '../controllers/admin.controller.js';
 import UserController from '../controllers/user.controller.js';
-import {createPermissionValidator, createRoleValidator, rolePermissionValidator} from "../validators/rbac.validator.js";
-import {validate} from "../middleware/validation.middleware.js";
+import {createPermissionValidator, createRoleValidator, rolePermissionValidator} from '../validators/rbac.validator.js';
+import {validate} from '../middleware/validation.middleware.js';
 
 const router = express.Router();
 
 router.use(isAdmin);
+
+router.get('/',
+    allow('dashboard:read'),
+    (req, res) => AdminController.dashboard(req, res));
+
+router.get('/dashboard',
+    allow('dashboard:read'),
+    (req, res) => AdminController.dashboard(req, res));
 
 router.get('/rbac',
     allow('rbac:manage'),

@@ -1,6 +1,6 @@
 import { BaseController } from './base.controller.js';
 import PostService from '../services/post.service.js';
-import CommentService from "../services/comment.service.js";
+import CommentService from '../services/comment.service.js';
 
 class PostController extends BaseController {
 
@@ -61,14 +61,14 @@ class PostController extends BaseController {
             const post = await PostService.getById(req.params.id);
             const comments = await CommentService.getPost(req.params.id);
 
-            if (!post) {
-                console.log('[POST] Post not found:', req.params.id);
-                return res.status(404).send('Post not found');
-            }
-
             return this.renderView(res, 'posts/show', { post, comments });
         } catch (error) {
             console.error('[POST] Show error:', error);
+
+            if (error.code === 'POST_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Post not found' });
+            }
+
             return this.handleError(res, error, 'Show post error');
         }
     }
@@ -79,17 +79,17 @@ class PostController extends BaseController {
         try {
             const post = await PostService.getById(req.params.id);
 
-            if (!post) {
-                console.log('[POST] Post not found:', req.params.id);
-                return res.status(404).send('Post not found');
-            }
-
             const categories = ['weapon', 'anomaly', 'news', 'blog'];
             const statuses = ['draft', 'published'];
 
             return this.renderView(res, 'posts/edit', { post, categories, statuses });
         } catch (error) {
             console.error('[POST] Edit page error:', error);
+
+            if (error.code === 'POST_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Post not found' });
+            }
+
             return this.handleError(res, error, 'Edit post error');
         }
     }

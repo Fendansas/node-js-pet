@@ -1,4 +1,4 @@
-import { hasPermission } from "../services/rbac.service.js";
+import RbacService from '../services/rbac.service.js';
 
 export const allow = (permission) => {
     return async (req, res, next) => {
@@ -8,7 +8,7 @@ export const allow = (permission) => {
             return res.status(401).json({ success: false, message: 'Unauthorized' });
         }
 
-        const hasAccess = await hasPermission(userId, permission);
+        const hasAccess = await RbacService.hasPermission(userId, permission);
 
         if (!hasAccess) {
             return res.status(403).json({ success: false, message: 'Forbidden' });

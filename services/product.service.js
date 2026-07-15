@@ -1,6 +1,6 @@
 
-import Product from "../models/Product.js";
-import User from "../models/user.js";
+import Product from '../models/Product.js';
+import User from '../models/User.js';
 
 class ProductService {
 
@@ -20,7 +20,15 @@ class ProductService {
     }
 
     async getById(id) {
-        return await Product.findById(id);
+        const product = await Product.findById(id);
+
+        if (!product) {
+            const error = new Error('PRODUCT_NOT_FOUND');
+            error.code = 'PRODUCT_NOT_FOUND';
+            throw error;
+        }
+
+        return product;
     }
 
     async update(id, data) {

@@ -1,8 +1,4 @@
-import multer from "multer";
-import mongoose from "mongoose";
-
-const { ObjectId } = mongoose.Types;
-
+import multer from 'multer';
 
 const storage = multer.memoryStorage();
 
