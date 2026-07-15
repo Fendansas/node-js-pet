@@ -10,6 +10,7 @@ import eventRoutes from './event.routes.js';
 import taskRoutes from './task.routes.js';
 import apiRoutes from './api.routes.js';
 import overlayRoutes from './overlay.routes.js';
+import studyRoutes from './study.routes.js';
 
 import express from 'express';
 
@@ -27,5 +28,6 @@ mainRoute.use('/events', eventRoutes);
 mainRoute.use('/tasks', taskRoutes);
 mainRoute.use('/api', apiRoutes);
 mainRoute.use('/overlays', overlayRoutes);
+mainRoute.use('/study', studyRoutes);
 
 export default mainRoute;
