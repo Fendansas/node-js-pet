@@ -1,5 +1,6 @@
 import { BaseController } from './base.controller.js';
 import PostService from '../services/post.service.js';
+import CommentService from "../services/comment.service.js";
 
 class PostController extends BaseController {
 
@@ -58,13 +59,14 @@ class PostController extends BaseController {
 
         try {
             const post = await PostService.getById(req.params.id);
+            const comments = await CommentService.getPost(req.params.id);
 
             if (!post) {
                 console.log('[POST] Post not found:', req.params.id);
                 return res.status(404).send('Post not found');
             }
 
-            return this.renderView(res, 'posts/show', { post });
+            return this.renderView(res, 'posts/show', { post, comments });
         } catch (error) {
             console.error('[POST] Show error:', error);
             return this.handleError(res, error, 'Show post error');

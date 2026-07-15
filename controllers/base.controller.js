@@ -29,6 +29,9 @@ export class BaseController {
             case 'USER_BANNED':
                 statusCode = 403;
                 break;
+            case 'COMMENT_NOT_FOUND':
+                statusCode = 404;
+                break;
             default:
                 statusCode = 500;
         }

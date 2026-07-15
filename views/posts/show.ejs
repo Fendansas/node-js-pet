@@ -54,4 +54,31 @@
 
 </div>
 
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h2>Комментарии (<%= comments.length %>)</h2>
+
+        <form action="/posts/<%= post._id %>/comments" method="POST" class="comment-form">
+            <textarea name="text" placeholder="Написать комментарий..." required maxlength="500"></textarea>
+            <button type="submit" class="btn">Отправить</button>
+        </form>
+
+        <% comments.forEach(comment => { %>
+            <div class="comment-card">
+                <div class="comment-header">
+                    <span class="comment-author"><%= comment.author.username %></span>
+                    <span class="comment-date"><%= new Date(comment.createdAt).toLocaleDateString() %></span>
+                </div>
+                <div class="comment-text"><%= comment.text %></div>
+                <% if (user._id.toString() === comment.author._id.toString() || user.role?.name === 'admin') { %>
+                    <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete" method="POST" class="comment-delete-form">
+                        <button type="submit" class="btn danger small">Удалить</button>
+                    </form>
+                <% } %>
+            </div>
+        <% }) %>
+    </div>
+
+</div>
+
 <%- include('../partials/footer') %>

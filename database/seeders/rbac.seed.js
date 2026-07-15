@@ -32,7 +32,9 @@ const permissionsList = [
     'overlay:read', 'overlay:create', 'overlay:update', 'overlay:delete',
     // Админка и Профиль
     'dashboard:read', 'rbac:manage',
-    'profile:read', 'profile:update', 'avatar:manage'
+    'profile:read', 'profile:update', 'avatar:manage',
+    // коменты
+    'comment:create', 'comment:read', 'comment:delete'
 ];
 
 const create = async () => {
@@ -64,7 +66,8 @@ const create = async () => {
         const userPermissions = createdPermissions.filter(p => 
             ['product:read', 'post:read', 'event:read', 'task:read', 
              'anomaly:read', 'overlay:read',
-             'profile:read', 'profile:update', 'avatar:manage'].includes(p.name)
+             'profile:read', 'profile:update', 'avatar:manage',
+             'comment:create', 'comment:read'].includes(p.name)
         );
         
         const userRole = await Role.findOneAndUpdate(
