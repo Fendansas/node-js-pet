@@ -1,17 +1,17 @@
-import User from '../models/User.js';
-import Permission from '../models/Permission.js';
-import Role from '../models/Role.js';
+import roleRepository from '../repositories/role.repository.js';
+import permissionRepository from '../repositories/permission.repository.js';
+import userRepository from '../repositories/user.repository.js';
 
 class RbacService {
 
     async getPageData() {
-        const roles = await Role.find().populate('permissions');
-        const permissions = await Permission.find();
+        const roles = await roleRepository.findWithPermissions();
+        const permissions = await permissionRepository.findAll();
         return { roles, permissions };
     }
 
     async createPermission(name, description) {
-        const existing = await Permission.findOne({ name });
+        const existing = await permissionRepository.findByName(name);
 
         if (existing) {
             const error = new Error('PERMISSION_ALREADY_EXISTS');
@@ -19,56 +19,36 @@ class RbacService {
             throw error;
         }
 
-        return await Permission.create({
+        return await permissionRepository.create({
             name,
             description: description || ''
         });
     }
 
     async createRole(name) {
-        const existing = await Role.findOne({ name });
+        const existing = await roleRepository.findByName(name);
         if (existing) {
             const error = new Error('ROLE_ALREADY_EXISTS');
             error.code = 'ROLE_ALREADY_EXISTS';
             throw error;
         }
 
-        return await Role.create({
+        return await roleRepository.create({
             name,
             permissions: []
         });
     }
 
     async addPermissionToRole(roleId, permissionId) {
-        return await Role.findByIdAndUpdate(
-            roleId,
-            {
-                $addToSet: {
-                    permissions: permissionId
-                }
-            }
-        );
+        return await roleRepository.addPermission(roleId, permissionId);
     }
 
     async removePermissionFromRole(roleId, permissionId) {
-        return await Role.findByIdAndUpdate(
-            roleId,
-            {
-                $pull: {
-                    permissions: permissionId
-                }
-            }
-        );
+        return await roleRepository.removePermission(roleId, permissionId);
     }
 
     async hasPermission(userId, permissionName) {
-        const user = await User.findById(userId)
-            .populate({
-                path: 'role',
-                populate: {
-                    path: 'permissions'
-                }
-            });
+        const user = await userRepository.findWithPermissions(userId);
 
         if (!user) {
             return false;

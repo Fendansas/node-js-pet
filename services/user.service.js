@@ -1,10 +1,11 @@
-import User from '../models/User.js';
+import userRepository from '../repositories/user.repository.js';
+import taskRepository from '../repositories/task.repository.js';
 
 class UserService {
 
     async updateProfile(userId, data) {
 
-        const existingUser = await User.findById(userId);
+        const existingUser = await userRepository.findById(userId);
 
         if (!existingUser) {
             const error = new Error('USER_NOT_FOUND');
@@ -13,7 +14,7 @@ class UserService {
         }
 
         if (data.email && data.email !== existingUser.email) {
-            const existsEmail = await User.findOne({ email: data.email });
+            const existsEmail = await userRepository.findByEmail(data.email);
             if (existsEmail) {
                 const error = new Error('EMAIL_ALREADY_EXISTS');
                 error.code = 'EMAIL_ALREADY_EXISTS';
@@ -21,26 +22,17 @@ class UserService {
             }
         }
 
-        const user = await User.findByIdAndUpdate(
-            userId,
-            {
-                username: data.username,
-                email: data.email,
-                bio: data.bio,
-                avatar: data.avatar,
-                rank: data.rank
-            },
-            {
-                new: true,
-                runValidators: true
-            }
-        ).populate('role');
-
-        return user;
+        return await userRepository.update(userId, {
+            username: data.username,
+            email: data.email,
+            bio: data.bio,
+            avatar: data.avatar,
+            rank: data.rank
+        });
     }
 
     async getProfile(userId) {
-        const user = await User.findById(userId).populate('role').populate('inventory.product');
+        const user = await userRepository.findWithRoleAndInventory(userId);
         if (!user) {
             const error = new Error('USER_NOT_FOUND');
             error.code = 'USER_NOT_FOUND';
@@ -50,24 +42,11 @@ class UserService {
     }
 
     async getAll(search = '') {
-        const filter = search
-            ? {
-                  $or: [
-                      { username: { $regex: search, $options: 'i' } },
-                      { email: { $regex: search, $options: 'i' } }
-                  ]
-              }
-            : {};
-
-        const users = await User.find(filter).populate('role').populate('inventory.product');
+        const users = await userRepository.findByFilter(search);
         const onlineUsers = users.filter(user => user.isOnline).length;
 
-        const { Task } = await import('../models/Task.js');
-
         for (const user of users) {
-            const tasks = await Task.find({
-                'assignedTo.user': user._id
-            });
+            const tasks = await taskRepository.findByAssignedUser(user._id);
 
             let total = 0;
             let completed = 0;
@@ -91,7 +70,7 @@ class UserService {
     }
 
     async getEditProfile(userId) {
-        const user = await User.findById(userId).populate('role');
+        const user = await userRepository.findWithRole(userId);
         if (!user) {
             const error = new Error('USER_NOT_FOUND');
             error.code = 'USER_NOT_FOUND';

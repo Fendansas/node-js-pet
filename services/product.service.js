@@ -1,26 +1,18 @@
-
-import Product from '../models/Product.js';
-import User from '../models/User.js';
+import productRepository from '../repositories/product.repository.js';
+import userRepository from '../repositories/user.repository.js';
 
 class ProductService {
 
     async create(data) {
-        return await Product.create(data);
+        return await productRepository.create(data);
     }
 
     async getAll(category = null) {
-
-        const filter = {};
-
-        if (category) {
-            filter.category = category;
-        }
-
-        return await Product.find(filter).sort({ createdAt: -1 });
+        return await productRepository.findByCategory(category);
     }
 
     async getById(id) {
-        const product = await Product.findById(id);
+        const product = await productRepository.findById(id);
 
         if (!product) {
             const error = new Error('PRODUCT_NOT_FOUND');
@@ -32,35 +24,32 @@ class ProductService {
     }
 
     async update(id, data) {
-        const existing = await Product.findById(id);
+        const existing = await productRepository.findById(id);
         if (!existing) {
             const error = new Error('PRODUCT_NOT_FOUND');
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
-        return await Product.findByIdAndUpdate(id,data,{ new: true });
+        return await productRepository.update(id, data);
     }
 
     async delete(id) {
-        const existing = await Product.findById(id);
+        const existing = await productRepository.findById(id);
         if (!existing) {
             const error = new Error('PRODUCT_NOT_FOUND');
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
 
-        return await Product.findByIdAndDelete(id);
+        return await productRepository.delete(id);
     }
 
     async getCategories() {
-
-        return await Product.distinct(
-            "category"
-        );
+        return await productRepository.getCategories();
     }
 
     async buyProduct(userId, productId) {
-        const user = await User.findById(userId);
+        const user = await userRepository.findById(userId);
 
         if(!user){
             const error = new Error('USER_NOT_FOUND');
@@ -68,7 +57,7 @@ class ProductService {
             throw error;
         }
 
-        const product = await Product.findById(productId);
+        const product = await productRepository.findById(productId);
 
         if (!product){
             const error = new Error('PRODUCT_NOT_FOUND');
@@ -103,7 +92,7 @@ class ProductService {
     }
 
     async getUserInventory(userId) {
-        const user = await User.findById(userId).populate('inventory.product');
+        const user = await userRepository.findWithRoleAndInventory(userId);
         if (!user) {
             throw new Error('User not found');
         }

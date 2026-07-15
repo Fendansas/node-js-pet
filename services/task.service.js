@@ -1,10 +1,10 @@
-import { Task } from '../models/Task.js';
-import User from '../models/User.js';
+import taskRepository from '../repositories/task.repository.js';
+import userRepository from '../repositories/user.repository.js';
 
 class TaskService {
 
     async getAllTasks() {
-        return await Task.find().sort({ createdAt: -1 }).populate('assignedTo.user', 'username email');
+        return await taskRepository.findAllSorted();
     }
 
     async createTask(data) {
@@ -18,7 +18,7 @@ class TaskService {
             throw error;
         }
 
-        return await Task.create({
+        return await taskRepository.create({
             eventId,
             title,
             description,
@@ -29,7 +29,7 @@ class TaskService {
 
     async getTaskById(id) {
         console.log('[TaskService] Looking for task with ID:', id);
-        const task = await Task.findById(id).populate('assignedTo.user', 'username email');
+        const task = await taskRepository.findByIdWithAssignees(id);
         console.log('[TaskService] Task found:', task ? task._id : 'null');
 
         if (!task) {
@@ -42,7 +42,7 @@ class TaskService {
     }
 
     async addUserToTask(taskId, userId) {
-        const task = await Task.findById(taskId);
+        const task = await taskRepository.findById(taskId);
 
         console.log('[TaskService] Adding user:', userId, 'to task:', taskId);
 
@@ -62,30 +62,15 @@ class TaskService {
             throw error;
         }
 
-        return await Task.findByIdAndUpdate(
-            taskId,
-            {
-                $push: {
-                    assignedTo: {
-                        user: userId,
-                        status: 'pending',
-                        completedAt: null,
-                        rewardGiven: false
-                    }
-                }
-            },
-            { new: true }
-        );
+        return await taskRepository.addAssignment(taskId, userId);
     }
 
     async getTasksByEventId(eventId) {
-        return await Task.find({ eventId });
+        return await taskRepository.findByEventId(eventId);
     }
 
     async getAssignmentById(assignmentId) {
-        const task = await Task.findOne({
-            'assignedTo._id': assignmentId
-        }).populate('assignedTo.user', 'username email');
+        const task = await taskRepository.findByAssignmentId(assignmentId);
 
         if (!task) {
             const error = new Error('ASSIGNMENT_NOT_FOUND');
@@ -131,19 +116,14 @@ class TaskService {
             updateData['assignedTo.$.completedAt'] = new Date();
         }
 
-        const updatedTask = await Task.findOneAndUpdate(
-            {
-                _id: taskId,
-                'assignedTo._id': assignmentId
-            },
-            {
-                $set: updateData
-            },
-            { new: true }
-        ).populate('assignedTo.user', 'username email');
+        const updatedTask = await taskRepository.updateAssignmentWithPopulate(
+            taskId,
+            assignmentId,
+            updateData
+        );
 
         if (status === 'completed' && !assignment.rewardGiven) {
-            const user = await User.findById(userId);
+            const user = await userRepository.findById(userId);
 
             if (user) {
                 user.money += updatedTask.reward;
@@ -153,22 +133,14 @@ class TaskService {
                 console.log(`[TaskService] User not found for reward: ${userId}`);
             }
 
-            await Task.findOneAndUpdate(
-                {
-                    _id: taskId,
-                    'assignedTo._id': assignmentId
-                },
-                {
-                    $set: { 'assignedTo.$.rewardGiven': true }
-                }
-            );
+            await taskRepository.setRewardGiven(taskId, assignmentId);
         }
 
         return updatedTask;
     }
 
     async deleteTask(id) {
-        const existing = await Task.findById(id);
+        const existing = await taskRepository.findById(id);
 
         if (!existing) {
             const error = new Error('TASK_NOT_FOUND');
@@ -176,7 +148,7 @@ class TaskService {
             throw error;
         }
 
-        return await Task.findByIdAndDelete(id);
+        return await taskRepository.delete(id);
     }
 }
 

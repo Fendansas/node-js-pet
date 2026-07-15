@@ -1,28 +1,26 @@
-import Comment from '../models/Comment.js';
+import commentRepository from '../repositories/comment.repository.js';
 
 class CommentService {
     async getPost(postId){
-        return await Comment.find({postId})
-            .populate('author', 'username avatar')
-            .sort({createdAt: -1});
+        return await commentRepository.findByPostId(postId);
     }
 
     async create(postId, authorId, text){
-        return await Comment.create({postId, author: authorId, text});
+        return await commentRepository.create({postId, author: authorId, text});
     }
 
     async delete (commentId){
-        const comment = await Comment.findById(commentId);
+        const comment = await commentRepository.findById(commentId);
         if(!comment){
             const error = new Error('COMMENT_NOT_FOUND');
             error.code = 'COMMENT_NOT_FOUND';
             throw error;
         }
-        return await Comment.findByIdAndDelete(commentId);
+        return await commentRepository.delete(commentId);
     }
 
     async isOwner (commentId, userId){
-        const comment = await Comment.findById(commentId);
+        const comment = await commentRepository.findById(commentId);
         return comment && comment.author.toString() === userId.toString();
     }
 }

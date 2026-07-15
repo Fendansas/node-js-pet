@@ -1,12 +1,12 @@
-import MapOverlay from '../models/MapOverlay.js';
+import overlayRepository from '../repositories/overlay.repository.js';
 
 class OverlayService {
     async getAll() {
-        return MapOverlay.find().sort({ createdAt: -1 });
+        return await overlayRepository.findAllSorted();
     }
 
     async getById(id) {
-        const overlay = await MapOverlay.findById(id);
+        const overlay = await overlayRepository.findById(id);
         if (!overlay) {
             const error = new Error('OVERLAY_NOT_FOUND');
             error.code = 'OVERLAY_NOT_FOUND';
@@ -16,11 +16,11 @@ class OverlayService {
     }
 
     async create(data) {
-        return MapOverlay.create(data);
+        return await overlayRepository.create(data);
     }
 
     async update(id, data) {
-        const overlay = await MapOverlay.findByIdAndUpdate(id, data, { new: true });
+        const overlay = await overlayRepository.update(id, data);
         if (!overlay) {
             const error = new Error('OVERLAY_NOT_FOUND');
             error.code = 'OVERLAY_NOT_FOUND';
@@ -30,7 +30,7 @@ class OverlayService {
     }
 
     async delete(id) {
-        const overlay = await MapOverlay.findByIdAndDelete(id);
+        const overlay = await overlayRepository.delete(id);
         if (!overlay) {
             const error = new Error('OVERLAY_NOT_FOUND');
             error.code = 'OVERLAY_NOT_FOUND';

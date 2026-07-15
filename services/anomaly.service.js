@@ -1,12 +1,12 @@
-import Anomaly from '../models/Anomaly.js';
+import anomalyRepository from '../repositories/anomaly.repository.js';
 
 class AnomaliesService {
     async getAll() {
-        return await Anomaly.find().sort({ createdAt: -1 });
+        return await anomalyRepository.findAll({}, { sort: { createdAt: -1 } });
     }
 
     async getById(id) {
-        const anomaly = await Anomaly.findById(id);
+        const anomaly = await anomalyRepository.findById(id);
 
         if (!anomaly) {
             const error = new Error('ANOMALY_NOT_FOUND');
@@ -19,7 +19,7 @@ class AnomaliesService {
 
     async create(data) {
 
-        const existing = await Anomaly.findOne({ name: data.name });
+        const existing = await anomalyRepository.findByName(data.name);
 
         if (existing) {
             const error = new Error('ANOMALY_ALREADY_EXISTS');
@@ -27,12 +27,12 @@ class AnomaliesService {
             throw error;
         }
 
-        return await Anomaly.create(data);
+        return await anomalyRepository.create(data);
     }
 
     async update(id, data) {
 
-        const existing = await Anomaly.findById(id);
+        const existing = await anomalyRepository.findById(id);
 
         if (!existing) {
             const error = new Error('ANOMALY_NOT_FOUND');
@@ -40,17 +40,11 @@ class AnomaliesService {
             throw error;
         }
 
-        return await Anomaly.findByIdAndUpdate(
-            id,
-            data,
-            {
-                new: true
-            }
-        );
+        return await anomalyRepository.update(id, data);
     }
 
     async delete(id) {
-        const existing = await Anomaly.findById(id);
+        const existing = await anomalyRepository.findById(id);
 
         if (!existing) {
             const error = new Error('ANOMALY_NOT_FOUND');
@@ -58,7 +52,7 @@ class AnomaliesService {
             throw error;
         }
 
-        return await Anomaly.findByIdAndDelete(id);
+        return await anomalyRepository.delete(id);
     }
 }
 

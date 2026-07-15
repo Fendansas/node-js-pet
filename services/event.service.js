@@ -1,16 +1,16 @@
-import {Event} from '../models/Event.js';
+import eventRepository from '../repositories/event.repository.js';
 
 
 class EventService {
 
     async getAllEvents() {
-        return await Event.find().sort({ createdAt: -1 });
+        return await eventRepository.findAllSorted();
     }
     async createEvent(data) {
-        return await Event.create(data);
+        return await eventRepository.create(data);
     }
     async getEventById(id) {
-        const event = await Event.findById(id);
+        const event = await eventRepository.findById(id);
         if (!event) {
             const error = new Error('EVENT_NOT_FOUND');
             error.code = 'EVENT_NOT_FOUND';
@@ -19,25 +19,25 @@ class EventService {
         return event;
     }
     async updateEvent(id, data){
-        const existing = await Event.findById(id);
+        const existing = await eventRepository.findById(id);
         if (!existing) {
             const error = new Error('EVENT_NOT_FOUND');
             error.code = 'EVENT_NOT_FOUND';
             throw error;
         }
 
-        return await Event.findByIdAndUpdate(id, data,{new: true});
+        return await eventRepository.update(id, data);
     }
 
     async delete(id) {
-        const existing = await Event.findById(id);
+        const existing = await eventRepository.findById(id);
         if (!existing) {
             const error = new Error('EVENT_NOT_FOUND');
             error.code = 'EVENT_NOT_FOUND';
             throw error;
         }
 
-        return await Event.findByIdAndDelete(id);
+        return await eventRepository.delete(id);
     }
 
 }

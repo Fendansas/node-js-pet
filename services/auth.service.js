@@ -1,13 +1,13 @@
 import bcrypt from 'bcrypt';
 
-import User from '../models/User.js';
-import Role from '../models/Role.js';
+import userRepository from '../repositories/user.repository.js';
+import roleRepository from '../repositories/role.repository.js';
 
 class AuthService {
 
     async register({ username, email, password, bio, avatar, rank }) {
 
-        const existsUsername = await User.findOne({ username });
+        const existsUsername = await userRepository.findByUsername(username);
 
         if (existsUsername) {
             const error = new Error('USER_ALREADY_EXISTS');
@@ -16,7 +16,7 @@ class AuthService {
         }
 
         if (email) {
-            const existsEmail = await User.findOne({ email });
+            const existsEmail = await userRepository.findByEmail(email);
             if (existsEmail) {
                 const error = new Error('EMAIL_ALREADY_EXISTS');
                 error.code = 'EMAIL_ALREADY_EXISTS';
@@ -24,7 +24,7 @@ class AuthService {
             }
         }
 
-        const userRole = await Role.findOne({ name: 'user' });
+        const userRole = await roleRepository.findByName('user');
 
         if (!userRole) {
             const error = new Error('DEFAULT_ROLE_NOT_FOUND');
@@ -34,7 +34,7 @@ class AuthService {
 
         const hashed = await bcrypt.hash(password, 10);
 
-        const user = await User.create({
+        const user = await userRepository.create({
             username,
             email: email || null,
             password: hashed,
@@ -49,13 +49,7 @@ class AuthService {
 
     async login({ username, password }) {
 
-        const user = await User.findOne({ username })
-            .populate({
-                path: 'role',
-                populate: {
-                    path: 'permissions'
-                }
-            });
+        const user = await userRepository.findByLoginCredentials(username);
 
         if (!user) {
             const error = new Error('INVALID_CREDS');

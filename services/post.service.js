@@ -1,12 +1,12 @@
-import Post from '../models/Post.js';
+import postRepository from '../repositories/post.repository.js';
 
 class PostService {
     async getAll() {
-        return await Post.find().sort({ createdAt: -1 });
+        return await postRepository.findAllSorted();
     }
 
     async getById(id) {
-        const post = await Post.findById(id);
+        const post = await postRepository.findById(id);
 
         if (!post) {
             const error = new Error('POST_NOT_FOUND');
@@ -18,11 +18,11 @@ class PostService {
     }
 
     async create(data) {
-        return await Post.create(data);
+        return await postRepository.create(data);
     }
 
     async update(id, data) {
-        const existing = await Post.findById(id);
+        const existing = await postRepository.findById(id);
 
         if (!existing) {
             const error = new Error('POST_NOT_FOUND');
@@ -30,11 +30,11 @@ class PostService {
             throw error;
         }
 
-        return await Post.findByIdAndUpdate(id, data, { new: true });
+        return await postRepository.update(id, data);
     }
 
     async delete(id) {
-        const existing = await Post.findById(id);
+        const existing = await postRepository.findById(id);
 
         if (!existing) {
             const error = new Error('POST_NOT_FOUND');
@@ -42,7 +42,7 @@ class PostService {
             throw error;
         }
 
-        return await Post.findByIdAndDelete(id);
+        return await postRepository.delete(id);
     }
 }
 
