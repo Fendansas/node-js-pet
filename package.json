@@ -6,7 +6,10 @@
   "scripts": {
     "start": "nodemon app.js",
     "seed": "node database/seeders/rbac.seed.js",
-    "seed:admin": "node database/seeders/admin.seed.js"
+    "seed:admin": "node database/seeders/admin.seed.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
@@ -36,5 +39,10 @@
     "multer": "^1.4.5-lts.1",
     "multer-gridfs-storage": "^5.0.2",
     "nodemon": "^3.1.14"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
+    "mongodb-memory-server": "^11.2.0",
+    "vitest": "^4.1.10"
   }
 }

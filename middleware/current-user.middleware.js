@@ -1,4 +1,4 @@
-import User from '../models/User.js';
+import userRepository from '../repositories/user.repository.js';
 
 export const currentUser = async (req, res, next) => {
 
@@ -10,13 +10,7 @@ export const currentUser = async (req, res, next) => {
             return next();
         }
 
-        const user = await User.findById(req.session.user.id)
-            .populate({
-                path: 'role',
-                populate: {
-                    path: 'permissions'
-                }
-            });
+        const user = await userRepository.findWithPermissions(req.session.user.id);
 
         if (!user) {
             res.locals.user = null;
