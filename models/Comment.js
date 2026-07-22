@@ -19,6 +19,10 @@ const commentSchema = new mongoose.Schema({
         minlength: 1,
         maxlength: 500
     },
+    averageRating:{
+        type: Number,
+        default:0
+    },
     createdAt: {
         type: Date,
         default: Date.now

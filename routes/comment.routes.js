@@ -1,7 +1,7 @@
 import {Router} from 'express';
 import CommentController from '../controllers/comment.controller.js';
 import {allow} from '../middleware/permission.middleware.js';
-import {createCommentValidator} from '../validators/comment.validator.js';
+import {createCommentValidator, rateCommentValidator} from '../validators/comment.validator.js';
 import {validate} from '../middleware/validation.middleware.js';
 
 const router = Router();
@@ -13,5 +13,9 @@ router.post('/:id/comments', allow('comment:create'), createCommentValidator, va
 router.post('/:id/comments/:commentId/delete', allow('comment:delete'), (req, res)=>{
     CommentController.delete(req,res)
     });
+
+router.post('/:id/comments/:commentId/rate', allow('comment:create'), rateCommentValidator, validate, (req,res)=>{
+    CommentController.rate(req, res);
+})
 
 export default router;

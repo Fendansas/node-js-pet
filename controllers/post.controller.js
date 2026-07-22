@@ -60,8 +60,9 @@ class PostController extends BaseController {
         try {
             const post = await PostService.getById(req.params.id);
             const comments = await CommentService.getPost(req.params.id);
+            const ratingsMap = await CommentService.getRatingsMap(req.params.id, req.user._id);
 
-            return this.renderView(res, 'posts/show', { post, comments });
+            return this.renderView(res, 'posts/show', { post, comments, ratingsMap });
         } catch (error) {
             console.error('[POST] Show error:', error);
 

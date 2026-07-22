@@ -64,12 +64,35 @@
         </form>
 
         <% comments.forEach(comment => { %>
+            <% const rating = ratingsMap[comment._id.toString()] || { averageRating: 0, count: 0, userRating: 0 }; %>
             <div class="comment-card">
                 <div class="comment-header">
                     <span class="comment-author"><%= comment.author.username %></span>
                     <span class="comment-date"><%= new Date(comment.createdAt).toLocaleDateString() %></span>
                 </div>
                 <div class="comment-text"><%= comment.text %></div>
+                <div class="comment-rating">
+                    <% if (user._id.toString() !== comment.author._id.toString()) { %>
+                        <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/rate" method="POST" class="rating-form">
+                            <% for (let i = 1; i <= 5; i++) { %>
+                                <button type="submit" name="rating" value="<%= i %>" class="rating-star <%= i <= rating.userRating ? 'active' : '' %>">&#9733;</button>
+                            <% } %>
+                        </form>
+                    <% } else { %>
+                        <div class="rating-display">
+                            <% for (let i = 1; i <= 5; i++) { %>
+                                <span class="rating-star <%= i <= Math.round(rating.averageRating) ? 'active' : '' %>">&#9733;</span>
+                            <% } %>
+                        </div>
+                    <% } %>
+                    <span class="rating-info">
+                        <% if (rating.count > 0) { %>
+                            <%= rating.averageRating %> (<%= rating.count %>)
+                        <% } else { %>
+                            нет оценок
+                        <% } %>
+                    </span>
+                </div>
                 <% if (user._id.toString() === comment.author._id.toString() || user.role?.name === 'admin') { %>
                     <form action="/posts/<%= post._id %>/comments/<%= comment._id %>/delete" method="POST" class="comment-delete-form">
                         <button type="submit" class="btn danger small">Удалить</button>

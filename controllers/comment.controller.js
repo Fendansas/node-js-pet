@@ -38,6 +38,24 @@ class CommentController extends BaseController {
             return this.handleError(res, error, 'Ошибка удаления комментария');
         }
     }
+
+    async rate(req, res){
+        try {
+            const {commentId} = req.params;
+            const rating = Number(req.body.rating);
+            const userId = req.user._id;
+
+            await CommentService.rate(commentId, userId, rating);
+            return this.successRedirect(req, res, 'back');
+        } catch (error){
+            console.error('[COMMENT] Rate error:', error);
+            if(error.code === 'CANNOT_RATE_OWN_COMMENT'){
+                return  this.successRedirect(req, res, 'back', 'Нельзя оценивать свой коментрий')
+
+            }
+            return  this.handleError(res, error, 'Ошибка оценки коментария')
+        }
+    }
 }
 
 export default new CommentController()

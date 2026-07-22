@@ -2570,3 +2570,46 @@ li {
     padding: 4px 10px;
     font-size: 12px;
 }
+
+/* ===== COMMENT RATING ===== */
+.comment-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.rating-form {
+    display: flex;
+    gap: 2px;
+}
+
+.rating-star {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #333;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s, transform 0.2s;
+    line-height: 1;
+}
+
+.rating-star:hover {
+    color: #ffd700;
+    transform: scale(1.2);
+}
+
+.rating-star.active {
+    color: #ffd700;
+}
+
+.rating-display {
+    display: flex;
+    gap: 2px;
+}
+
+.rating-info {
+    color: #666;
+    font-size: 12px;
+}

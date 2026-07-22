@@ -15,6 +15,10 @@ class CommentRepository extends BaseRepository {
             }
         );
     }
+
+    async updateAverageRating(commentId, averageRating){
+        return await this.update(commentId, {averageRating});
+    }
 }
 
 export default new CommentRepository();
