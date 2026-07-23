@@ -1,23 +1,21 @@
-import {body} from 'express-validator';
+import { body } from 'express-validator';
 
 export const createProductValidator = [
-    body('title')
+    body('name')
         .trim()
-        .isLength({min: 3, max: 30})
-        .withMessage('Title must be 2-100 chars'),
+        .isLength({ min: 2, max: 50 })
+        .withMessage('Name must be 2-50 chars'),
     body('description')
         .trim()
-        .isLength({min: 10, max: 300})
-        .withMessage('Description must be 10-300 chars'),
+        .isLength({ min: 5, max: 500 })
+        .withMessage('Description must be 5-500 chars'),
     body('price')
-        .isFloat({min: 0})
+        .isFloat({ min: 0 })
         .withMessage('Price must be a positive number'),
     body('category')
-        .trim()
-        .isLength({min:2, max: 30})
-        .withMessage('Category must be 2-30 chars'),
-
-    body('image')
+        .isInt({ min: 0, max: 11 })
+        .withMessage('Category must be a number from 0 to 11'),
+    body('imageUrl')
         .optional()
         .isString(),
-]
+];

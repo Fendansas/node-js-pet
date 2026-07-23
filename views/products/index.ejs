@@ -29,7 +29,13 @@
                         Все категории
                     </option>
 
-                    <% categories.forEach(category => { %>
+                    <% 
+                    const categoryNames = {
+                        0: 'Оружие', 1: 'Артефакты', 2: 'Бустеры', 3: 'Броня',
+                        4: 'Аптечки', 5: 'Хабар', 6: 'Обвес', 7: 'Антирады',
+                        8: 'Еда', 9: 'Боеприпасы', 10: 'Фильтры', 11: 'Приборы'
+                    };
+                    categories.forEach(category => { %>
 
                         <option
                                 value="<%= category %>"
@@ -39,7 +45,7 @@
                                         : ''
                                 %>
                         >
-                            <%= category %>
+                            <%= categoryNames[category] || 'Неизвестно' %>
                         </option>
 
                     <% }) %>
@@ -80,8 +86,8 @@
             <div class="card product-card">
 
                 <img
-                        src="<%= product.image %>"
-                        alt="<%= product.title %>"
+                        src="<%= product.imageUrl %>"
+                        alt="<%= product.name %>"
                         class="product-image"
                 >
 
@@ -90,7 +96,7 @@
                     <div class="product-top">
 
                         <span class="product-category">
-                            <%= product.category %>
+                            <%= product.categoryText %>
                         </span>
 
                         <strong class="product-price">
@@ -100,7 +106,7 @@
                     </div>
 
                     <h3 class="product-title">
-                        <%= product.title %>
+                        <%= product.name %>
                     </h3>
 
                     <p class="product-description">

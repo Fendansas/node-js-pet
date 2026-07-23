@@ -25,7 +25,7 @@ class UserRepository extends BaseRepository {
             : {};
 
         return await this.findAll(filter, {
-            populate: ['role', 'inventory.product']
+            populate: ['role']
         });
     }
 
@@ -33,9 +33,6 @@ class UserRepository extends BaseRepository {
         return await this.findById(id, 'role');
     }
 
-    async findWithRoleAndInventory(id) {
-        return await this.findById(id, ['role', 'inventory.product']);
-    }
 
     async findWithPermissions(id) {
         return await this.findOne(
@@ -59,7 +56,7 @@ class UserRepository extends BaseRepository {
 
     async findForAdminList() {
         return await this.findAll({}, {
-            populate: ['role', 'inventory.product']
+            populate: ['role']
         });
     }
 }

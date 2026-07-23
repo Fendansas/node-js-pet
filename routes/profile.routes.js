@@ -6,7 +6,7 @@ import { validate } from '../middleware/validation.middleware.js';
 import UserController from '../controllers/user.controller.js';
 const router = express.Router();
 
-router.get('/profile', (req, res) => UserController.getProfile(req, res));
+router.get('/', (req, res) => UserController.getProfile(req, res));
 
 router.get('/edit-profile', (req, res) => UserController.editProfile(req, res));
 router.post('/edit-profile',

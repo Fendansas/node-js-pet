@@ -34,7 +34,7 @@
 
                 <input
                         type="text"
-                        name="title"
+                        name="name"
                         placeholder="AK-47"
                 >
 
@@ -70,13 +70,15 @@
             <div class="form-group">
 
                 <label>
-                    Категория
+                    Категория (0-11)
                 </label>
 
                 <input
-                        type="text"
+                        type="number"
                         name="category"
-                        placeholder="Weapons"
+                        placeholder="4"
+                        min="0"
+                        max="11"
                 >
 
             </div>
@@ -89,7 +91,7 @@
 
                 <input
                         type="file"
-                        name="image"
+                        name="imageUrl"
                 >
 
             </div>

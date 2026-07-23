@@ -69,19 +69,6 @@ const userSchema = new mongoose.Schema(
             max: 100
         },
 
-        inventory: [
-            {
-                product:{
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Product'
-                },
-                count: {
-                    type: Number,
-                    default: 1
-                }
-            }
-        ],
-
         isVerified: {
             type: Boolean,
             default: false

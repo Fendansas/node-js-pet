@@ -1,41 +1,87 @@
-<%- include('../partials/header', { title: 'Хабар' }) %>
+<%- include('../partials/header', { title: product.name }) %>
 
 <div class="container product-cards">
 
     <div class="grid">
-            <div class="card product-card">
+        <div class="card product-card">
 
-                <img
-                        src="<%= product.image %>"
-                        alt="<%= product.title %>"
-                        class="product-image"
-                >
+            <img
+                    src="<%= product.imageUrl %>"
+                    alt="<%= product.name %>"
+                    class="product-image"
+            >
 
-                <div class="product-content">
+            <div class="product-content">
 
-                    <div class="product-top">
+                <div class="product-top">
+                    <span class="product-category"><%= product.categoryText %></span>
+                    <strong class="product-price">€ <%= product.price %></strong>
+                </div>
 
-                        <span class="product-category">
-                            <%= product.category %>
-                        </span>
+                <h3 class="product-title"><%= product.name %></h3>
+                <p class="product-description"><%= product.description %></p>
 
-                        <strong class="product-price">
-                            € <%= product.price %>
-                        </strong>
+                <hr>
 
-                    </div>
+                <div class="item-details">
+                    <p><strong>Code:</strong> <%= product.code %></p>
+                    <p><strong>Очки опыта:</strong> <%= product.xpPoints %></p>
+                    <p><strong>Длительность:</strong> <%= product.duration === -1 ? '∞' : (product.duration / 1000 / 60) + ' мин' %></p>
 
-                    <h3 class="product-title">
-                        <%= product.title %>
-                    </h3>
-
-                    <p class="product-description">
-                        <%= product.description %>
+                    <p><strong>Тип:</strong> 
+                        <% if (product.isArtifact) { %>Артефакт<% } %>
+                        <% if (product.isBooster) { %>Бустер<% } %>
+                        <% if (product.isDevice) { %>Прибор<% } %>
+                        <% if (product.isArmor) { %>Броня<% } %>
+                        <% if (product.isSingleUse) { %>Расходуемый<% } %>
                     </p>
                 </div>
 
+                <% 
+                const MODIFIER_LABELS = {
+                    health: 'Здоровье (регенерация)',
+                    radiation: 'Радиация (защита)',
+                    anomaly: 'Аномалия (защита)',
+                    mental: 'Ментальное (защита)',
+                    burer: 'Бюрер (защита)',
+                    radiationEmitter: 'Радиоактивный излучатель',
+                    controller: 'Контролёр (защита)',
+                    healthInstant: 'Здоровье (мгновенное)',
+                    radiationInstant: 'Радиация (мгновенная)',
+                    monolith: 'Монолит (защита)'
+                };
+
+                const MULTIPLIER_KEYS = ['radiation', 'anomaly', 'mental', 'burer', 'controller', 'monolith'];
+
+                const formatValue = (key, val) => {
+                    if (MULTIPLIER_KEYS.includes(key)) {
+                        const percent = Math.round((1 - val) * 100);
+                        return (percent >= 0 ? '+' : '') + percent + '%';
+                    }
+                    return val;
+                };
+
+                const hasModifiers = product.modifiers && Object.values(product.modifiers).some(v => v !== -99999999);
+                %>
+
+                <% if (hasModifiers) { %>
+                    <hr>
+                    <h4>Модификаторы</h4>
+                    <table class="modifiers-table">
+                        <% Object.keys(MODIFIER_LABELS).forEach(key => { %>
+                            <% if (product.modifiers[key] !== undefined && product.modifiers[key] !== -99999999) { %>
+                                <tr>
+                                    <td><%= MODIFIER_LABELS[key] %></td>
+                                    <td><%= formatValue(key, product.modifiers[key]) %></td>
+                                </tr>
+                            <% } %>
+                        <% }) %>
+                    </table>
+                <% } %>
+
             </div>
 
+        </div>
     </div>
 
 </div>

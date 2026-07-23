@@ -5,10 +5,10 @@
 
         <div class="edit-profile-top">
 
-            <img
-                    src="<%= product.image %>"
-                    class="edit-avatar"
-            >
+                <img
+                        src="<%= product.imageUrl %>"
+                        class="edit-avatar"
+                >
 
             <div>
 
@@ -41,7 +41,7 @@
         <% } %>
 
         <form
-                action="/products/<%= product._id %>/edit"
+                action="/products/<%= product._id %>/update"
                 method="POST"
                 enctype="multipart/form-data"
                 class="edit-profile-form"
@@ -55,8 +55,8 @@
 
                 <input
                         type="text"
-                        name="title"
-                        value="<%= product.title %>"
+                        name="name"
+                        value="<%= product.name %>"
                 >
 
             </div>
@@ -90,13 +90,15 @@
             <div class="form-group">
 
                 <label>
-                    Категория
+                    Категория (0-11)
                 </label>
 
                 <input
-                        type="text"
+                        type="number"
                         name="category"
                         value="<%= product.category %>"
+                        min="0"
+                        max="11"
                 >
 
             </div>
@@ -109,7 +111,7 @@
 
                 <input
                         type="file"
-                        name="image"
+                        name="imageUrl"
                 >
 
             </div>

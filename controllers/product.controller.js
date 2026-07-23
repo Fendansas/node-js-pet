@@ -1,24 +1,19 @@
 import { BaseController } from './base.controller.js';
 import productService from '../services/product.service.js';
 
-
 class ProductController extends BaseController {
 
+    async index(req, res) {
+        console.log('[PRODUCT] Listing products');
 
-    async index(req, res){
-        console.log('[PRODUCT] Listing products')
         try {
             if (!req.user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             const category = req.query.category;
-            console.log('[PRODUCT] Category filter:', category || 'all');
-
             const products = await productService.getAll(category);
             const categories = await productService.getCategories();
-
-            console.log('[PRODUCT] Found', products.length, 'products');
 
             return this.renderView(res, 'products/index', {
                 products,
@@ -33,35 +28,23 @@ class ProductController extends BaseController {
         }
     }
 
-    async createPage(req, res){
-        console.log('[PRODUCT] Showing create page');
-
+    async createPage(req, res) {
         return this.renderView(res, 'products/create');
     }
 
     async create(req, res) {
-        console.log('[PRODUCT] Creating new product');
-
-        if (!req.file){
-            return res.status(400).json({ success: false, message: 'No file uploaded' });
-        }
-
+        console.log('[PRODUCT] Creating new item');
 
         try {
-            const { title, description, price, category } = req.body;
+            const data = { ...req.body };
 
-            console.log('[PRODUCT] Product data:', { title, price, category });
+            if (req.file) {
+                data.imageUrl = '/uploads/' + req.file.filename;
+            }
 
-            await productService.create({
-                title,
-                description,
-                price,
-                category,
-                image: '/uploads/' + req.file.filename
-            });
+            await productService.create(data);
 
-            console.log('[PRODUCT] Product created successfully');
-            return this.successRedirect(req, res, '/products', 'Product created');
+            return this.successRedirect(req, res, '/products', 'Item created');
 
         } catch (error) {
             console.error('[PRODUCT] Create error:', error);
@@ -70,7 +53,7 @@ class ProductController extends BaseController {
     }
 
     async show(req, res) {
-        console.log('[PRODUCT] Showing product:', req.params.id);
+        console.log('[PRODUCT] Showing item:', req.params.id);
 
         try {
             const product = await productService.getById(req.params.id);
@@ -88,8 +71,7 @@ class ProductController extends BaseController {
     }
 
     async editPage(req, res) {
-
-        console.log('[PRODUCT] Editing product:', req.params.id);
+        console.log('[PRODUCT] Editing item:', req.params.id);
 
         try {
             const product = await productService.getById(req.params.id);
@@ -107,21 +89,18 @@ class ProductController extends BaseController {
     }
 
     async update(req, res) {
-        console.log('[PRODUCT] Updating product:', req.params.id);
+        console.log('[PRODUCT] Updating item:', req.params.id);
 
         try {
-            const { title, description, price, category } = req.body;
-            const updateData = { title, description, price, category };
+            const updateData = { ...req.body };
 
             if (req.file) {
-                updateData.image = '/uploads/' + req.file.filename;
-                console.log('[PRODUCT] New image uploaded:', req.file.filename);
+                updateData.imageUrl = '/uploads/' + req.file.filename;
             }
 
             await productService.update(req.params.id, updateData);
-            console.log('[PRODUCT] Product updated successfully');
 
-            return this.successRedirect(req, res, '/products', 'Product updated');
+            return this.successRedirect(req, res, '/products', 'Item updated');
 
         } catch (error) {
             console.error('[PRODUCT] Update error:', error);
@@ -130,12 +109,11 @@ class ProductController extends BaseController {
     }
 
     async delete(req, res) {
-        console.log('[PRODUCT] Deleting product:', req.params.id);
+        console.log('[PRODUCT] Deleting item:', req.params.id);
 
         try {
             await productService.delete(req.params.id);
-            console.log('[PRODUCT] Product deleted successfully');
-            return this.successRedirect(req, res, '/products', 'Product deleted');
+            return this.successRedirect(req, res, '/products', 'Item deleted');
 
         } catch (error) {
             console.error('[PRODUCT] Delete error:', error);
@@ -143,17 +121,14 @@ class ProductController extends BaseController {
         }
     }
 
-
     async buyProduct(req, res) {
         console.log('[PRODUCT] Buying product:', req.params.id);
-        console.log('[PRODUCT] User ID:', this.getCurrentUser(req, res)?._id);
 
         try {
             const userId = req.user._id;
             const productId = req.params.id;
 
-            const result = await productService.buyProduct(userId, productId);
-            console.log('[PRODUCT] Product purchased successfully');
+            await productService.buyProduct(userId, productId);
 
             return this.successRedirect(req, res, '/products', 'Product purchased');
 
@@ -176,9 +151,7 @@ class ProductController extends BaseController {
         }
     }
 
-
     async inventory(req, res) {
-
         console.log('[PRODUCT] Loading inventory');
 
         try {

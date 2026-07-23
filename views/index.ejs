@@ -33,16 +33,7 @@
 
             <div class="card">
                 <h3>🎒 Инвентарь</h3>
-                <ul>
-                    <% user.inventory.forEach(item => { %>
-                        <li>
-                            <img src="<%= item.product.image %>" width="100">
-                            <h3><%= item.product.title %></h3>
-                            <p>x <%= item.count %></p>
-                        </li>
-                    <% }) %>
-                </ul>
-
+                <a href="/products/inventory" class="btn">Открыть инвентарь</a>
             </div>
 
             <div class="card">

@@ -1,104 +1,101 @@
-import productRepository from '../repositories/product.repository.js';
-import userRepository from '../repositories/user.repository.js';
+import itemDescriptorRepository from "../repositories/itemDescriptor.repository.js";
+import itemRepository from "../repositories/item.repository.js";
+import userRepository from "../repositories/user.repository.js";
+import Item from "../models/Item.js";
+
 
 class ProductService {
-
     async create(data) {
-        return await productRepository.create(data);
+        return await itemDescriptorRepository.create(data);
     }
 
-    async getAll(category = null) {
-        return await productRepository.findByCategory(category);
+    async getAll (category = null){
+        return await itemDescriptorRepository.findByCategory(category);
     }
 
-    async getById(id) {
-        const product = await productRepository.findById(id);
+    async getById(id){
+        const descriptor = await itemDescriptorRepository.findById(id);
 
-        if (!product) {
+        if(!descriptor){
             const error = new Error('PRODUCT_NOT_FOUND');
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
 
-        return product;
+        return descriptor;
     }
 
     async update(id, data) {
-        const existing = await productRepository.findById(id);
+        const existing = await itemDescriptorRepository.findById(id);
         if (!existing) {
             const error = new Error('PRODUCT_NOT_FOUND');
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
-        return await productRepository.update(id, data);
+        return await itemDescriptorRepository.update(id, data);
     }
 
     async delete(id) {
-        const existing = await productRepository.findById(id);
+        const existing = await itemDescriptorRepository.findById(id);
         if (!existing) {
             const error = new Error('PRODUCT_NOT_FOUND');
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
-
-        return await productRepository.delete(id);
+        return await itemDescriptorRepository.delete(id);
     }
 
-    async getCategories() {
-        return await productRepository.getCategories();
+    async getCategories(){
+        return await itemDescriptorRepository.getCategories()
     }
 
-    async buyProduct(userId, productId) {
+    async buyProduct(userId, itemId){
         const user = await userRepository.findById(userId);
 
         if(!user){
             const error = new Error('USER_NOT_FOUND');
-            error.code = 'USER_NOT_FOUND';
-            throw error;
+            error.code = 'USER_NOT_FOUND'
+            throw error
         }
 
-        const product = await productRepository.findById(productId);
+        const descriptor = await itemDescriptorRepository.findById(itemId)
 
-        if (!product){
-            const error = new Error('PRODUCT_NOT_FOUND');
+        if(!descriptor){
+            const error = new Error('PRODUCT_NOT_FOUND')
             error.code = 'PRODUCT_NOT_FOUND';
             throw error;
         }
 
-        if(user.money < product.price){
-
-            const error = new Error('INSUFFICIENT_FUNDS');
+        if(user.money < descriptor.price){
+            const error = new Error('INSUFFICIENT_FUNDS')
             error.code = 'INSUFFICIENT_FUNDS';
             throw error;
         }
 
-        user.money -= product.price;
-
-        const existingItem = user.inventory.find(
-            item => item.product && item.product.toString() === productId
-        );
-        if (existingItem){
-            existingItem.count += 1;
-        } else {
-            user.inventory.push({
-                product: productId,
-                count: 1
-            });
-        }
+        user.money -= descriptor.price;
 
         await user.save();
 
-        return {user, product};
+        const item = await Item.create({
+            playerId: userId,
+            code: descriptor.code,
+            left: descriptor.duration
+        });
+
+        return {user, item}
     }
 
-    async getUserInventory(userId) {
-        const user = await userRepository.findWithRoleAndInventory(userId);
-        if (!user) {
-            throw new Error('User not found');
-        }
+    async getUserInventory(userId){
+        const items = await itemRepository.findByPlayer(userId)
 
-        return user.inventory;
+        const inventory = await Promise.all(items.map(async (item)=>{
+            const descriptor = await itemDescriptorRepository.findByCode(item.code);
+            return {...item.toObject(), descriptor}
+        }))
+
+        return inventory
     }
+
 }
 
 export default new ProductService();

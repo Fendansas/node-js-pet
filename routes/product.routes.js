@@ -4,6 +4,7 @@ import { isAuth } from '../middleware/auth.middleware.js';
 import { allow } from '../middleware/permission.middleware.js';
 import { createProductValidator } from '../validators/product.validator.js';
 import { validate } from '../middleware/validation.middleware.js';
+import upload from '../middleware/upload.js';
 const router = express.Router();
 
 router.get('/',
@@ -16,9 +17,14 @@ router.get('/create',
 
 router.post('/create',
     allow('product:create'),
+    upload.single('imageUrl'),
     createProductValidator,
     validate,
     (req, res) => ProductController.create(req, res));
+
+router.get('/inventory',
+    allow('product:inventory'),
+    (req, res) => ProductController.inventory(req, res));
 
 router.get('/:id',
     allow('product:read'),
@@ -30,6 +36,7 @@ router.get('/:id/edit',
 
 router.post('/:id/update',
     allow('product:update'),
+    upload.single('imageUrl'),
     createProductValidator,
     validate,
     (req, res) => ProductController.update(req, res));
@@ -41,9 +48,5 @@ router.post('/:id/delete',
 router.post('/:id/buy',
     allow('product:buy'),
     (req, res) => ProductController.buyProduct(req, res));
-
-router.get('/inventory',
-    allow('product:inventory'),
-    (req, res) => ProductController.inventory(req, res));
 
 export default router;

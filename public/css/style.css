@@ -2613,3 +2613,40 @@ li {
     color: #666;
     font-size: 12px;
 }
+
+.item-details {
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.item-details p {
+    margin: 4px 0;
+}
+
+.item-details hr {
+    border: none;
+    border-top: 1px solid #1a3a1a;
+    margin: 10px 0;
+}
+
+.modifiers-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.modifiers-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #1a3a1a;
+}
+
+.modifiers-table td:first-child {
+    color: #8fbc8f;
+}
+
+.modifiers-table td:last-child {
+    text-align: right;
+    font-weight: bold;
+    color: #c7f9cc;
+}

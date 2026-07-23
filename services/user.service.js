@@ -32,7 +32,7 @@ class UserService {
     }
 
     async getProfile(userId) {
-        const user = await userRepository.findWithRoleAndInventory(userId);
+        const user = await userRepository.findWithRole(userId);
         if (!user) {
             const error = new Error('USER_NOT_FOUND');
             error.code = 'USER_NOT_FOUND';
