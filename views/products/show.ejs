@@ -1,89 +1,97 @@
 <%- include('../partials/header', { title: product.name }) %>
 
-<div class="container product-cards">
+<div class="product-show">
+    <div class="product-show-back">
+        <a href="/products" class="btn">← Назад</a>
+    </div>
 
-    <div class="grid">
-        <div class="card product-card">
+    <div class="product-show-layout">
 
-            <img
-                    src="<%= product.imageUrl %>"
-                    alt="<%= product.name %>"
-                    class="product-image"
-            >
+        <div class="product-show-image">
+            <img src="<%= product.imageUrl %>" alt="<%= product.name %>">
+        </div>
 
-            <div class="product-content">
+        <div class="product-show-info">
+            <span class="product-category"><%= product.categoryText %></span>
+            <h1><%= product.name %></h1>
+            <div class="product-show-price">€ <%= product.price %></div>
+            <p class="product-show-description"><%= product.description %></p>
 
-                <div class="product-top">
-                    <span class="product-category"><%= product.categoryText %></span>
-                    <strong class="product-price">€ <%= product.price %></strong>
+            <hr>
+
+            <div class="product-show-details">
+                <div class="detail-row">
+                    <span class="detail-label">Code</span>
+                    <span class="detail-value"><%= product.code %></span>
                 </div>
-
-                <h3 class="product-title"><%= product.name %></h3>
-                <p class="product-description"><%= product.description %></p>
-
-                <hr>
-
-                <div class="item-details">
-                    <p><strong>Code:</strong> <%= product.code %></p>
-                    <p><strong>Очки опыта:</strong> <%= product.xpPoints %></p>
-                    <p><strong>Длительность:</strong> <%= product.duration === -1 ? '∞' : (product.duration / 1000 / 60) + ' мин' %></p>
-
-                    <p><strong>Тип:</strong> 
+                <div class="detail-row">
+                    <span class="detail-label">Очки опыта</span>
+                    <span class="detail-value"><%= product.xpPoints %></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Длительность</span>
+                    <span class="detail-value"><%= product.duration === -1 ? '∞' : (product.duration / 1000 / 60) + ' мин' %></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Тип</span>
+                    <span class="detail-value">
                         <% if (product.isArtifact) { %>Артефакт<% } %>
                         <% if (product.isBooster) { %>Бустер<% } %>
                         <% if (product.isDevice) { %>Прибор<% } %>
                         <% if (product.isArmor) { %>Броня<% } %>
                         <% if (product.isSingleUse) { %>Расходуемый<% } %>
-                    </p>
+                    </span>
                 </div>
-
-                <% 
-                const MODIFIER_LABELS = {
-                    health: 'Здоровье (регенерация)',
-                    radiation: 'Радиация (защита)',
-                    anomaly: 'Аномалия (защита)',
-                    mental: 'Ментальное (защита)',
-                    burer: 'Бюрер (защита)',
-                    radiationEmitter: 'Радиоактивный излучатель',
-                    controller: 'Контролёр (защита)',
-                    healthInstant: 'Здоровье (мгновенное)',
-                    radiationInstant: 'Радиация (мгновенная)',
-                    monolith: 'Монолит (защита)'
-                };
-
-                const MULTIPLIER_KEYS = ['radiation', 'anomaly', 'mental', 'burer', 'controller', 'monolith'];
-
-                const formatValue = (key, val) => {
-                    if (MULTIPLIER_KEYS.includes(key)) {
-                        const percent = Math.round((1 - val) * 100);
-                        return (percent >= 0 ? '+' : '') + percent + '%';
-                    }
-                    return val;
-                };
-
-                const hasModifiers = product.modifiers && Object.values(product.modifiers).some(v => v !== -99999999);
-                %>
-
-                <% if (hasModifiers) { %>
-                    <hr>
-                    <h4>Модификаторы</h4>
-                    <table class="modifiers-table">
-                        <% Object.keys(MODIFIER_LABELS).forEach(key => { %>
-                            <% if (product.modifiers[key] !== undefined && product.modifiers[key] !== -99999999) { %>
-                                <tr>
-                                    <td><%= MODIFIER_LABELS[key] %></td>
-                                    <td><%= formatValue(key, product.modifiers[key]) %></td>
-                                </tr>
-                            <% } %>
-                        <% }) %>
-                    </table>
-                <% } %>
-
             </div>
 
-        </div>
-    </div>
+            <%
+            const MODIFIER_LABELS = {
+                health: 'Здоровье (регенерация)',
+                radiation: 'Радиация (защита)',
+                anomaly: 'Аномалия (защита)',
+                mental: 'Ментальное (защита)',
+                burer: 'Бюрер (защита)',
+                radiationEmitter: 'Радиоактивный излучатель',
+                controller: 'Контролёр (защита)',
+                healthInstant: 'Здоровье (мгновенное)',
+                radiationInstant: 'Радиация (мгновенная)',
+                monolith: 'Монолит (защита)'
+            };
 
+            const MULTIPLIER_KEYS = ['radiation', 'anomaly', 'mental', 'burer', 'controller', 'monolith'];
+
+            const formatValue = (key, val) => {
+                if (MULTIPLIER_KEYS.includes(key)) {
+                    const percent = Math.round((1 - val) * 100);
+                    return (percent >= 0 ? '+' : '') + percent + '%';
+                }
+                return val;
+            };
+
+            const hasModifiers = product.modifiers && Object.values(product.modifiers).some(v => v !== -99999999);
+            %>
+
+            <% if (hasModifiers) { %>
+                <hr>
+                <h3>Модификаторы</h3>
+                <div class="modifiers-list">
+                    <% Object.keys(MODIFIER_LABELS).forEach(key => { %>
+                        <% if (product.modifiers[key] !== undefined && product.modifiers[key] !== -99999999) { %>
+                            <div class="modifier-item">
+                                <span class="modifier-label"><%= MODIFIER_LABELS[key] %></span>
+                                <span class="modifier-value"><%= formatValue(key, product.modifiers[key]) %></span>
+                            </div>
+                        <% } %>
+                    <% }) %>
+                </div>
+            <% } %>
+
+            <form action="/products/<%= product._id %>/buy" method="POST" class="product-show-buy">
+                <button type="submit">Купить — € <%= product.price %></button>
+            </form>
+        </div>
+
+    </div>
 </div>
 
 <%- include('../partials/footer') %>
