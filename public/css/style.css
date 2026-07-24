@@ -276,28 +276,34 @@ li {
 /* BUTTONS */
 .btn {
     display: inline-block;
-    margin-top: 10px;
-    padding: 8px 12px;
+    padding: 8px 16px;
     border: 1px solid #2dff7a;
     border-radius: 6px;
-    color: #c7f9cc;
+    color: #2dff7a;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
     text-decoration: none;
-    transition: 0.2s;
-    background: red;
+    cursor: pointer;
+    background: rgba(45,255,122,0.1);
+    transition: all 0.2s;
 }
 
 .btn:hover {
-    background: #2dff7a;
-    color: black;
+    background: rgba(45,255,122,0.25);
+    box-shadow: 0 0 15px rgba(45,255,122,0.3);
+    color: #2dff7a;
 }
 
 .btn.danger {
     border-color: #ff3b3b;
+    color: #ff6b6b;
+    background: rgba(255,59,59,0.1);
 }
 
 .btn.danger:hover {
-    background: #ff3b3b;
-    color: white;
+    background: rgba(255,59,59,0.25);
+    box-shadow: 0 0 15px rgba(255,59,59,0.3);
+    color: #ff6b6b;
 }
 
 /* INVENTORY */
@@ -519,7 +525,9 @@ li {
    ========================= */
 
 .profile-page {
-    padding: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
 }
 
 /* TOP */
@@ -546,11 +554,10 @@ li {
     background:
             linear-gradient(
                     135deg,
-                    rgba(45,255,122,0.3),
-                    rgba(0,0,0,0.4)
+                    rgba(45,255,122,0.2),
+                    rgba(0,20,0,0.6)
             ),
-            url("https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200")
-            center/cover;
+            radial-gradient(circle at 30% 40%, rgba(45,255,122,0.15), transparent 60%);
     border-bottom: 1px solid rgba(45,255,122,0.2);
 }
 
@@ -744,6 +751,47 @@ li {
 .mini-stat strong {
     font-size: 24px;
     color: #2dff7a;
+}
+
+/* AVATAR UPLOAD */
+
+.avatar-upload-form,
+.avatar-delete-form {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid #2dff7a;
+    border-radius: 6px;
+    background: rgba(45,255,122,0.1);
+    color: #2dff7a;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.file-label:hover {
+    background: rgba(45,255,122,0.25);
+}
+
+.avatar-preview {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.avatar-preview img {
+    max-width: 130px;
+    max-height: 130px;
+    border-radius: 50%;
+    border: 3px solid #2dff7a;
+    object-fit: cover;
 }
 
 /* MOBILE */

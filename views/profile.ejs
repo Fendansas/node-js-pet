@@ -24,29 +24,25 @@
                             <!-- Форма загрузки аватара -->
                             <form action="/profile/avatar" method="POST" enctype="multipart/form-data"
                                 class="avatar-upload-form">
-                                <div class="file-input-wrapper">
-                                    <input type="file" name="avatar" id="avatar-input" accept="image/*">
-                                    <label for="avatar-input" class="file-label">
-                                        📁 Выбрать файл
-                                    </label>
-                                </div>
-                                <button type="submit" class="btn btn-upload">
-                                    📤 Загрузить аватар
+                                <input type="file" name="avatar" id="avatar-input" accept="image/*" hidden>
+                                <label for="avatar-input" class="file-label">
+                                    Выбрать файл
+                                </label>
+                                <button type="submit" class="btn">
+                                    Загрузить
                                 </button>
                             </form>
 
-                            <!-- Кнопка удаления аватара -->
                             <% if (user.avatarId) { %>
                                 <form action="/profile/avatar?_method=DELETE" method="POST" class="avatar-delete-form">
-                                    <button type="submit" class="btn btn-danger"
+                                    <button type="submit" class="btn danger"
                                         onclick="return confirm('Удалить аватар?')">
-                                        🗑️ Удалить аватар
+                                        Удалить аватар
                                     </button>
                                 </form>
-                                <% } %>
+                            <% } %>
 
-                                    <!-- Превью перед загрузкой -->
-                                    <div id="avatar-preview" class="avatar-preview"></div>
+                            <div id="avatar-preview" class="avatar-preview"></div>
 
                                     <h1 class="profile-name">
                                         <%= user.username%>
@@ -226,10 +222,8 @@
                             <div class="stats-grid">
 
                                 <div class="mini-stat">
-                                    <div class="card">
-                                        <h3>🎒 Инвентарь</h3>
-                                        <a href="/products/inventory" class="btn">Открыть инвентарь</a>
-                                    </div>
+                                    <span>🎒 Инвентарь</span>
+                                    <a href="/products/inventory" class="btn" style="margin-top:10px">Открыть</a>
                                 </div>
 
 
@@ -274,89 +268,7 @@
 
             </div>
 
-            <style>
-                /* Стили для загрузки аватара */
-                .avatar-upload-form,
-                .avatar-delete-form {
-                    margin: 15px 0;
-                    display: flex;
-                    gap: 10px;
-                    flex-wrap: wrap;
-                }
 
-                .file-input-wrapper {
-                    display: inline-block;
-                }
-
-                .file-label {
-                    display: inline-block;
-                    padding: 10px 20px;
-                    background: #4CAF50;
-                    color: white;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 14px;
-                }
-
-                .file-label:hover {
-                    background: #45a049;
-                }
-
-                #avatar-input {
-                    display: none;
-                }
-
-                .btn-upload {
-                    background: #4CAF50;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 14px;
-                }
-
-                .btn-upload:hover {
-                    background: #45a049;
-                }
-
-                .btn-danger {
-                    background: #f44336;
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 14px;
-                }
-
-                .btn-danger:hover {
-                    background: #d32f2f;
-                }
-
-                .avatar-preview {
-                    margin-top: 15px;
-                    text-align: center;
-                }
-
-                .avatar-preview img {
-                    max-width: 150px;
-                    max-height: 150px;
-                    border-radius: 50%;
-                    border: 3px solid #4CAF50;
-                }
-
-                /* Стили для аватара профиля */
-                .profile-avatar {
-                    width: 150px;
-                    height: 150px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                    border: 4px solid #4CAF50;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                    margin-bottom: 15px;
-                }
-            </style>
 
             <script>
                 // Превью перед загрузкой
