@@ -37,14 +37,23 @@ const screenshotStorage = multer.diskStorage({
     },
 
     filename: (req, file, cd) => {
-        // Сохраняем оригинальное имя из blob
         const originalName = file.originalname || 'screenshot.png';
-        cd(null, originalName);
+        cd(null, Date.now() + '-' + originalName);
     },
 });
 
 const upload = multer({
-    storage: storage
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB
+    },
+    fileFilter: (req, file, cd) => {
+        if (file.mimetype.startsWith('image/')) {
+            cd(null, true);
+        } else {
+            cd(new Error('Только изображения!'));
+        }
+    }
 });
 
 const uploadScreenshot = multer({

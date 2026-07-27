@@ -35,7 +35,7 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://html2canvas.hertzen.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://fonts.googleapis.com"],
             imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org", "https://images.unsplash.com"],
             connectSrc: ["'self'"],
@@ -65,7 +65,7 @@ app.use(rateLimit({
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: process.env.MONGO_URI
     }),
