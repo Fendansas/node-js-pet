@@ -1,0 +1,1599 @@
+<%- include('../partials/header', { title: 'Teoria — Полная теория Node.js и Express' }) %>
+
+<style>
+    .theory-container { max-width: 1100px; margin: 0 auto; }
+    .theory-container h1 { font-size: 28px; color: #2dff7a; text-align: center; margin-bottom: 10px; }
+    .theory-container h2 { font-size: 22px; color: #2dff7a; border-bottom: 1px solid #1a3a1a; padding-bottom: 8px; margin-top: 50px; }
+    .theory-container h3 { font-size: 17px; color: #7dffb3; margin-top: 24px; }
+    .theory-container h4 { font-size: 15px; color: #5ce69a; margin-top: 18px; }
+    .theory-container p, .theory-container li { line-height: 1.7; font-size: 14px; color: #c7f9cc; }
+    .theory-container ul, .theory-container ol { padding-left: 20px; }
+    .theory-container li { margin-bottom: 4px; }
+    .theory-container a { color: #2dff7a; }
+    .code-block { background: #0a1a0a; border: 1px solid #1a3a1a; border-radius: 6px; padding: 14px 18px; margin: 12px 0; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 13px; color: #c7f9cc; line-height: 1.5; white-space: pre; }
+    .code-inline { background: #0a1a0a; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 13px; color: #7dffb3; }
+    .q-block { background: rgba(45,255,122,0.05); border-left: 3px solid #2dff7a; padding: 14px 18px; margin: 14px 0; border-radius: 0 6px 6px 0; }
+    .q-block strong { color: #2dff7a; font-size: 14px; }
+    .a-block { margin: 8px 0 16px 0; }
+    .diagram { background: #0a1a0a; border: 1px solid #1a3a1a; border-radius: 6px; padding: 20px; margin: 16px 0; text-align: center; font-family: 'Courier New', monospace; color: #7dffb3; font-size: 14px; line-height: 1.8; white-space: pre; }
+    .toc { background: rgba(20,30,20,0.6); border: 1px solid #1a3a1a; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .toc a { text-decoration: none; display: block; padding: 4px 0; }
+    .toc a:hover { text-shadow: 0 0 8px #2dff7a; }
+    .badge { display: inline-block; background: #1a3a1a; color: #2dff7a; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 6px; }
+    hr { border: none; border-top: 1px solid #1a3a1a; margin: 30px 0; }
+    .back-link { display: inline-block; margin-bottom: 20px; color: #2dff7a; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-shadow: 0 0 8px #2dff7a; }
+</style>
+
+<div class="theory-container">
+
+<a href="/study" class="back-link">← Вернуться к Study Guide</a>
+
+<h1>📚 Полная теория Node.js и Express</h1>
+<p style="text-align:center;color:#7dffb3;">От азов V8 Engine до продвинутых тем — всё что нужно знать разработчику</p>
+
+<!-- ============================== -->
+<!-- TABLE OF CONTENTS -->
+<!-- ============================== -->
+
+<div class="toc">
+    <h3>Содержание</h3>
+    <a href="#arch-core">1. Node.js — Архитектура и ядро (V8, Event Loop, libuv)</a>
+    <a href="#modules">2. Модули и система импорта (CommonJS, ESM)</a>
+    <a href="#async">3. Асинхронное программирование (Callbacks, Promises, async/await)</a>
+    <a href="#buffer-stream">4. Buffer, Stream, Файловая система</a>
+    <a href="#express">5. Express.js — Полное руководство</a>
+    <a href="#http-rest">6. HTTP и REST</a>
+    <a href="#mongodb">7. MongoDB — Теория</a>
+    <a href="#security">8. Безопасность</a>
+    <a href="#testing-theory">9. Тестирование — Теория</a>
+    <a href="#devops">10. DevOps и деплой</a>
+    <a href="#advanced">11. Продвинутые темы</a>
+    <a href="#patterns">12. Паттерны проектирования</a>
+</div>
+
+<!-- ============================== -->
+<!-- SECTION 1: NODE.JS ARCHITECTURE -->
+<!-- ============================== -->
+
+<h2 id="arch-core">1. Node.js — Архитектура и ядро</h2>
+
+<h3>1.1 V8 Engine</h3>
+
+<p><strong>V8</strong> — JavaScript-движок, разработанный Google. Он компилирует JavaScript в <strong>машинный код</strong> вместо интерпретации. V8 написан на C++ и используется в Chrome, Node.js, Deno.</p>
+
+<h4>JIT-компиляция (Just-In-Time)</h4>
+
+<p>V8 не просто интерпретирует код — он компилирует его "на лету":</p>
+
+<div class="diagram">
+JavaScript-код
+    ↓
+┌─────────────┐
+│   Ignition   │  ← Интерпретатор, создаёт bytecode
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│   Sparkplug  │  ← Быстрая компиляция в машинный код
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│  TurboFan    │  ← Оптимизирующий компилятор
+└─────────────┘
+</div>
+
+<p><strong>Как это работает:</strong></p>
+<ol>
+    <li><strong>Ignition</strong> интерпретирует JavaScript и создаёт <strong>bytecode</strong></li>
+    <li>Если функция вызывается часто, <strong>Sparkplug</strong> компилирует её в машинный код</li>
+    <li>Если функция <strong>очень</strong> горячая, <strong>TurboFan</strong> оптимизирует её, угадывая типы переменных</li>
+    <li>Если угадывание было неправильным — <strong>deoptimization</strong> (возврат к bytecode)</li>
+</ol>
+
+<h4>Hidden Classes (Скрытые классы)</h4>
+
+<div class="code-block">
+// V8 создаёт Hidden Class для каждого объекта
+const obj = { x: 1, y: 2 };
+// HC0: { x: → offset 0, y: → offset 8 }
+
+obj.z = 3;
+// HC1: { x: → offset 0, y: → offset 8, z: → offset 16 }
+// Если у всех объектов одинаковый порядок → один HC → быстрый доступ
+</div>
+
+<p><strong>Почему это важно:</strong> Если вы создаёте объекты с одинаковой структурой, V8 переиспользует Hidden Classes и код работает быстрее.</p>
+
+<h4>Garbage Collection (Сбор мусора)</h4>
+
+<div class="diagram">
+┌─────────────────────────────────────────┐
+│              V8 Heap                     │
+│  ┌──────────┐  ┌──────────────────────┐  │
+│  │ New Space │  │     Old Space        │  │
+│  │ (молодые) │  │    (старые объекты)  │  │
+│  │ Scavenge  │  │  Mark-Sweep-Compact  │  │
+│  └──────────┘  └──────────────────────┘  │
+└─────────────────────────────────────────┘
+</div>
+
+<ul>
+    <li><strong>Scavenge</strong> — быстрая сборка для молодых объектов (New Space)</li>
+    <li><strong>Mark-Sweep</strong> — помечает доступные объекты, удаляет остальные</li>
+    <li><strong>Mark-Compact</strong> — компактификация после Sweep (устраняет фрагментацию)</li>
+</ul>
+
+<h3>1.2 Event Loop — Полная модель</h3>
+
+<div class="diagram">
+   ┌───────────────────────────┐
+┌─│         Timers              │ ← setTimeout, setInterval
+│  └───────────┬───────────────┘
+│  ┌───────────┴───────────────┐
+│  │     I/O Callbacks          │ ← отложенные I/O callback'и
+│  └───────────┬───────────────┘
+│  ┌───────────┴───────────────┐
+│  │     Idle, Prepare          │ ← внутренние
+│  └───────────┬───────────────┘
+│  ┌───────────┴───────────────┐
+│  │         Poll               │ ← новые I/O события
+│  └───────────┬───────────────┘
+│  ┌───────────┴───────────────┐
+│  │         Check              │ ← setImmediate
+│  └───────────┬───────────────┘
+│  ┌───────────┴───────────────┐
+│  │     Close Callbacks        │ ← socket.on('close')
+│  └───────────┬───────────────┘
+└──────────────┘
+</div>
+
+<h4>6 фаз Event Loop</h4>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Фаза</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Что происходит</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Примеры</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Timers</td><td style="padding:6px;">Callback'и setTimeout/setInterval</td><td style="padding:6px;">setTimeout(() => {...}, 1000)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">I/O Callbacks</td><td style="padding:6px;">Отложенные I/O callback'и</td><td style="padding:6px;">Error callbacks</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Idle, Prepare</td><td style="padding:6px;">Внутренние операции Node.js</td><td style="padding:6px;">—</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Poll</td><td style="padding:6px;">Получение I/O событий; блокировка если нет задач</td><td style="padding:6px;">fs.readFile, http.Server</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Check</td><td style="padding:6px;">setImmediate callbacks</td><td style="padding:6px;">setImmediate(() => {...})</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Close</td><td style="padding:6px;">Закрытие соединений</td><td style="padding:6px;">socket.on('close', ...)</td></tr>
+</table>
+
+<h4>Microtasks vs Macrotasks</h4>
+
+<div class="code-block">
+// Микротаски (выполняются между фазами):
+Promise.resolve().then(() => console.log('promise'));
+queueMicrotask(() => console.log('microtask'));
+process.nextTick(() => console.log('nextTick'));
+
+// Макротаски (внутри фаз):
+setTimeout(() => console.log('timeout'), 0);
+setImmediate(() => console.log('immediate'));
+
+// Порядок: nextTick → promise → microtask → timeout → immediate
+</div>
+
+<h3>1.3 libuv</h3>
+
+<p><strong>libuv</strong> — C-библиотека, обеспечивающая Event Loop, асинхронный I/O, thread pool и кроссплатформенность.</p>
+
+<h4>Thread Pool</h4>
+
+<div class="code-block">
+// libuv использует thread pool (по умолчанию 4 потока) для:
+fs.readFile('file.txt', callback);      // Файловые операции
+dns.lookup('google.com', callback);     // DNS
+crypto.pbkdf2(..., callback);           // Криптография
+
+// Network I/O — через epoll/kqueue/IOCP (не thread pool)
+http.get('http://example.com', cb);     // Параллельно с потоками
+</div>
+
+<h3>1.4 Worker Threads и Cluster</h3>
+
+<h4>Worker Threads — отдельные потоки для CPU-bound задач</h4>
+
+<div class="code-block">
+import { Worker, isMainThread, parentPort, workerData } from 'worker_threads';
+
+if (isMainThread) {
+    const worker = new Worker(new URL(import.meta.url), {
+        workerData: { data: [1, 2, 3] }
+    });
+    worker.on('message', (result) => console.log('Результат:', result));
+} else {
+    parentPort.on('message', (msg) => {
+        const result = heavyComputation(workerData.data);
+        parentPort.postMessage(result);
+    });
+}
+</div>
+
+<h4>Cluster — использование всех ядер CPU</h4>
+
+<div class="code-block">
+import cluster from 'cluster';
+import os from 'os';
+
+if (cluster.isPrimary) {
+    const numCPUs = os.cpus().length;
+    for (let i = 0; i &lt; numCPUs; i++) {
+        cluster.fork();
+    }
+    cluster.on('exit', (worker) => {
+        cluster.fork(); // Перезапуск упавшего worker
+    });
+} else {
+    app.listen(3001);
+}
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 2: MODULES -->
+<!-- ============================== -->
+
+<h2 id="modules">2. Модули и система импорта</h2>
+
+<h3>2.1 CommonJS (CJS)</h3>
+
+<p>Оригинальная система модулей Node.js. Используется в файлах <span class="code-inline">.js</span> без <span class="code-inline">"type": "module"</span>.</p>
+
+<div class="code-block">
+// Экспорт
+module.exports = { foo: 1, bar: 2 };
+// или
+exports.foo = 1;
+
+// Импорт
+const { foo, bar } = require('./module');
+const myModule = require('./module');
+</div>
+
+<h4>Как работает require() — 5 шагов</h4>
+
+<div class="diagram">
+require('./module')
+    │
+    ▼
+┌─────────────┐
+│ 1. RESOLVE  │  Найти файл (./module.js → ./module/index.js → ./module.json)
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│ 2. LOAD     │  Прочитать содержимое файла
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│ 3. COMPILE  │  Обернуть в функцию: (function(exports, require, module, __filename, __dirname) { ... })
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│ 4. CACHE    │  Сохранить в require.cache (повторный вызов не читает файл)
+└──────┬──────┘
+       ↓
+┌─────────────┐
+│ 5. EXPORT   │  Вернуть module.exports
+└─────────────┘
+</div>
+
+<h4>Циклические зависимости</h4>
+
+<div class="code-block">
+// a.js
+const b = require('./b');
+module.exports = { name: 'a' };
+
+// b.js
+const a = require('./a');  // a = {} (неполный объект — модуль ещё не экспортирован!)
+module.exports = { name: 'b' };
+
+// Проблема: при циклическом require() один из модулей будет пустым
+</div>
+
+<h3>2.2 ES Modules (ESM)</h3>
+
+<p>Стандарт ECMAScript 2015. Используется при <span class="code-inline">"type": "module"</span> в package.json.</p>
+
+<div class="code-block">
+// Экспорт
+export const foo = 1;
+export default class MyClass { ... }
+
+// Импорт
+import { foo } from './module.js';
+import MyClass from './module.js';
+</div>
+
+<h4>Динамический импорт</h4>
+
+<div class="code-block">
+// Статический (вверху файла, загружается сразу)
+import { foo } from './module.js';
+
+// Динамический (async, по требованию)
+const module = await import('./module.js');
+console.log(module.foo);
+
+// Условный импорт
+if (condition) {
+    const { heavy } = await import('./heavy-module.js');
+}
+</div>
+
+<h4>Top-level await</h4>
+
+<div class="code-block">
+// В ESM можно использовать await на верхнем уровне
+const response = await fetch('https://api.example.com/data');
+const data = await response.json();
+export { data };
+</div>
+
+<h3>2.3 Сравнение CJS vs ESM</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Критерий</strong></td><td style="padding:6px;color:#2dff7a;width:37%;"><strong>CommonJS</strong></td><td style="padding:6px;color:#2dff7a;width:38%;"><strong>ES Modules</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Синтаксис</td><td style="padding:6px;">require() / module.exports</td><td style="padding:6px;">import / export</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Загрузка</td><td style="padding:6px;">Синхронная</td><td style="padding:6px;">Асинхронная (статическая)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Кеширование</td><td style="padding:6px;">require.cache (копия)</td><td style="padding:6px;">Ссылка (live binding)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Условный вызов</td><td style="padding:6px;">if (x) require()</td><td style="padding:6px;">Только вверху файла</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">__dirname</td><td style="padding:6px;">Есть</td><td style="padding:6px;">Нет (через import.meta.url)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Расширение</td><td style="padding:6px;">.js, .cjs</td><td style="padding:6px;">.js (при "type":"module"), .mjs</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 3: ASYNC -->
+<!-- ============================== -->
+
+<h2 id="async">3. Асинхронное программирование</h2>
+
+<h3>3.1 Call Stack и Event Queue</h3>
+
+<div class="diagram">
+┌─────────────────────────────────────────┐
+│              Call Stack                   │  ← Стек вызовов (LIFO)
+│  main() → getUser() → readFile()        │
+└─────────────────┬───────────────────────┘
+                  ↓ (async operation)
+┌─────────────────────────────────────────┐
+│           Microtask Queue                │  ← Promise.then, queueMicrotask
+│  [priority: highest]                     │
+└─────────────────┬───────────────────────┘
+                  ↓
+┌─────────────────────────────────────────┐
+│           Macrotask Queue                │  ← setTimeout, I/O, setImmediate
+│  [priority: lower]                       │
+└─────────────────────────────────────────┘
+</div>
+
+<h3>3.2 Callbacks</h3>
+
+<div class="code-block">
+// Callback pattern
+function fetchData(callback) {
+    fs.readFile('data.json', (err, data) => {
+        if (err) return callback(err);
+        callback(null, JSON.parse(data));
+    });
+}
+
+// Error-First Callback (Node.js соглашение)
+// Первый аргумент — всегда ошибка (или null)
+fs.readFile('file.txt', (error, data) => {
+    if (error) {
+        console.error('Ошибка:', error.message);
+        return;
+    }
+    console.log('Данные:', data);
+});
+</div>
+
+<div class="q-block"><strong>Callback Hell — проблема вложенных callback'ов</strong></div>
+<div class="code-block">
+// ПЛОХО — "ад callback'ов"
+getUser(userId, (err, user) => {
+    getOrders(user.id, (err, orders) => {
+        getOrderDetails(orders[0].id, (err, details) => {
+            getProduct(details.productId, (err, product) => {
+                // 4 уровня вложенности — трудно читать и обрабатывать ошибки
+            });
+        });
+    });
+});
+</div>
+
+<h3>3.3 Promises</h3>
+
+<p><strong>Promise</strong> — объект, представляющий результат асинхронной операции. Три состояния:</p>
+
+<div class="diagram">
+┌──────────┐     ┌──────────┐     ┌──────────┐
+│ pending  │ ──► │fulfilled │     │ rejected │
+│ (ожидание)│    │ (успех)  │     │ (ошибка) │
+└──────────┘     └──────────┘     └──────────┘
+</div>
+
+<div class="code-block">
+// Создание Promise
+const promise = new Promise((resolve, reject) => {
+    const data = fetchFromDB();
+    if (data) {
+        resolve(data);       // Успех → then()
+    } else {
+        reject(new Error('No data'));  // Ошибка → catch()
+    }
+});
+
+// Использование
+promise
+    .then(data => console.log(data))     // resolve
+    .catch(err => console.error(err))    // reject
+    .finally(() => console.log('done')); // всегда
+</div>
+
+<h4>Цепочки промисов (Chaining)</h4>
+
+<div class="code-block">
+getUser(id)
+    .then(user => getOrders(user.id))     // Возвращаем промис
+    .then(orders => getOrderDetails(orders[0].id))
+    .then(details => renderPage(details))
+    .catch(err => handleError(err));       // Один обработчик для всей цепочки
+</div>
+
+<h3>3.4 async/await</h3>
+
+<p><span class="code-inline">async/await</span> — синтаксический сахар над Promise. Код выглядит синхронным, но работает асинхронно.</p>
+
+<div class="code-block">
+// async/await — современный стандарт
+async function loadPage() {
+    try {
+        const user = await getUser(id);            // Ждём результат
+        const orders = await getOrders(user.id);   // Ждём результат
+        const details = await getOrderDetails(orders[0].id);
+        return renderPage(details);
+    } catch (err) {
+        handleError(err);  // Ловим ошибку из любого await
+    }
+}
+</div>
+
+<h4>Параллельные операции</h4>
+
+<div class="code-block">
+// Последовательно (медленно) — 6 секунд
+const a = await fetch('/api/a');     // 3 сек
+const b = await fetch('/api/b');     // 3 сек
+// Итого: 6 сек
+
+// Параллельно (быстро) — 3 секунды
+const [a, b] = await Promise.all([
+    fetch('/api/a'),  // 3 сек
+    fetch('/api/b'),  // 3 сек (параллельно)
+]);
+// Итого: 3 сек
+
+// Promise.allSettled — не падает при ошибке
+const results = await Promise.allSettled([
+    fetch('/api/a'),
+    fetch('/api/b'),  // Если упадёт — не страшно
+]);
+// results = [{ status: 'fulfilled', value: ... }, { status: 'rejected', reason: ... }]
+
+// Promise.race — первый результат (успех или ошибка)
+const fastest = await Promise.race([
+    fetch('/api/us-east'),
+    fetch('/api/eu-west'),  // Кто быстрее — тот и победил
+]);
+
+// Promise.any — первый успешный
+const first = await Promise.any([
+    fetch('/api/primary'),
+    fetch('/api/backup'),   // Если primary упадёт — возьмёт backup
+]);
+</div>
+
+<h3>3.5 Микротаски vs Макротаски</h3>
+
+<div class="code-block">
+console.log('1: start');
+
+setTimeout(() => console.log('2: timeout'), 0);
+Promise.resolve().then(() => console.log('3: promise'));
+process.nextTick(() => console.log('4: nextTick'));
+
+console.log('5: end');
+
+// Вывод:
+// 1: start
+// 5: end
+// 4: nextTick    ← Microtask (приоритетнее)
+// 3: promise     ← Microtask
+// 2: timeout     ← Macrotask
+</div>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Микротаски</strong></td><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Макротаски</strong></td><td style="padding:6px;"><strong>Разница</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Promise.then</td><td style="padding:6px;">setTimeout</td><td style="padding:6px;">Микротаски выполняются между фазами</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">queueMicrotask</td><td style="padding:6px;">setImmediate</td><td style="padding:6px;">Макротаски — внутри фазы</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">process.nextTick</td><td style="padding:6px;">I/O callbacks</td><td style="padding:6px;">Микротаски блокируют Event Loop если много</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 4: BUFFER, STREAM, FS -->
+<!-- ============================== -->
+
+<h2 id="buffer-stream">4. Buffer, Stream, Файловая система</h2>
+
+<h3>4.1 Buffer</h3>
+
+<p><strong>Buffer</strong> — структура для работы с <strong>бинарными данными</strong>. JavaScript работает со строками, а файлы/сеть — это байты.</p>
+
+<div class="code-block">
+// Создание Buffer
+const buf1 = Buffer.from('Hello World');          // Из строки
+const buf2 = Buffer.alloc(10);                    // 10 нулевых байт
+const buf3 = Buffer.allocUnsafe(10);              // 10 байт (мусор — быстрее!)
+const buf4 = Buffer.from([72, 101, 108, 108, 111]); // Из массива байт
+
+// Методы
+buf1.toString('utf-8');       // 'Hello World'
+buf1.toString('base64');      // 'SGVsbG8gV29ybGQ='
+buf1.length;                  // 11 (байт)
+buf1.slice(0, 5);             // <Buffer 48 65 6c 6c 6f>
+Buffer.concat([buf1, buf2]);  // Объединение буферов
+</div>
+
+<h3>4.2 Stream — 4 типа</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:15%;"><strong>Тип</strong></td><td style="padding:6px;color:#2dff7a;width:30%;"><strong>Описание</strong></td><td style="padding:6px;color:#2dff7a;width:30%;"><strong>Примеры</strong></td><td style="padding:6px;color:#2dff7a;width:25%;"><strong>События</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Readable</td><td style="padding:6px;">Чтение данных</td><td style="padding:6px;">fs.createReadStream(), req</td><td style="padding:6px;">data, end, error</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Writable</td><td style="padding:6px;">Запись данных</td><td style="padding:6px;">fs.createWriteStream(), res</td><td style="padding:6px;">drain, finish, error</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Duplex</td><td style="padding:6px;">Чтение + Запись</td><td style="padding:6px;">net.Socket</td><td style="padding:6px;">data, end, drain, finish</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Transform</td><td style="padding:6px;">Трансформация</td><td style="padding:6px;">zlib.createGzip()</td><td style="padding:6px;">data, end, flush</td></tr>
+</table>
+
+<div class="code-block">
+// Пример: чтение большого файла
+const readStream = fs.createReadStream('huge-file.txt', {
+    encoding: 'utf-8',
+    highWaterMark: 16 * 1024  // 16KB chunks
+});
+
+readStream.on('data', (chunk) => {
+    console.log(`Получено ${chunk.length} байт`);
+});
+
+readStream.on('end', () => {
+    console.log('Файл прочитан');
+});
+
+// pipe() — соединяет Readable → Writable
+readStream.pipe(res);  // Поток → HTTP-ответ
+
+// pipeline() — безопасная альтернатива pipe (обрабатывает ошибки)
+import { pipeline } from 'stream/promises';
+pipeline(
+    fs.createReadStream('input.txt'),
+    zlib.createGzip(),
+    fs.createWriteStream('output.txt.gz')
+);
+</div>
+
+<h4>背压 (Backpressure)</h4>
+
+<p>Возникает когда Readable шлёт данные быстрее, чем Writable может обработать:</p>
+
+<div class="code-block">
+const readStream = fs.createReadStream('huge.txt');
+const writeStream = fs.createWriteStream('copy.txt');
+
+readStream.on('data', (chunk) => {
+    const canContinue = writeStream.write(chunk);
+    if (!canContinue) {
+        readStream.pause();       // Приостанавливаем чтение
+        writeStream.once('drain', () => {
+            readStream.resume();  // Возобновляем когда буфер очистился
+        });
+    }
+});
+</div>
+
+<h3>4.3 Файловая система (fs)</h3>
+
+<div class="code-block">
+import { readFile, writeFile, readdir } from 'fs/promises';
+
+// Promise-based (РЕКОМЕНДУЕТСЯ)
+const data = await readFile('file.txt', 'utf-8');
+const files = await readdir('./uploads');
+await writeFile('output.txt', 'Hello');
+
+// Async callback (старый стиль)
+fs.readFile('file.txt', 'utf-8', (err, data) => { ... });
+
+// Sync (БЛОКИРУЕТ Event Loop — НЕ используйте в серверном коде!)
+const data = fs.readFileSync('file.txt', 'utf-8');
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 5: EXPRESS -->
+<!-- ============================== -->
+
+<h2 id="express">5. Express.js — Полное руководство</h2>
+
+<h3>5.1 Архитектура Express</h3>
+
+<p>Express — это <strong>цепочка middleware</strong>. Каждый запрос проходит через middleware-функции до到达 обработчика маршрута.</p>
+
+<div class="diagram">
+Запрос → [json()] → [session()] → [auth] → [RBAC] → [Router] → [Handler] → Ответ
+         middleware middleware middleware middleware    controller
+</div>
+
+<h3>5.2 Middleware — Полная модель</h3>
+
+<h4>Типы middleware</h4>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Тип</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Описание</strong></td><td style="padding:6px;color:#2dff7a;width:35%;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Application-level</td><td style="padding:6px;">app.use() — для всех запросов</td><td style="padding:6px;">app.use(express.json())</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Router-level</td><td style="padding:6px;">router.use() — для конкретного роутера</td><td style="padding:6px;">router.use(isAuth)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Error-handling</td><td style="padding:6px;">4 аргумента (err, req, res, next)</td><td style="padding:6px;">app.use((err, req, res, next) => {...})</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Built-in</td><td style="padding:6px;">Встроенные в Express</td><td style="padding:6px;">express.json(), express.static()</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Third-party</td><td style="padding:6px;">npm пакеты</td><td style="padding:6px;">cors, helmet, morgan</td></tr>
+</table>
+
+<h4>next() — три варианта</h4>
+
+<div class="code-block">
+// 1. next() — передать следующей middleware
+app.use((req, res, next) => {
+    req.customData = 'hello';
+    next();  // ← Передаём дальше
+});
+
+// 2. next('route') — пропустить остальные middleware для этого маршрута
+router.get('/admin', checkRole, (req, res) => {
+    if (req.user.role === 'admin') {
+        next('route');  // ← Перейти к следующему маршруту
+    }
+});
+
+// 3. next(err) — передать ошибку в error-handling middleware
+app.use((req, res, next) => {
+    try {
+        doSomething();
+        next();
+    } catch (err) {
+        next(err);  // ← Передать ошибку
+    }
+});
+</div>
+
+<h4>Error-handling middleware</h4>
+
+<div class="code-block">
+// 4 аргумента — Express определяет как error-handling
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
+</div>
+
+<h3>5.3 Router</h3>
+
+<div class="code-block">
+import { Router } from 'express';
+
+const router = Router({ mergeParams: true }); // Доступ к params родителя
+
+// Параметры маршрутов
+router.get('/:id', (req, res) => {
+    console.log(req.params.id);  // '123' для /products/123
+});
+
+// Необязательные параметры (?)
+router.get('/:id?', (req, res) => {
+    if (!req.params.id) { /* список */ }
+    else { /* конкретный */ }
+});
+
+// Цепочка для одного пути
+router.route('/:id')
+    .get(controller.show)
+    .put(controller.update)
+    .delete(controller.delete);
+</div>
+
+<h3>5.4 Request Object (req)</h3>
+
+<div class="code-block">
+req.body          // Тело запроса (POST/PUT) — через express.json()
+req.params        // Параметры маршрута (:id, :username)
+req.query         // Строка запроса (?page=1&limit=10)
+req.headers       // HTTP-заголовки
+req.cookies       // Cookies (через cookie-parser)
+req.session       // Сессия (через express-session)
+req.method        // 'GET', 'POST', 'PUT', 'DELETE'
+req.url           // Полный URL
+req.path          // Путь без query string
+req.hostname      // Имя хоста
+req.ip            // IP-адрес клиента
+req.accepts('html') // Content Negotiation
+req.is('application/json') // Проверка Content-Type
+</div>
+
+<h3>5.5 Response Object (res)</h3>
+
+<div class="code-block">
+res.status(200)                  // Установить HTTP статус
+res.json({ success: true })      // JSON ответ
+res.send('Hello')                // Текст/HTML
+res.render('page', { data })     // Рендер шаблона (EJS, Pug)
+res.redirect('/new-url')         // Редирект 302
+res.redirect(301, '/new-url')    // Постоянный редирект
+res.sendFile(path.join(...))     // Отправка файла
+res.setHeader('X-Custom', 'val') // Заголовок
+res.cookie('token', value, { httpOnly: true }) // Установить cookie
+res.clearCookie('token')         // Удалить cookie
+</div>
+
+<h3>5.6 Express 5 — Обработка ошибок</h3>
+
+<div class="code-block">
+// Express 5 автоматически ловит ошибки в async-обработчиках
+router.get('/:id', async (req, res) => {
+    const user = await UserService.getById(req.params.id); // Ошибка = автоматический catch
+    return res.json({ success: true, data: user });
+});
+
+// Express 4 — требовал обёртку:
+router.get('/:id', asyncHandler(async (req, res) => {
+    const user = await UserService.getById(req.params.id);
+}));
+</div>
+
+<h3>5.7 Шаблонизаторы</h3>
+
+<div class="code-block">
+// EJS — Embedded JavaScript
+&lt;%= user.username %&gt;      // Экранированный вывод
+&lt;%- user.username %&gt;      // Без экранирования (ОПАСНО!)
+&lt;% if (user) { %&gt;          // Логика
+&lt;% } %&gt;
+
+// Pug — indentation-based
+h1= user.username
+if user
+    p= user.email
+
+// Handlebars — Mustache-like
+&lt;h1&gt;{{user.username}}&lt;/h1&gt;
+{{#if user}}&lt;p&gt;Logged in&lt;/p&gt;{{/if}}
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 6: HTTP AND REST -->
+<!-- ============================== -->
+
+<h2 id="http-rest">6. HTTP и REST</h2>
+
+<h3>6.1 HTTP Methods</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:12%;"><strong>Метод</strong></td><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Назначение</strong></td><td style="padding:6px;color:#2dff7a;width:15%;"><strong>Idempotent</strong></td><td style="padding:6px;color:#2dff7a;width:15%;"><strong>Safe</strong></td><td style="padding:6px;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">GET</td><td style="padding:6px;">Получить ресурс</td><td style="padding:6px;">Да</td><td style="padding:6px;">Да</td><td style="padding:6px;">GET /products/123</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">POST</td><td style="padding:6px;">Создать ресурс</td><td style="padding:6px;">Нет</td><td style="padding:6px;">Нет</td><td style="padding:6px;">POST /products</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">PUT</td><td style="padding:6px;">Заменить ресурс</td><td style="padding:6px;">Да</td><td style="padding:6px;">Нет</td><td style="padding:6px;">PUT /products/123</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">PATCH</td><td style="padding:6px;">Частично обновить</td><td style="padding:6px;">Нет*</td><td style="padding:6px;">Нет</td><td style="padding:6px;">PATCH /products/123</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">DELETE</td><td style="padding:6px;">Удалить ресурс</td><td style="padding:6px;">Да</td><td style="padding:6px;">Нет</td><td style="padding:6px;">DELETE /products/123</td></tr>
+</table>
+
+<p><strong>Idempotent</strong> — повторный запрос даёт тот же результат. GET /products/123 дважды = одинаковый ответ.</p>
+<p><strong>Safe</strong> — не изменяет состояние сервера. GET не должен менять данные.</p>
+
+<h3>6.2 HTTP Status Codes</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:15%;"><strong>Код</strong></td><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Группа</strong></td><td style="padding:6px;"><strong>Значение</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">100-199</td><td style="padding:6px;">Informational</td><td style="padding:6px;">100 Continue, 101 Switching Protocols</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">200-299</td><td style="padding:6px;">Success</td><td style="padding:6px;">200 OK, 201 Created, 204 No Content</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">300-399</td><td style="padding:6px;">Redirection</td><td style="padding:6px;">301 Moved, 302 Found, 304 Not Modified</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">400-499</td><td style="padding:6px;">Client Error</td><td style="padding:6px;">400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable, 429 Too Many Requests</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">500-599</td><td style="padding:6px;">Server Error</td><td style="padding:6px;">500 Internal Error, 502 Bad Gateway, 503 Service Unavailable</td></tr>
+</table>
+
+<h3>6.3 CORS (Cross-Origin Resource Sharing)</h3>
+
+<div class="code-block">
+// CORS — разрешение запросов с других доменов
+app.use(cors({
+    origin: 'http://localhost:3001',    // Разрешённый домен
+    credentials: true,                   // Разрешить cookies
+    methods: ['GET', 'POST', 'PUT']     // Разрешённые методы
+}));
+
+// Preflight запрос (OPTIONS) — браузер проверяет разрешение ДО основного запроса
+// Browser → OPTIONS /api/data → Server → Access-Control-Allow-Origin: ...
+// Browser → GET /api/data → Server → данные
+</div>
+
+<h3>6.4 Cookies и Sessions</h3>
+
+<div class="code-block">
+// Cookie — данные в браузере
+res.cookie('token', 'abc123', {
+    httpOnly: true,      // Недоступна из JavaScript
+    secure: true,        // Только HTTPS
+    sameSite: 'strict',  // Защита от CSRF
+    maxAge: 86400000     // 24 часа
+});
+
+// Session — данные на сервере
+req.session.user = { id: '123', username: 'admin' };
+// Сервер хранит в MongoDB, клиент хранит cookie connect.sid
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 7: MONGODB -->
+<!-- ============================== -->
+
+<h2 id="mongodb">7. MongoDB — Теория</h2>
+
+<h3>7.1 Документная модель</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Реляционная (SQL)</strong></td><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Документная (MongoDB)</strong></td><td style="padding:6px;"><strong>Разница</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Table (таблица)</td><td style="padding:6px;">Collection (коллекция)</td><td style="padding:6px;">Группа документов</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Row (строка)</td><td style="padding:6px;">Document (документ)</td><td style="padding:6px;">JSON-объект</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Column</td><td style="padding:6px;">Field (поле)</td><td style="padding:6px;">Ключ-значение</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">JOIN</td><td style="padding:6px;">$lookup / вложенность</td><td style="padding:6px;">Документы могут быть вложенными</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Схема строгая</td><td style="padding:6px;">Схема гибкая</td><td style="padding:6px;">Каждый документ может иметь разные поля</td></tr>
+</table>
+
+<h3>7.2 CRUD операции</h3>
+
+<div class="code-block">
+// CREATE
+await User.create({ username: 'stalker', email: 's@z.a', money: 100 });
+await User.insertMany([{ username: 'a' }, { username: 'b' }]);
+
+// READ
+await User.find({ status: 'active' });           // Все документы
+await User.findOne({ username: 'admin' });        // Один документ
+await User.findById('64a1b2c3');                  // По ID
+
+// UPDATE
+await User.updateOne({ _id: id }, { $set: { money: 200 } });
+await User.findByIdAndUpdate(id, { money: 200 }, { new: true });
+// $inc — инкремент
+await User.updateOne({ _id: id }, { $inc: { money: 50 } });
+// $push — добавить в массив
+await User.updateOne({ _id: id }, { $push: { inventory: { product: 'p1', count: 1 } } });
+// $pull — удалить из массива
+await User.updateOne({ _id: id }, { $pull: { inventory: { product: 'p1' } } });
+// $addToSet — добавить если ещё нет
+await User.updateOne({ _id: id }, { $addToSet: { tags: 'vip' } });
+
+// DELETE
+await User.deleteOne({ _id: id });
+await User.deleteMany({ status: 'banned' });
+</div>
+
+<h3>7.3 Индексы</h3>
+
+<div class="code-block">
+// Уникальный индекс
+username: { type: String, unique: true }
+
+// Составной индекс
+userSchema.index({ username: 1, email: 1 });
+
+// Текстовый индекс (поиск по тексту)
+postSchema.index({ title: 'text', content: 'text' });
+
+// Создание программно
+await User.createIndex({ email: 1 }, { unique: true });
+
+// Анализ запроса
+await User.find({ email: 'test' }).explain('executionStats');
+// "IXSCAN" — использование индекса (ХОРОШО)
+// "COLLSCAN" — сканирование всей коллекции (ПЛОХО)
+</div>
+
+<h3>7.4 Aggregation Pipeline</h3>
+
+<div class="code-block">
+// Агрегация — цепочка этапов обработки
+const results = await Order.aggregate([
+    { $match: { status: 'completed' } },         // Фильтрация
+    { $group: {                                   // Группировка
+        _id: '$userId',
+        totalSpent: { $sum: '$amount' },
+        orderCount: { $sum: 1 }
+    }},
+    { $sort: { totalSpent: -1 } },               // Сортировка
+    { $limit: 10 },                               // Лимит
+    { $lookup: {                                  // JOIN с users
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'user'
+    }},
+    { $unwind: '$user' }                          // Разворачиваем массив
+]);
+</div>
+
+<h3>7.5 Репликация и шардинг</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Концепция</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Описание</strong></td><td style="padding:6px;"><strong>Зачем</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Replica Set</td><td style="padding:6px;">Несколько копий данных (primary + secondary)</td><td style="padding:6px;">Отказоустойчивость, бэкапы</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Primary</td><td style="padding:6px;">Основной сервер, принимает записи</td><td style="padding:6px;">Единая точка записи</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Secondary</td><td style="padding:6px;">Реплики, принимают чтение</td><td style="padding:6px;">Балансировка нагрузки</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Шардинг</td><td style="padding:6px;">Разбиение данных по серверам</td><td style="padding:6px;">Масштабирование на большие объёмы</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 8: SECURITY -->
+<!-- ============================== -->
+
+<h2 id="security">8. Безопасность</h2>
+
+<h3>8.1 XSS (Cross-Site Scripting)</h3>
+
+<p><strong>XSS</strong> — атака, при которой атакующий внедряет JavaScript в чужой сайт.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Тип</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Описание</strong></td><td style="padding:6px;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Reflected</td><td style="padding:6px;">Скрипт в URL, отображается без сохранения</td><td style="padding:6px;">&lt;script&gt;alert(1)&lt;/script&gt; в query string</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Stored</td><td style="padding:6px;">Скрипт сохранён в БД и показывается всем</td><td style="padding:6px;">Злонамеренный комментарий</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">DOM-based</td><td style="padding:6px;">Манипуляция DOM на стороне клиента</td><td style="padding:6px;">innerHTML = userInput</td></tr>
+</table>
+
+<p><strong>Защита:</strong></p>
+<ul>
+    <li>Экранирование вывода: <span class="code-inline">&lt;%= %&gt;</span> в EJS (автоматически)</li>
+    <li>CSP (Content Security Policy) через helmet</li>
+    <li>httpOnly cookies — недоступны из JavaScript</li>
+</ul>
+
+<h3>8.2 CSRF (Cross-Site Request Forgery)</h3>
+
+<p><strong>CSRF</strong> — поддельная форма на чужом сайте отправляет запрос от имени вашего пользователя.</p>
+
+<div class="code-block">
+&lt;!-- Злонамеренная страница --&gt;
+&lt;form action="http://your-bank.com/transfer" method="POST"&gt;
+    &lt;input name="to" value="attacker" /&gt;
+    &lt;input name="amount" value="10000" /&gt;
+&lt;/form&gt;
+&lt;script&gt;document.forms[0].submit()&lt;/script&gt;
+</div>
+
+<p><strong>Защита:</strong></p>
+<ul>
+    <li>CSRF-токены (уникальный токен в форме)</li>
+    <li>SameSite cookie: <span class="code-inline">sameSite: 'strict'</span></li>
+    <li>Проверка заголовка Origin/Referer</li>
+</ul>
+
+<h3>8.3 NoSQL Injection</h3>
+
+<div class="code-block">
+// Атака: вместо пароля передаёт объект
+{ "username": "admin", "password": { "$gt": "" } }
+// MongoDB выполнит: { username: 'admin', password: { $gt: '' } }
+// И найдёт пользователя БЕЗ проверки пароля!
+
+// Защита: валидация типов
+body('username').isString().trim().notEmpty(),
+body('password').isString().isLength({ min: 6 }),
+</div>
+
+<h3>8.4 Аутентификация</h3>
+
+<div class="code-block">
+// bcrypt — хеширование паролей
+const hash = await bcrypt.hash(password, 10);  // 10 salt rounds
+// Результат: $2b$10$N9qo8uLOickgx2ZMRZoMye...
+//            ^^^ ^^^ ─── ────────────────────
+//            │   │    │          хеш
+//            │   │    соль (22 символа)
+//            │   work factor (10)
+//            версия bcrypt
+
+// Проверка
+const isMatch = await bcrypt.compare(inputPassword, hash);
+</div>
+
+<h3>8.5 Rate Limiting</h3>
+
+<div class="code-block">
+// Глобальный — 100 запросов за 15 минут
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
+// Специфичный — 5 попыток логина за 15 минут
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+router.post('/login', loginLimiter, controller.login);
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 9: TESTING THEORY -->
+<!-- ============================== -->
+
+<h2 id="testing-theory">9. Тестирование — Теория</h2>
+
+<h3>9.1 Test Pyramid (Пирамида тестов)</h3>
+
+<div class="diagram">
+        ╱  E2E  ╲           Мало, медленные, дорогие
+       ╱─────────╲
+      ╱Integration╲        Средне по количеству
+     ╱─────────────╲
+    ╱    Unit Tests   ╲     Много, быстрые, дешёвые
+   ╱───────────────────╲
+</div>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Уровень</strong></td><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Скорость</strong></td><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Стоимость</strong></td><td style="padding:6px;"><strong>Что проверяем</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Unit</td><td style="padding:6px;">~400ms</td><td style="padding:6px;">Дёшево</td><td style="padding:6px;">Отдельные функции</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Integration</td><td style="padding:6px;">~2-5s</td><td style="padding:6px;">Средне</td><td style="padding:6px;">Взаимодействие модулей</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">E2E</td><td style="padding:6px;">~10-30s</td><td style="padding:6px;">Дорого</td><td style="padding:6px;">Полный цикл через браузер</td></tr>
+</table>
+
+<h3>9.2 Мокирование (Mocking)</h3>
+
+<p><strong>Test doubles</strong> — подмена реальных объектов в тестах:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:15%;"><strong>Тип</strong></td><td style="padding:6px;color:#2dff7a;width:35%;"><strong>Описание</strong></td><td style="padding:6px;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Mock</td><td style="padding:6px;">Настраиваемое поведение</td><td style="padding:6px;">vi.fn().mockResolvedValue(data)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Spy</td><td style="padding:6px;">Перехватывает вызовы</td><td style="padding:6px;">vi.spyOn(obj, 'method')</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Stub</td><td style="padding:6px;">Всегда одно значение</td><td style="padding:6px;">vi.fn().mockReturnValue(42)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Fake</td><td style="padding:6px;">Упрощённая рабочая версия</td><td style="padding:6px;">In-memory хранилище</td></tr>
+</table>
+
+<h3>9.3 Coverage — как читать</h3>
+
+<div class="code-block">
+% Stmts  — % строк кода, которые выполнились
+% Branch — % ветвлений (if/else) проверено
+% Funcs  — % функций вызван хотя бы раз
+% Lines  — % строк (≈ Stmts)
+Uncovered — номера строк без тестов
+</div>
+
+<p><strong>Стратегия повышения:</strong></p>
+<ol>
+    <li>Посмотрите "Uncovered Line #s"</li>
+    <li>Напишите тест для этих строк</li>
+    <li>Цель: 60% → 80% → 90%</li>
+</ol>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 10: DEVOPS -->
+<!-- ============================== -->
+
+<h2 id="devops">10. DevOps и деплой</h2>
+
+<h3>10.1 Environment Variables</h3>
+
+<div class="code-block">
+// .env файл (НЕ коммитится в git!)
+MONGO_URI=mongodb://localhost:27017/stalker
+SESSION_SECRET=my-super-secret-key
+PORT=3001
+
+// Использование
+import dotenv from 'dotenv';
+dotenv.config();
+
+mongoose.connect(process.env.MONGO_URI);
+</div>
+
+<h3>10.2 Docker</h3>
+
+<div class="code-block">
+# Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3001
+CMD ["node", "app.js"]
+
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/stalker
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+volumes:
+  mongo-data:
+</div>
+
+<h3>10.3 PM2 — Process Manager</h3>
+
+<div class="code-block">
+# Запуск в кластерном режиме (все ядра CPU)
+pm2 start app.js -i max
+
+# Мониторинг
+pm2 status
+pm2 logs
+
+# Автозапуск при перезагрузке
+pm2 startup
+pm2 save
+</div>
+
+<h3>10.4 CI/CD (GitHub Actions)</h3>
+
+<div class="code-block">
+# .github/workflows/test.yml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: npm test
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 11: ADVANCED -->
+<!-- ============================== -->
+
+<h2 id="advanced">11. Продвинутые темы</h2>
+
+<h3>11.1 WebSocket</h3>
+
+<div class="code-block">
+// HTTP — request/response (однонаправленный)
+// WebSocket — двустороннее соединение в реальном времени
+
+// Сервер (Socket.io)
+import { Server } from 'socket.io';
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+    socket.emit('message', 'Добро пожаловать');     // Сервер → клиент
+    socket.on('chat', (msg) => {
+        io.emit('chat', msg);                         // Клиент → все клиенты
+    });
+    socket.on('disconnect', () => { ... });
+});
+
+// Клиент
+const socket = io();
+socket.emit('chat', 'Привет');      // Клиент → сервер
+socket.on('chat', (msg) => { ... }); // Сервер → клиент
+</div>
+
+<h3>11.2 Worker Threads — Детали</h3>
+
+<div class="code-block">
+import { Worker, parentPort, workerData } from 'worker_threads';
+
+// Передача данных
+const worker = new Worker('./task.js', {
+    workerData: { input: largeArray },
+    transferList: [buffer]  // Передача владения Buffer (без копирования)
+});
+
+// SharedArrayBuffer — общая память между потоками
+const sharedBuffer = new SharedArrayBuffer(1024);
+const view = new Int32Array(sharedBuffer);
+Atomics.add(view, 0, 1);  // Атомарная операция
+</div>
+
+<h3>11.3 Memory Management</h3>
+
+<div class="code-block">
+// Мониторинг памяти
+const used = process.memoryUsage();
+console.log(`RSS: ${Math.round(used.rss / 1024 / 1024)} MB`);  // Общая память
+console.log(`Heap: ${Math.round(used.heapUsed / 1024 / 1024)} MB`); // V8 Heap
+
+// Увеличить лимит памяти
+node --max-old-space-size=4096 app.js  // 4GB (по умолчанию ~1.5GB)
+</div>
+
+<p><strong>Типичные утечки памяти:</strong></p>
+<ul>
+    <li>Глобальные переменные (накапливаются)</li>
+    <li>Замыкания с ссылками на большие объекты</li>
+    <li>Event listener'ы (забыл снять)</li>
+    <li>Буферы/стримы (не закрыты)</li>
+</ul>
+
+<h3>11.4 Performance Profiling</h3>
+
+<div class="code-block">
+// Chrome DevTools Inspector
+node --inspect app.js
+// Откройте chrome://inspect в Chrome
+
+// Профилирование
+console.time('db-query');
+const result = await User.find({});
+console.timeEnd('db-query');  // db-query: 12.345ms
+
+// performance.now() — высокоточный таймер
+const start = performance.now();
+await heavyComputation();
+const duration = performance.now() - start;
+console.log(`Заняло ${duration.toFixed(2)}ms`);
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 12: DESIGN PATTERNS -->
+<!-- ============================== -->
+
+<h2 id="patterns">12. Паттерны проектирования</h2>
+
+<p><strong>Паттерны проектирования</strong> — это проверенные решения типичных задач. Это не код, а <strong>шаблоны</strong>, которые помогают писать поддерживаемый, масштабируемый и понятный код.</p>
+
+<h3>12.1 Singleton</h3>
+
+<div class="q-block"><strong>Что:</strong> Гарантирует создание <strong>только одного экземпляра</strong> класса.</div>
+
+<div class="code-block">
+// Пример: сервис в проекте
+class ProductService {
+    constructor() {
+        this.cache = new Map();
+    }
+    // ... методы
+}
+
+// Экспорт как Singleton — всегда один экземпляр
+export default new ProductService();
+
+// Все импорты получают один и тот же объект
+import ProductService from '../services/product.service.js';
+import AnotherService from '../services/another.service.js';
+// ProductService === AnotherService (если оба импортируют один модуль)
+</div>
+
+<p><strong>Зачем:</strong></p>
+<ul>
+    <li>Экономия памяти — не создаём дубликаты</li>
+    <li>Консистентность — все работают с одним состоянием</li>
+    <li>Единая точка доступа — легко найти и заменить</li>
+</ul>
+
+<p><strong>Когда использовать:</strong> Сервисы, репозитории, конфигурации, логгеры, кеши.</p>
+<p><strong>Когда НЕ использовать:</strong> Когда нужна изоляция (каждый запрос — свой экземпляр).</p>
+
+<h3>12.2 Factory</h3>
+
+<div class="q-block"><strong>Что:</strong> Функция или метод, который <strong>создаёт объекты</strong> вместо прямого вызова <span class="code-inline">new</span>.</div>
+
+<div class="code-block">
+// Factory для middleware
+export const allow = (permission) => {
+    return async (req, res, next) => {
+        const hasAccess = await RbacService.hasPermission(req.user._id, permission);
+        if (!hasAccess) return res.status(403).json({ success: false, message: 'Forbidden' });
+        next();
+    };
+};
+
+// Использование — фабрика создаёт middleware
+router.delete('/:id', allow('product:delete'), controller.delete);
+router.post('/', allow('product:create'), controller.create);
+</div>
+
+<div class="code-block">
+// Factory для создания объектов
+class UserFactory {
+    static create(data) {
+        return {
+            username: data.username,
+            email: data.email || null,
+            money: data.money ?? 100,       // Значение по умолчанию
+            inventory: [],
+            createdAt: new Date()
+        };
+    }
+}
+
+const user = UserFactory.create({ username: 'stalker' });
+</div>
+
+<p><strong>Зачем:</strong></p>
+<ul>
+    <li>Инкапсуляция логики создания (сложная инициализация скрыта)</li>
+    <li>Переиспользование (одна фабрика — много объектов)</li>
+    <li>Легко менять тип создаваемого объекта</li>
+</ul>
+
+<h3>12.3 Module / Revealing Module</h3>
+
+<div class="q-block"><strong>Что:</strong> Инкапсуляция приватных данных и функций, экспорт только публичного API.</div>
+
+<div class="code-block">
+// Revealing Module Pattern (IIFE)
+const UserService = (() => {
+    // Приватные переменные и функции
+    const cache = new Map();
+
+    const hashPassword = async (password) => {
+        return await bcrypt.hash(password, 10);
+    };
+
+    // Публичное API
+    return {
+        register: async (data) => {
+            const hashed = await hashPassword(data.password);
+            return await userRepository.create({ ...data, password: hashed });
+        },
+        isCached: (id) => cache.has(id)
+    };
+})();
+</div>
+
+<p>В современном JavaScript модули (ESM) уже реализуют паттерн — всё что не экспортировано, приватно.</p>
+
+<h3>12.4 Observer / EventEmitter</h3>
+
+<div class="q-block"><strong>Что:</strong> Паттерн "издатель-подписчик" — объект уведомляет всех подписчиков о событии.</div>
+
+<div class="code-block">
+import { EventEmitter } from 'events';
+
+// Создаём свой EventEmitter
+class OrderEmitter extends EventEmitter {}
+const orderEmitter = new OrderEmitter();
+
+// Подписчики (Observer'ы)
+orderEmitter.on('order:created', (order) => {
+    console.log(`Новый заказ: ${order.id}`);
+    sendEmail(order.userEmail, 'Ваш заказ создан');
+});
+
+orderEmitter.on('order:created', (order) => {
+    console.log(`Обновляем статистику`);
+    updateStats(order);
+});
+
+// Издатель (Publisher)
+orderEmitter.emit('order:created', { id: 123, userEmail: 'user@mail.com' });
+// Все подписчики получают событие
+</div>
+
+<p><strong>В Node.js:</strong> Встроенный <span class="code-inline">EventEmitter</span> — основа <span class="code-inline">http.Server</span>, <span class="code-inline">Stream</span>, <span class="code-inline">process</span>.</p>
+
+<div class="code-block">
+// Stream — это EventEmitter
+const stream = fs.createReadStream('file.txt');
+stream.on('data', (chunk) => { ... });    // Подписка
+stream.on('end', () => { ... });
+stream.on('error', (err) => { ... });
+</div>
+
+<h3>12.5 Strategy</h3>
+
+<div class="q-block"><strong>Что:</strong> Выбор алгоритма/поведения <strong>на лету</strong> из набора доступных стратегий.</div>
+
+<div class="code-block">
+// Стратегии валидации
+const validators = {
+    email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+    username: (value) => value.length >= 3 && /^[a-zA-Z0-9_]+$/.test(value),
+    password: (value) => value.length >= 6
+};
+
+// Функция использует стратегию по имени
+function validate(field, value) {
+    const validator = validators[field];
+    if (!validator) throw new Error(`Unknown field: ${field}`);
+    return validator(value);
+}
+
+validate('email', 'user@mail.com');  // true
+validate('username', 'ab');           // false (менее 3 символов)
+</div>
+
+<div class="code-block">
+// Стратегия оплаты
+class PaymentProcessor {
+    constructor(strategy) {
+        this.strategy = strategy;  // Стратегия оплаты
+    }
+
+    async pay(amount) {
+        return this.strategy.charge(amount);
+    }
+}
+
+const cardPayment = { charge: (amt) => console.log(`Списано ${amt}₽ с карты`) };
+const cryptoPayment = { charge: (amt) => console.log(`Отправлено ${amt} в крипте`) };
+
+const processor = new PaymentProcessor(cardPayment);
+processor.pay(100);  // Списано 100₽ с карты
+</div>
+
+<h3>12.6 Decorator</h3>
+
+<div class="q-block"><strong>Что:</strong> Добавление поведения объекту <strong>без изменения его кода</strong>.</div>
+
+<div class="code-block">
+// Декоратор для логирования
+function withLogging(fn) {
+    return async function (...args) {
+        console.log(`Вызов ${fn.name} с`, args);
+        const start = performance.now();
+        const result = await fn.apply(this, args);
+        console.log(`${fn.name} завершён за ${(performance.now() - start).toFixed(2)}ms`);
+        return result;
+    };
+}
+
+// Декоратор для кеширования
+function withCache(fn) {
+    const cache = new Map();
+    return async function (...args) {
+        const key = JSON.stringify(args);
+        if (cache.has(key)) return cache.get(key);
+        const result = await fn.apply(this, args);
+        cache.set(key, result);
+        return result;
+    };
+}
+
+// Использование
+const getUser = withLogging(withCache(async (id) => {
+    return await userRepository.findById(id);
+}));
+
+await getUser('123');  // Логирует, кеширует
+await getUser('123');  // Берёт из кеша
+</div>
+
+<h3>12.7 Middleware (Chain of Responsibility)</h3>
+
+<div class="q-block"><strong>Что:</strong> Цепочка обработчиков, каждый из которых может обработать запрос или передать дальше.</div>
+
+<div class="code-block">
+// Express middleware — классический Chain of Responsibility
+app.use(express.json());      // 1. Парсинг JSON
+app.use(session({...}));      // 2. Сессия
+app.use(currentUser);         // 3. Загрузка пользователя
+app.use(updateLastSeen);      // 4. Обновление lastSeen
+app.use RBAC);               // 5. Проверка прав
+app.use(router);              // 6. Обработка маршрута
+
+// Каждый звено цепочки: обработать ИЛИ передать дальше (next())
+// Если произошла ошибка — next(err) передаёт в error-handling
+</div>
+
+<h3>12.8 Repository</h3>
+
+<div class="q-block"><strong>Что:</strong> Абстракция между бизнес-логикой и источником данных (БД).</div>
+
+<div class="diagram">
+Controller → Service → Repository → Model → MongoDB
+                     (абстракция)
+</div>
+
+<div class="code-block">
+// Базовый репозиторий (Generics-подобный)
+class BaseRepository {
+    constructor(model) { this.model = model; }
+
+    async findAll(filter, options) { return this.model.find(filter); }
+    async findById(id) { return this.model.findById(id); }
+    async create(data) { return this.model.create(data); }
+    async update(id, data) { return this.model.findByIdAndUpdate(id, data, { new: true }); }
+    async delete(id) { return this.model.findByIdAndDelete(id); }
+}
+
+// Конкретный репозиторий
+class UserRepository extends BaseRepository {
+    constructor() { super(User); }
+
+    async findByEmail(email) {
+        return this.findOne({ email });
+    }
+}
+</div>
+
+<p><strong>Зачем:</strong> Сервис не знает как работать с БД. Завтра замените MongoDB на PostgreSQL — меняете только репозитории.</p>
+
+<h3>12.9 Proxy</h3>
+
+<div class="q-block"><strong>Что:</strong> Обёртка над объектом, перехватывающая операции (чтение, запись, вызов).</div>
+
+<div class="code-block">
+// Валидация через Proxy
+const user = {
+    username: 'stalker',
+    money: 100
+};
+
+const validatedUser = new Proxy(user, {
+    set(target, prop, value) {
+        if (prop === 'money' && value < 0) {
+            throw new Error('Деньги не могут быть отрицательными');
+        }
+        if (prop === 'username' && value.length < 3) {
+            throw new Error('Имя минимум 3 символа');
+        }
+        target[prop] = value;
+        return true;
+    }
+});
+
+validatedUser.money = 50;      // OK
+validatedUser.money = -100;    // Error: Деньги не могут быть отрицательными
+</div>
+
+<h3>12.10 Comparison Table</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Паттерн</strong></td><td style="padding:6px;color:#2dff7a;width:35%;"><strong>Задача</strong></td><td style="padding:6px;"><strong>Пример в проекте</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Singleton</td><td style="padding:6px;">Один экземпляр</td><td style="padding:6px;">Все сервисы (export default new Service)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Factory</td><td style="padding:6px;">Создание объектов</td><td style="padding:6px;">allow('permission') → middleware</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Observer</td><td style="padding:6px;">Уведомления</td><td style="padding:6px;">Stream events, EventEmitter</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Strategy</td><td style="padding:6px;">Выбор алгоритма</td><td style="padding:6px;">Разные стратегии валидации</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Decorator</td><td style="padding:6px;">Дополнительное поведение</td><td style="padding:6px;">withLogging, withCache</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Chain of Resp.</td><td style="padding:6px;">Цепочка обработчиков</td><td style="padding:6px;">Express middleware</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Repository</td><td style="padding:6px;">Абстракция БД</td><td style="padding:6px;">BaseRepository + UserRepository</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Proxy</td><td style="padding:6px;">Перехват операций</td><td style="padding:6px;">Валидация, логирование, lazy loading</td></tr>
+</table>
+
+<hr>
+
+<p style="text-align:center;color:#7dffb3;margin:40px 0;">☢ Теперь ты знаешь Node.js как свои пять пальцев, сталкер!</p>
+
+<a href="/study" class="back-link">← Вернуться к Study Guide</a>
+
+</div>
+
+<%- include('../partials/footer') %>

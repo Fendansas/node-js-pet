@@ -1,0 +1,2452 @@
+<%- include('../partials/header', { title: 'Study Guide — Изучение проекта' }) %>
+
+<style>
+    .study-container { max-width: 1100px; margin: 0 auto; }
+    .study-container h1 { font-size: 28px; color: #2dff7a; text-align: center; margin-bottom: 10px; }
+    .study-container h2 { font-size: 20px; color: #2dff7a; border-bottom: 1px solid #1a3a1a; padding-bottom: 8px; margin-top: 40px; }
+    .study-container h3 { font-size: 16px; color: #7dffb3; margin-top: 20px; }
+    .study-container p, .study-container li { line-height: 1.7; font-size: 14px; }
+    .study-container ul { padding-left: 20px; }
+    .study-container li { margin-bottom: 4px; }
+    .study-container a { color: #2dff7a; }
+    .code-block { background: #0a1a0a; border: 1px solid #1a3a1a; border-radius: 6px; padding: 14px 18px; margin: 12px 0; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 13px; color: #c7f9cc; line-height: 1.5; white-space: pre; }
+    .code-inline { background: #0a1a0a; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 13px; color: #7dffb3; }
+    .q-block { background: rgba(45,255,122,0.05); border-left: 3px solid #2dff7a; padding: 14px 18px; margin: 14px 0; border-radius: 0 6px 6px 0; }
+    .q-block strong { color: #2dff7a; font-size: 14px; }
+    .a-block { margin: 8px 0 16px 0; }
+    .diagram { background: #0a1a0a; border: 1px solid #1a3a1a; border-radius: 6px; padding: 20px; margin: 16px 0; text-align: center; font-family: 'Courier New', monospace; color: #7dffb3; font-size: 14px; line-height: 1.8; white-space: pre; }
+    .toc { background: rgba(20,30,20,0.6); border: 1px solid #1a3a1a; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .toc a { text-decoration: none; display: block; padding: 4px 0; }
+    .toc a:hover { text-shadow: 0 0 8px #2dff7a; }
+    .badge { display: inline-block; background: #1a3a1a; color: #2dff7a; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 6px; }
+    hr { border: none; border-top: 1px solid #1a3a1a; margin: 30px 0; }
+    .test-file { background: rgba(45,255,122,0.03); border: 1px solid #1a3a1a; border-radius: 8px; padding: 16px 20px; margin: 16px 0; }
+    .test-file-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .test-file-name { color: #2dff7a; font-family: 'Courier New', monospace; font-size: 15px; font-weight: bold; }
+    .test-badge { display: inline-block; background: #1a3a1a; color: #2dff7a; padding: 2px 10px; border-radius: 12px; font-size: 12px; }
+    .test-pass { color: #2dff7a; }
+    .test-desc { color: #c7f9cc; font-size: 14px; margin: 6px 0; line-height: 1.6; }
+    .test-why { color: #7dffb3; font-size: 13px; font-style: italic; margin: 4px 0 10px 0; }
+    .test-list { list-style: none; padding: 0; margin: 8px 0; }
+    .test-list li { padding: 6px 0; border-bottom: 1px solid rgba(26,58,26,0.5); font-size: 13px; color: #c7f9cc; }
+    .test-list li:last-child { border-bottom: none; }
+    .test-list .test-name { color: #2dff7a; font-family: 'Courier New', monospace; }
+    .coverage-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    .coverage-table td { padding: 6px; border-bottom: 1px solid #1a3a1a; }
+    .coverage-table .cov-label { color: #2dff7a; width: 25%; }
+    .coverage-table .cov-value { color: #c7f9cc; }
+</style>
+
+<div class="study-container">
+
+<h1>☢ Study Guide</h1>
+<p style="text-align:center;color:#7dffb3;">Полное руководство по проекту Node.js + Express + MongoDB</p>
+<p style="text-align:center;margin-top:8px;"><a href="/study/theory" style="color:#2dff7a;font-size:15px;">📚 Полная теория Node.js и Express — от V8 до DevOps</a></p>
+
+<!-- ============================== -->
+<!-- TABLE OF CONTENTS -->
+<!-- ============================== -->
+
+<div class="toc">
+    <h3>Содержание</h3>
+    <a href="#arch">1. Архитектура проекта (MVC)</a>
+    <a href="#express">2. Express.js — Middleware, роутинг, сессии</a>
+    <a href="#mongoose">3. MongoDB + Mongoose</a>
+    <a href="#auth">4. Аутентификация и Авторизация (RBAC)</a>
+    <a href="#patterns">5. Паттерны проектирования</a>
+    <a href="#security">6. Безопасность</a>
+    <a href="#interview">7. Частые вопросы на собеседовании</a>
+    <a href="#nodejs">8. Node.js — Глубокое погружение (25 вопросов)</a>
+    <a href="#testing">9. Тестирование (Vitest) — Unit-тесты, Mock, Coverage</a>
+</div>
+
+<!-- ============================== -->
+<!-- SECTION 1: ARCHITECTURE -->
+<!-- ============================== -->
+
+<h2 id="arch">1. Архитектура проекта (MVC)</h2>
+
+<h3>Что такое MVC?</h3>
+<p><strong>MVC (Model-View-Controller)</strong> — архитектурный паттерн, разделяющий приложение на 3 уровня:</p>
+
+<div class="diagram">
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│    Model     │◄────│  Controller │────►│    View     │
+│  (Данные)    │     │  (Логика)   │     │  (Шаблон)   │
+└─────────────┘     └─────────────┘     └─────────────┘
+      │                   │
+      │              ┌────┴────┐
+      └──────────────│ Service │ ← Бизнес-логика
+                     └─────────┘
+</div>
+
+<h3>Как это реализовано в проекте</h3>
+
+<div class="code-block">
+app.js → routes/index.js → routes/*.routes.js → controllers/*.controller.js → services/*.service.js → models/*.js
+</div>
+
+<p><strong>Поток запроса:</strong></p>
+<ol>
+    <li>Клиент отправляет запрос → <span class="code-inline">app.js</span> (Express сервер)</li>
+    <li>Middleware обрабатывают запрос (сессия, пользователь, безопасность)</li>
+    <li>Роутер (<span class="code-inline">routes/</span>) определяет какой контроллер вызвать</li>
+    <li>Контроллер (<span class="code-inline">controllers/</span>) получает запрос, вызывает сервис</li>
+    <li>Сервис (<span class="code-inline">services/</span>) выполняет бизнес-логику, работает с моделью</li>
+    <li>Модель (<span class="code-inline">models/</span>) обращается к MongoDB через Mongoose</li>
+    <li>Ответ возвращается через View (EJS-шаблон) или JSON</li>
+</ol>
+
+<h3>Зачем нужен сервисный слой?</h3>
+
+<p>Без сервисов контроллер выглядит так (ПЛОХО):</p>
+<div class="code-block">
+// Контроллер напрямую работает с моделью — нарушение SRP
+async create(req, res) {
+    const user = await User.findById(req.body.userId);
+    if (user.money < product.price) return res.status(400).send('Недостаточно');
+    user.money -= product.price;
+    await user.save();
+    await Product.findByIdAndUpdate(productId, { $inc: { stock: -1 } });
+    await Order.create({ user: user._id, product: productId });
+    // ... ещё 20 строк бизнес-логики
+}
+</div>
+
+<p>Сервисный слой (ПРАВИЛЬНО):</p>
+<div class="code-block">
+// Контроллер — только обработка запроса/ответа
+async buy(req, res) {
+    const result = await ProductService.buyProduct(req.user._id, req.params.id);
+    return this.successRedirect(req, res, '/products', 'Куплено');
+}
+
+// Сервис — вся бизнес-логика
+async buyProduct(userId, productId) {
+    const user = await User.findById(userId);
+    const product = await Product.findById(productId);
+    if (user.money &lt; product.price) throw error('INSUFFICIENT_FUNDS');
+    user.money -= product.price;
+    await user.save();
+    return { user, product };
+}
+</div>
+
+<p><strong>Преимущества:</strong></p>
+<ul>
+    <li><strong>Переиспользование</strong> — один и тот же сервис используется в нескольких контроллерах</li>
+    <li><strong>Тестируемость</strong> — сервисы легко тестировать отдельно от HTTP</li>
+    <li><strong>Читаемость</strong> — контроллер маленький, понятно что он делает</li>
+    <li><strong>SRP (Single Responsibility)</strong> — каждый класс делает одну вещь</li>
+</ul>
+
+<h3>Ключевые файлы</h3>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:30%;"><strong>Файл</strong></td><td style="padding:6px;"><strong>Назначение</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">app.js</td><td style="padding:6px;">Точка входа, настройка сервера</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">routes/index.js</td><td style="padding:6px;">Главный роутер, собирает все маршруты</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">controllers/base.controller.js</td><td style="padding:6px;">Базовый класс с общими методами</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">middleware/current-user.middleware.js</td><td style="padding:6px;">Загрузка пользователя из сессии</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">config/db.js</td><td style="padding:6px;">Подключение к MongoDB</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 2: EXPRESS -->
+<!-- ============================== -->
+
+<h2 id="express">2. Express.js — Middleware, роутинг, сессии</h2>
+
+<h3>Что такое Middleware?</h3>
+<p>Middleware — это <strong>функции</strong>, которые выполняются <strong>до</strong> обработчика маршрута. Они имеют доступ к <span class="code-inline">req</span>, <span class="code-inline">res</span> и <span class="code-inline">next</span>.</p>
+
+<div class="code-block">
+// Любая middleware — это функция с тремя аргументами
+const myMiddleware = (req, res, next) => {
+    // Что-то делаем с запросом
+    req.user = loadUser(req.session.userId);
+    next(); // ← Передаём управление следующей middleware
+};
+</div>
+
+<h3>Цепочка middleware</h3>
+<div class="diagram">
+Запрос → express.json() → session() → currentUser → updateLastSeen → РОУТЕР → Контроллер → Ответ
+</div>
+
+<p>В <span class="code-inline">app.js</span> middleware регистрируются через <span class="code-inline">app.use()</span>:</p>
+
+<div class="code-block">
+app.use(express.json());           // Парсит JSON тело запроса
+app.use(session({...}));           // Создаёт req.session
+app.use(currentUser);              // Загружает req.user из БД
+app.use(updateLastSeen);           // Обновляет lastSeen
+app.use(mainRoute);                // Обрабатывает маршруты
+</div>
+
+<h3>Разница между app.use() и app.get()</h3>
+<ul>
+    <li><span class="code-inline">app.use('/path', handler)</span> — перехватывает <strong>ВСЕ</strong> методы (GET, POST, PUT, DELETE)</li>
+    <li><span class="code-inline">app.get('/path', handler)</span> — перехватывает только <strong>GET</strong></li>
+</ul>
+
+<div class="code-block">
+// Middleware для всех методов на /api/*
+app.use('/api', apiLimiter);
+
+// Только GET /api/users
+app.get('/api/users', getUsers);
+// Только POST /api/users
+app.post('/api/users', createUser);
+</div>
+
+<h3>Как работает express-session</h3>
+
+<div class="code-block">
+app.use(session({
+    secret: process.env.SESSION_SECRET,    // Ключ для шифрования cookie
+    resave: false,                          // Не пересохранять сессию если не изменилась
+    saveUninitialized: true,                // Создавать сессию даже для анонимов
+    store: MongoStore.create({              // Хранилище — MongoDB
+        mongoUrl: process.env.MONGO_URI
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24,       // 24 часа
+        httpOnly: true,                     // Недоступна из JS в браузере
+        secure: false                       // true для HTTPS
+    }
+}));
+</div>
+
+<p><strong>Как это работает:</strong></p>
+<ol>
+    <li>При первом запросе Express создаёт пустую сессию</li>
+    <li>При логине записываем <span class="code-inline">req.session.user = { id, username }</span></li>
+    <li>Express шифрует данные и отправляет cookie <span class="code-inline">connect.sid</span></li>
+    <li>При следующем запросе Express расшифровывает cookie и находит сессию в MongoDB</li>
+    <li>Данные сессии доступны через <span class="code-inline">req.session</span></li>
+</ol>
+
+<h3>Express 5 vs Express 4</h3>
+<p>Проект использует <strong>Express 5.2.1</strong>. Ключевые отличия:</p>
+<ul>
+    <li>Обработка ошибок в async-функциях (автоматический catch)</li>
+    <li><span class="code-inline">app.listen()</span> возвращает Promise</li>
+    <li>Улучшена работа с роутерами</li>
+</ul>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 3: MONGOOSE -->
+<!-- ============================== -->
+
+<h2 id="mongoose">3. MongoDB + Mongoose</h2>
+
+<h3>Schema vs Model</h3>
+<p><strong>Schema</strong> — это структура документа (описание полей). <strong>Model</strong> — это класс для работы с коллекцией.</p>
+
+<div class="code-block">
+// Schema — описывает структуру
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    email: { type: String, default: null },
+    password: { type: String, required: true },
+    money: { type: Number, default: 100 },
+    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role' },
+    inventory: [{
+        product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+        count: { type: Number, default: 1 }
+    }]
+}, { timestamps: true });
+
+// Model — класс для запросов
+const User = mongoose.model('User', userSchema);
+</div>
+
+<h3>Основные методы Mongoose</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:35%;"><strong>Метод</strong></td><td style="padding:6px;"><strong>Описание</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.find(filter)</td><td style="padding:6px;">Найти все документы по фильтру</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.findById(id)</td><td style="padding:6px;">Найти один документ по ID</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.findOne(filter)</td><td style="padding:6px;">Найти первый документ по фильтру</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.create(data)</td><td style="padding:6px;">Создать документ</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.findByIdAndUpdate()</td><td style="padding:6px;">Найти и обновить</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.findByIdAndDelete()</td><td style="padding:6px;">Найти и удалить</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.save()</td><td style="padding:6px;">Сохранить изменения в документе</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">.populate('field')</td><td style="padding:6px;">Заменить ObjectId на документ</td></tr>
+</table>
+
+<h3>Зачем нужен .populate()?</h3>
+
+<p>В MongoDB связи хранятся как <strong>ObjectId</strong> (ссылки на другие документы). <span class="code-inline">.populate()</span> заменяет эти ссылки на реальные документы.</p>
+
+<div class="code-block">
+// БЕЗ populate — получим просто ID
+const task = await Task.findById(id);
+// task.assignedTo.user = "64a1b2c3d4e5f6a7b8c9d0e1"
+
+// С populate — получим объект пользователя
+const task = await Task.findById(id).populate('assignedTo.user', 'username email');
+// task.assignedTo.user = { _id: "64a1...", username: "stalker", email: "s@z.a" }
+</div>
+
+<p><strong>Второй аргумент</strong> — какие поля вернуть (проекция).</p>
+
+<h3>Вложенное populate ((currentUser middleware)</h3>
+
+<div class="code-block">
+const user = await User.findById(req.session.user.id)
+    .populate({
+        path: 'role',              // Загружаем роль
+        populate: {
+            path: 'permissions'    // Внутри роли загружаем права
+        }
+    });
+// Результат: user.role.permissions = [{ name: 'product:read' }, ...]
+</div>
+
+<h3>Связи между документами в проекте</h3>
+
+<div class="diagram">
+User ─────┬── role ──► Role ──────── permissions ──► Permission
+          │
+          └── inventory[].product ──► Product
+
+Task ───── assignedTo[].user ──► User
+          │
+          └── eventId ──► Event
+
+Post ───── author ──► User
+
+Anomaly ── (standalone, без связей)
+Event ──── (связан с Task через eventId)
+</div>
+
+<h3>Зачем нужны индексы?</h3>
+<p>Индексы ускоряют поиск в MongoDB. Без индекса MongoDB сканирует <strong>все</strong> документы (collection scan). С индексом — использует B-дерево.</p>
+
+<div class="code-block">
+// В схеме — уникальный индекс
+username: { type: String, unique: true }  // Автоматический индекс
+
+// Составной индекс
+userSchema.index({ username: 1, email: 1 });
+
+// Создание индекса программно
+User.createIndex({ email: 1 }, { unique: true });
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 4: AUTH -->
+<!-- ============================== -->
+
+<h2 id="auth">4. Аутентификация и Авторизация (RBAC)</h2>
+
+<h3>Разница</h3>
+<ul>
+    <li><strong>Аутентификация (Authentication)</strong> — <em>кто ты?</em> (логин/пароль, сессия)</li>
+    <li><strong>Авторизация (Authorization)</strong> — <em>что тебе можно?</em> (права доступа)</li>
+</ul>
+
+<h3>Как работает аутентификация в проекте</h3>
+
+<div class="diagram">
+1. POST /login { username, password }
+2. AuthService.login() — проверяет пароль через bcrypt
+3. req.session.user = { id, username } — сохраняет в сессию
+4. Cookie connect.sid отправляется клиенту
+5. При следующем запросе — currentUser middleware загружает пользователя из БД
+</div>
+
+<h3>Middleware аутентификации</h3>
+
+<div class="code-block">
+// middleware/auth.middleware.js
+export const isAuth = (req, res, next) => {
+    if (!req.session?.user?.id) {
+        return res.redirect('/login');
+    }
+    next();
+};
+</div>
+
+<h3>Middleware авторизации (RBAC)</h3>
+
+<div class="code-block">
+// middleware/permission.middleware.js
+import RbacService from '../services/rbac.service.js';
+
+export const allow = (permission) => {
+    return async (req, res, next) => {
+        const userId = req.user?._id;
+        if (!userId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+        const hasAccess = await RbacService.hasPermission(userId, permission);
+        if (!hasAccess) return res.status(403).json({ success: false, message: 'Forbidden' });
+
+        next();
+    };
+};
+</div>
+
+<h3>RBAC: Role → Permission</h3>
+
+<div class="diagram">
+User ──has──► Role ──has──► Permission[]
+  │            │               │
+  │            │    ┌──────────┴──────────┐
+  │            │    │                     │
+  │            ▼    ▼                     ▼
+  │          admin                     user
+  │       (all perms)          (read, profile, etc.)
+  │
+  └──пример: { name: 'stalker', role: 'user' }
+</div>
+
+<p><strong>Иерархия:</strong> User → Role → Permission</p>
+<p><strong>Пример использования в роуте:</strong></p>
+
+<div class="code-block">
+// Только админ может управлять RBAC
+router.get('/rbac',
+    allow('rbac:manage'),                    // Проверяем право
+    (req, res) => AdminController.showRbacPage(req, res)
+);
+
+// Любой авторизованный может читать продукты
+router.get('/',
+    isAuth,
+    (req, res) => ProductController.index(req, res)
+);
+</div>
+
+<h3>Полный список прав в проекте</h3>
+
+<div class="code-block">
+// Из database/seeders/rbac.seed.js
+user:create, user:read, user:update, user:delete
+role:create, role:read, role:update, role:delete
+permission:create, permission:read, permission:update
+product:read, product:create, product:update, product:delete, product:buy, product:inventory
+post:read, post:create, post:update, post:delete
+event:read, event:create, event:update, event:delete
+task:read, task:create, task:update, task:delete, task:assign
+anomaly:read, anomaly:create, anomaly:update, anomaly:delete, anomaly:export
+overlay:read, overlay:create, overlay:update, overlay:delete
+dashboard:read, rbac:manage
+profile:read, profile:update, avatar:manage
+comment:create, comment:read, comment:delete
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 5: PATTERNS -->
+<!-- ============================== -->
+
+<h2 id="patterns">5. Паттерны проектирования</h2>
+
+<h3>Singleton для сервисов</h3>
+
+<p>Все сервисы экспортируются как <strong>единственный экземпляр</strong>:</p>
+
+<div class="code-block">
+class ProductService {
+    // ... методы
+}
+export default new ProductService();  // ← Singleton
+</div>
+
+<p><strong>Зачем:</strong> Гарантирует, что во всём приложении используется один экземпляр сервиса. Нет дублирования состояния.</p>
+
+<h3>Наследование контроллеров (BaseController)</h3>
+
+<div class="code-block">
+// BaseController — базовый класс
+class BaseController {
+    handleError(res, error, message) { ... }
+    successRedirect(req, res, url, message) { ... }
+    renderView(res, view, data) { ... }
+}
+
+// Все контроллеры наследуются
+class ProductController extends BaseController {
+    async index(req, res) {
+        // Используем методы BaseController
+        return this.renderView(res, 'products/index', { products });
+    }
+}
+</div>
+
+<h3>Формат ответов API</h3>
+
+<p><strong>Успех:</strong></p>
+<div class="code-block">
+{ success: true, data: { ... } }
+</div>
+
+<p><strong>Ошибка:</strong></p>
+<div class="code-block">
+{ success: false, message: 'Описание ошибки' }
+</div>
+
+<p><strong>Валидация:</strong></p>
+<div class="code-block">
+{ success: false, errors: [{ field: 'email', message: 'Некорректный email' }] }
+</div>
+
+<h3>Обработка ошибок (Error Codes → HTTP Status)</h3>
+
+<div class="code-block">
+// base.controller.js — handleError()
+switch (errorCode) {
+    case 'USER_NOT_FOUND':      return 404;
+    case 'PRODUCT_NOT_FOUND':   return 404;
+    case 'EMAIL_ALREADY_EXISTS': return 409;
+    case 'INSUFFICIENT_FUNDS':  return 400;
+    case 'USER_BANNED':         return 403;
+    default:                    return 500;
+}
+</div>
+
+<p>Сервисы бросают ошибки с кодами:</p>
+
+<div class="code-block">
+// В сервисе
+const error = new Error('PRODUCT_NOT_FOUND');
+error.code = 'PRODUCT_NOT_FOUND';
+throw error;
+
+// В контроллере — handleError() автоматически маппит на статус
+return this.handleError(res, error, 'Product not found');
+</div>
+
+<h3>Middleware как функции высшего порядка</h3>
+
+<p><span class="code-inline">allow()</span> — это функция, которая <strong>возвращает</strong> middleware:</p>
+
+<div class="code-block">
+// allow('product:delete') → возвращает middleware
+export const allow = (permission) => {
+    return async (req, res, next) => {
+        // ... проверка права
+        next();
+    };
+};
+
+// Использование
+router.delete('/:id', allow('product:delete'), controller.delete);
+</div>
+
+<h3>Паттерн Репозиторий (Repository Pattern)</h3>
+
+<p><strong>Репозиторий</strong> — слой абстракции между сервисом и моделью Mongoose. Все запросы к БД проходят через репозиторий, а не напрямую через модель.</p>
+
+<div class="diagram">
+Controller → Service → Repository → Model → MongoDB
+                     (абстракция)
+</div>
+
+<h3>Зачем нужен Репозиторий?</h3>
+
+<div class="q-block"><strong>БЕЗ Репозитория (ПЛОХО):</strong></div>
+<div class="code-block">
+// Сервис напрямую работает с Mongoose — логика запросов размазана
+class UserService {
+    async findByUsername(username) {
+        return await User.findOne({ username }).populate('role');       // Повтор кода
+    }
+    async findByEmail(email) {
+        return await User.findOne({ email }).populate('role');         // Дублирование populate
+    }
+    async findWithPermissions(id) {
+        return await User.findById(id).populate({
+            path: 'role',
+            populate: { path: 'permissions' }                         // Сложные запросы в сервисе
+        });
+    }
+}
+</div>
+
+<div class="q-block"><strong>С Репозиторием (ПРАВИЛЬНО):</strong></div>
+<div class="code-block">
+// repositories/user.repository.js — ВСЯ логика запросов к БД здесь
+class UserRepository extends BaseRepository {
+    async findByUsername(username) {
+        return await this.findOne({ username });
+    }
+    async findWithPermissions(id) {
+        return await this.findOne({ _id: id }, {
+            path: 'role', populate: { path: 'permissions' }
+        });
+    }
+}
+
+// services/user.service.js — чистая бизнес-логика
+class UserService {
+    async login(username, password) {
+        const user = await userRepository.findByUsername(username);  // Чистый вызов
+        if (!user) throw new Error('USER_NOT_FOUND');
+        // ... проверка пароля
+    }
+}
+</div>
+
+<h3>Преимущества Repository</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:30%;"><strong>Преимущество</strong></td><td style="padding:6px;"><strong>Описание</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Единая точка доступа</td><td style="padding:6px;">Все запросы к модели — в одном месте. Не ищешь populate по всему коду.</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Тестируемость</td><td style="padding:6px;">Легко мокнуть репозиторий вместо всей Mongoose-модели.</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Смена БД</td><td style="padding:6px;">При замене Mongoose на другую ОДУ меняешь только репозитории, сервисы — нет.</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">DRY</td><td style="padding:6px;">populate, фильтры, сортировка — не дублируются в сервисах.</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">SRP</td><td style="padding:6px;">Сервис = бизнес-логика, Репозиторий = работа с БД. Каждый класс — одна задача.</td></tr>
+</table>
+
+<h3>BaseRepository — Базовый класс</h3>
+
+<div class="code-block">
+// base.repository.js — базовые CRUD-методы для всех репозиториев
+class BaseRepository {
+    constructor(model) { this.model = model; }
+
+    async findAll(filter, options) { ... }   // find + sort + populate + select
+    async findById(id, populate) { ... }     // findById с populate
+    async findOne(filter, populate) { ... }  // findOne с populate
+    async create(data) { ... }               // model.create()
+    async update(id, data) { ... }           // findByIdAndUpdate()
+    async delete(id) { ... }                 // findByIdAndDelete()
+    async count(filter) { ... }              // countDocuments()
+    async exists(filter) { ... }             // model.exists()
+}
+</div>
+
+<h3>Конкретный репозиторий — пример</h3>
+
+<div class="code-block">
+// repositories/user.repository.js
+import BaseRepository from './base.repository.js';
+import User from '../models/User.js';
+
+class UserRepository extends BaseRepository {
+    constructor() {
+        super(User);  // ← Передаём Mongoose-модель в базовый класс
+    }
+
+    // Специфичные методы для User
+    async findByUsername(username) {
+        return await this.findOne({ username });
+    }
+
+    async findWithPermissions(id) {
+        return await this.findOne({ _id: id }, {
+            path: 'role',
+            populate: { path: 'permissions' }
+        });
+    }
+}
+
+export default new UserRepository();  // ← Singleton
+</div>
+
+<p><strong>Иерархия:</strong></p>
+<div class="diagram">
+BaseRepository (базовый CRUD)
+    │
+    ├── UserRepository (findByUsername, findWithPermissions)
+    ├── ProductRepository (findWithCategory, findInStock)
+    ├── TaskRepository (findByAssignee, findOverdue)
+    └── ... другие репозитории
+</div>
+
+<h3>Сравнение: с и без Repository</h3>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:50%;"><strong>Без Repository</strong></td><td style="padding:6px;color:#2dff7a;width:50%;"><strong>С Repository</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">User.findById(id).populate('role')</td><td style="padding:6px;">userRepository.findWithRole(id)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Product.find({ stock: { $gt: 0 } }).sort('name')</td><td style="padding:6px;">productRepository.findInStock()</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Запросы размазаны по сервисам</td><td style="padding:6px;">Все запросы — в репозитории</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Сложно тестировать (мокаем Mongoose)</td><td style="padding:6px;">Легко мокнуть репозиторий</td></tr>
+</table>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 6: SECURITY -->
+<!-- ============================== -->
+
+<h2 id="security">6. Безопасность</h2>
+
+<h3>Helmet</h3>
+<p>Библиотека, добавляющая HTTP-заголовки безопасности:</p>
+
+<div class="code-block">
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],                // Только свои ресурсы
+            scriptSrc: ["'self'", "'unsafe-inline'"], // Запрет внешних скриптов
+            imgSrc: ["'self'", "data:", "https://*.tile.openstreetmap.org"],
+            objectSrc: ["'none'"],                 // Запрет Flash/Java applets
+            frameAncestors: ["'self'"],            // Запрет iframe
+        }
+    }
+}));
+</div>
+
+<p><strong>Что блокирует:</strong> XSS, clickjacking, MIME-type sniffing, и другие атаки.</p>
+
+<h3>Rate Limiting</h3>
+
+<div class="code-block">
+app.use(rateLimit({
+    windowMs: 15 * 60 * 1000,  // 15 минут
+    max: 100,                    // Максимум 100 запросов
+    message: { success: false, message: 'Too many requests' }
+}));
+</div>
+
+<p><strong>Зачем:</strong> Защита от brute-force атак и DDoS.</p>
+
+<h3>bcrypt для паролей</h3>
+
+<div class="code-block">
+// Регистрация — хеширование
+const hashed = await bcrypt.hash(password, 10);  // 10 = salt rounds
+await User.create({ password: hashed });
+
+// Логин — проверка
+const isMatch = await bcrypt.compare(inputPassword, user.password);
+if (!isMatch) throw error('INVALID_CREDS');
+</div>
+
+<p><strong>Почему bcrypt, а не MD5/SHA?</strong></p>
+<ul>
+    <li>bcrypt <strong>медленный</strong> — специально затрудняет brute-force</li>
+    <li>bcrypt добавляет <strong>соль</strong> — одинаковые пароли дают разные хеши</li>
+    <li>bcrypt имеет <strong>work factor</strong> — можно увеличивать сложность со временем</li>
+</ul>
+
+<h3>httpOnly Cookies</h3>
+
+<div class="code-block">
+cookie: {
+    httpOnly: true,   // Недоступна из JavaScript (document.cookie)
+    secure: false,     // true — только HTTPS
+    maxAge: 86400000   // 24 часа
+}
+</div>
+
+<p><strong>Зачем httpOnly:</strong> Даже если атакующий внедрит XSS-скрипт, он не сможет украсть cookie.</p>
+
+<h3>Валидация через express-validator</h3>
+
+<div class="code-block">
+// validators/auth.validator.js
+export const validateLogin = [
+    body('username').trim().notEmpty().withMessage('Введите имя'),
+    body('password').isLength({ min: 6 }).withMessage('Минимум 6 символов'),
+];
+
+// Middleware для обработки ошибок валидации
+export const validate = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        // HTML → сохраняем в сессию и редиректим
+        req.session.validationErrors = errors.array();
+        return res.redirect('back');
+    }
+    next();
+};
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 7: INTERVIEW -->
+<!-- ============================== -->
+
+<h2 id="interview">7. Частые вопросы на собеседовании</h2>
+
+<p>Каждый вопрос содержит ответ с примером из этого проекта.</p>
+
+<!-- Q1 -->
+<div class="q-block"><strong>Q1: Что такое Event Loop в Node.js?</strong></div>
+<div class="a-block">
+<p>Event Loop — это механизм, позволяющий Node.js выполнять <strong>асинхронный</strong> код на одном потоке. Когда I/O-операция (запрос к БД, файл) выполняется, Event Loop не блокирует поток, а передаёт задачу в libuv, а когда результат готов — возвращает callback в стек выполнения.</p>
+<div class="code-block">
+// Пример: 3 асинхронных операции выполняются параллельно
+const user = await User.findById(id);         // Ждём MongoDB
+const posts = await Post.find({ author: id }); // Параллельно
+const tasks = await Task.find({ ... });        // Параллельно
+// Общее время ≈ время самого медленного запроса
+</div>
+<p><strong>Фазы Event Loop:</strong> Timers → Poll → Check → Close callbacks</p>
+</div>
+
+<!-- Q2 -->
+<div class="q-block"><strong>Q2: Чем import отличается от require?</strong></div>
+<div class="a-block">
+<p>Проект использует <strong>ES Modules</strong> (<span class="code-inline">"type": "module"</span> в package.json).</p>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>require (CommonJS)</strong></td><td style="padding:6px;color:#2dff7a;"><strong>import (ES Modules)</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Синхронный</td><td style="padding:6px;">Асинхронный (статический)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">const x = require('./x')</td><td style="padding:6px;">import x from './x.js'</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">CommonJS</td><td style="padding:6px;">ES2015+ стандарт</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Требует .cjs</td><td style="padding:6px;">Требует .js при "type":"module"</td></tr>
+</table>
+</div>
+
+<!-- Q3 -->
+<div class="q-block"><strong>Q3: Что такое middleware? Приведи примеры.</strong></div>
+<div class="a-block">
+<p>Middleware — функции с сигнатурой <span class="code-inline">(req, res, next)</span>. Они обрабатывают запрос до маршрута.</p>
+<p><strong>Примеры из проекта:</strong></p>
+<ul>
+    <li><span class="code-inline">express.json()</span> — парсит JSON-тело</li>
+    <li><span class="code-inline">currentUser</span> — загружает пользователя из БД</li>
+    <li><span class="code-inline">isAuth</span> — проверяет авторизацию</li>
+    <li><span class="code-inline">allow('product:delete')</span> — проверяет право</li>
+    <li><span class="code-inline">validate</span> — обрабатывает ошибки валидации</li>
+    <li><span class="code-inline">updateLastSeen</span> — обновляет lastSeen</li>
+</ul>
+</div>
+
+<!-- Q4 -->
+<div class="q-block"><strong>Q4: Что делает next() в middleware?</strong></div>
+<div class="a-block">
+<p><span class="code-inline">next()</span> передаёт управление <strong>следующей middleware</strong> в цепочке. Без вызова <span class="code-inline">next()</span> запрос "зависнет".</p>
+<div class="code-block">
+// Если next() не вызван — запрос зависнет навсегда
+app.use((req, res, next) => {
+    console.log('Эта middleware зависнет');
+    // next() забыли!
+});
+
+// Правильно
+app.use((req, res, next) => {
+    console.log('Middleware отработала');
+    next(); // ← Передаём дальше
+});
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="q-block"><strong>Q5: Как работает роутинг в Express 5?</strong></div>
+<div class="a-block">
+<p>Роутер определяет <strong>метод HTTP + путь</strong> и привязывает обработчик:</p>
+<div class="code-block">
+const router = express.Router();
+router.get('/:id', controller.show);      // GET /products/123
+router.post('/', controller.create);       // POST /products
+router.delete('/:id', controller.delete);  // DELETE /products/123
+
+// Подключение в routes/index.js
+mainRoute.use('/products', productRoutes);  // префикс /products
+</div>
+<p>Express 5 автоматически обрабатывает ошибки в async-обработчиках.</p>
+</div>
+
+<!-- Q6 -->
+<div class="q-block"><strong>Q6: Что такое Schema в Mongoose?</strong></div>
+<div class="a-block">
+<p>Schema — это <strong>описание структуры</strong> документа: какие поля, какие типы, какие ограничения.</p>
+<div class="code-block">
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    email:    { type: String, default: null },
+    money:    { type: Number, default: 100 },
+    role:     { type: mongoose.Schema.Types.ObjectId, ref: 'Role' }
+}, { timestamps: true });  // ← Автоматически добавляет createdAt, updatedAt
+</div>
+<p>Schema ≠ Model. Schema — это чертёж. Model — это фабрика для работы с БД.</p>
+</div>
+
+<!-- Q7 -->
+<div class="q-block"><strong>Q7: Когда использовать findOne vs findById?</strong></div>
+<div class="a-block">
+<p><span class="code-inline">findById(id)</span> — это сокращение для <span class="code-inline">findOne({ _id: id })</span>. Оба работают одинаково.</p>
+<div class="code-block">
+// Эти вызовы эквивалентны:
+User.findById('64a1b2c3');
+User.findOne({ _id: '64a1b2c3' });
+
+// Но findOne удобнее для сложных запросов:
+User.findOne({ username: 'admin', status: 'active' });
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="q-block"><strong>Q8: Зачем нужен .populate()?</strong></div>
+<div class="a-block">
+<p>В MongoDB связи хранятся как ObjectId. <span class="code-inline">populate()</span> заменяет эти ID на реальные документы (JOIN в SQL).</p>
+<div class="code-block">
+// Без populate: task.assignedTo.user = "64a1b2c3d4e5f6..."
+// С populate: task.assignedTo.user = { _id: "64a1...", username: "stalker" }
+
+const task = await Task.findById(id)
+    .populate('assignedTo.user', 'username email');
+// 'username email' — какие поля вернуть (проекция)
+</div>
+</div>
+
+<!-- Q9 -->
+<div class="q-block"><strong>Q9: Что такое аутентификация vs авторизация?</strong></div>
+<div class="a-block">
+<ul>
+    <li><strong>Аутентификация</strong> — <em>"Кто ты?"</em> (логин + пароль)</li>
+    <li><strong>Авторизация</strong> — <em>"Что тебе можно?"</em> (права доступа)</li>
+</ul>
+<div class="code-block">
+// Аутентификация
+router.post('/login', AuthService.login);  // Проверяем пароль
+
+// Авторизация
+router.delete('/products/:id',
+    allow('product:delete'),  // Проверяем право
+    controller.delete
+);
+</div>
+</div>
+
+<!-- Q10 -->
+<div class="q-block"><strong>Q10: Как работает сессия (express-session)?</strong></div>
+<div class="a-block">
+<ol>
+    <li>Клиент отправляет запрос → сервер создаёт сессию</li>
+    <li>При логине: <span class="code-inline">req.session.user = { id, username }</span></li>
+    <li>Сервер отправляет cookie <span class="code-inline">connect.sid</span></li>
+    <li>При следующем запросе клиент отправляет cookie → сервер находит сессию в MongoDB</li>
+    <li><span class="code-inline">currentUser</span> middleware загружает полные данные пользователя</li>
+</ol>
+<div class="code-block">
+// Хранилище сессий — MongoStore (не в памяти!)
+store: MongoStore.create({ mongoUrl: process.env.MONGO_URI })
+</div>
+<p>Сессии хранятся в коллекции <span class="code-inline">sessions</span> в MongoDB.</p>
+</div>
+
+<!-- Q11 -->
+<div class="q-block"><strong>Q11: Что такое JWT и чем отличается от сессий?</strong></div>
+<div class="a-block">
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>Сессии</strong></td><td style="padding:6px;color:#2dff7a;"><strong>JWT</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Хранятся на сервере</td><td style="padding:6px;">Хранятся на клиенте</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Cookie-based</td><td style="padding:6px;">Header: Authorization: Bearer ...</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Легко отозвать (удалить из БД)</td><td style="padding:6px;">Сложно отозвать (нужен blacklist)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Сервер хранит состояние</td><td style="padding:6px;">Stateless</td></tr>
+</table>
+<p>Этот проект использует <strong>сессии</strong>, но в API-маршрутах (<span class="code-inline">POST /api/login</span>) логин создаёт сессию — это нестандартно для API (обычно JWT).</p>
+</div>
+
+<!-- Q12 -->
+<div class="q-block"><strong>Q12: Как реализован RBAC в проекте?</strong></div>
+<div class="a-block">
+<p><strong>RBAC (Role-Based Access Control)</strong> — модель: User → Role → Permission.</p>
+<div class="code-block">
+// 1. Создаём права (permissions)
+await Permission.create({ name: 'product:delete' });
+
+// 2. Создаём роль с правами
+await Role.create({ name: 'admin', permissions: [perm1._id, perm2._id] });
+
+// 3. Назначаем роль пользователю
+user.role = adminRole._id;
+await user.save();
+
+// 4. Проверяем право в middleware
+const hasAccess = await RbacService.hasPermission(userId, 'product:delete');
+</div>
+</div>
+
+<!-- Q13 -->
+<div class="q-block"><strong>Q13: Что такое XSS и как защититься?</strong></div>
+<div class="a-block">
+<p><strong>XSS (Cross-Site Scripting)</strong> — атака, при которой атакующий внедряет JavaScript в чужой сайт.</p>
+<p><strong>Защита в проекте:</strong></p>
+<ul>
+    <li><span class="code-inline">helmet</span> — CSP-заголовки</li>
+    <li>EJS автоматически экранирует <span class="code-inline">&lt;%- %&gt;</span> → <span class="code-inline">&lt;%= %&gt;</span></li>
+    <li><span class="code-inline">httpOnly: true</span> — cookie недоступна из JS</li>
+</ul>
+<div class="code-block">
+// EJS: &lt;%= %&gt; автоматически экранирует
+&lt;%= user.username %&gt;  // Безопасно
+&lt;%- user.username %&gt;  // ОПАСНО — не экранирует!
+</div>
+</div>
+
+<!-- Q14 -->
+<div class="q-block"><strong>Q14: Зачем нужен helmet?</strong></div>
+<div class="a-block">
+<p>Helmet добавляет HTTP-заголовки безопасности:</p>
+<ul>
+    <li><strong>CSP</strong> — ограничивает источники скриптов, стилей, изображений</li>
+    <li><strong>X-Frame-Options</strong> — запрещает iframe</li>
+    <li><strong>X-Content-Type-Options</strong> — запрещает MIME-sniffing</li>
+    <li><strong>HSTS</strong> — принудительный HTTPS</li>
+</ul>
+</div>
+
+<!-- Q15 -->
+<div class="q-block"><strong>Q15: Как хешируются пароли?</strong></div>
+<div class="a-block">
+<div class="code-block">
+// Регистрация
+const salt = await bcrypt.genSalt(10);      // Генерируем соль (10 rounds)
+const hash = await bcrypt.hash(password, salt); // Хешируем пароль + соль
+await User.create({ password: hash });
+
+// Логин
+const user = await User.findOne({ username });
+const isMatch = await bcrypt.compare(password, user.password);
+// bcrypt сам извлекает соль из хеша и проверяет
+</div>
+<p><strong>Пароль в БД:</strong> <span class="code-inline">$2b$10$N9qo8uLOickgx2ZMRZoMye... </span></p>
+<p>Начинается с <span class="code-inline">$2b$10$</span> — версия bcrypt, затем соль (22 символа), затем хеш (31 символ).</p>
+</div>
+
+<!-- Q16 -->
+<div class="q-block"><strong>Q16: Что такое REST API?</strong></div>
+<div class="a-block">
+<p>REST (Representational State Transfer) — архитектурный стиль API:</p>
+<ul>
+    <li><strong>GET</strong> /products — получить список</li>
+    <li><strong>GET</strong> /products/:id — получить один</li>
+    <li><strong>POST</strong> /products — создать</li>
+    <li><strong>PUT</strong> /products/:id — обновить</li>
+    <li><strong>DELETE</strong> /products/:id — удалить</li>
+</ul>
+<p><strong>Принципы:</strong> Stateless, единый URL-формат, HTTP-методы для CRUD.</p>
+<p>Этот проект — <strong>гибрид</strong>: HTML-страницы (EJS) + JSON API (overlay, api routes).</p>
+</div>
+
+<!-- Q17 -->
+<div class="q-block"><strong>Q17: Что такое rate limiting и зачем нужен?</strong></div>
+<div class="a-block">
+<p>Rate limiting — ограничение количества запросов за период.</p>
+<div class="code-block">
+// Глобальный rate limit — 100 запросов за 15 минут
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
+// Специфичный — 5 попыток логина за 15 минут
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5 });
+router.post('/login', loginLimiter, controller.login);
+</div>
+<p><strong>Зачем:</strong> Защита от brute-force (подбор пароля) и DDoS.</p>
+</div>
+
+<!-- Q18 -->
+<div class="q-block"><strong>Q18: Чем Model отличается от Schema?</strong></div>
+<div class="a-block">
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>Schema</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Model</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Описывает структуру</td><td style="padding:6px;">Класс для работы с БД</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Не работает с MongoDB</td><td style="padding:6px;">Выполняет запросы</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">new mongoose.Schema()</td><td style="padding:6px;">mongoose.model()</td></tr>
+</table>
+<div class="code-block">
+const userSchema = new mongoose.Schema({...});  // Чертёж
+const User = mongoose.model('User', userSchema); // Фабрика
+const user = await User.findById(id);            // Работа с БД
+</div>
+</div>
+
+<!-- Q19 -->
+<div class="q-block"><strong>Q19: Что такое Dependency Injection?</strong></div>
+<div class="a-block">
+<p>Подход, когда зависимости передаются "снаружи", а не создаются внутри:</p>
+<div class="code-block">
+// БЕЗ DI — жёсткая зависимость
+import UserService from '../services/user.service.js';
+class UserController {
+    async get() { return await UserService.get(); }
+}
+
+// С DI — зависимость передаётся
+class UserController {
+    constructor(userService) { this.userService = userService; }
+    async get() { return await this.userService.get(); }
+}
+const controller = new UserController(new UserService());
+</div>
+<p>В этом проекте DI не используется (импорты напрямую), но это важно знать для собеседований.</p>
+</div>
+
+<!-- Q20 -->
+<div class="q-block"><strong>Q20: Как организована обработка ошибок?</strong></div>
+<div class="a-block">
+<p>3 уровня:</p>
+<ol>
+    <li><strong>Сервисы</strong> — бросают ошибки с кодами:</li>
+</ol>
+<div class="code-block">
+const error = new Error('PRODUCT_NOT_FOUND');
+error.code = 'PRODUCT_NOT_FOUND';
+throw error;
+</div>
+<ol start="2">
+    <li><strong>Контроллеры</strong> — ловят и маппят на HTTP-статусы:</li>
+</ol>
+<div class="code-block">
+try { ... } catch (error) {
+    if (error.code === 'PRODUCT_NOT_FOUND')
+        return res.status(404).json({ success: false, message: 'Not found' });
+    return this.handleError(res, error);
+}
+</div>
+<ol start="3">
+    <li><strong>BaseController.handleError()</strong> — автоматический маппинг error codes:</li>
+</ol>
+<div class="code-block">
+switch (error.code) {
+    case 'USER_NOT_FOUND': return 404;
+    case 'INSUFFICIENT_FUNDS': return 400;
+    default: return 500;
+}
+</div>
+</div>
+
+<!-- Q21 -->
+<div class="q-block"><strong>Q21: Что такое CSRF и как защититься?</strong></div>
+<div class="a-block">
+<p><strong>CSRF (Cross-Site Request Forgery)</strong> — атака, когда поддельная форма на чужом сайте отправляет запрос от имени вашего пользователя.</p>
+<p><strong>Защита:</strong></p>
+<ul>
+    <li>CSRF-токены (не реализовано в проекте)</li>
+    <li>SameSite cookie</li>
+    <li>Проверка заголовка Origin/Referer</li>
+</ul>
+</div>
+
+<!-- Q22 -->
+<div class="q-block"><strong>Q22: Зачем нужен BaseController?</strong></div>
+<div class="a-block">
+<p>Это <strong>базовый класс</strong> с общими методами для всех контроллеров:</p>
+<div class="code-block">
+class BaseController {
+    handleError(res, error, msg)   // Единая обработка ошибок
+    successRedirect(req, res, url) // Редирект с flash-сообщением
+    renderView(res, view, data)    // Рендер EJS-шаблона
+    getCurrentUser(req, res)       // Получение текущего пользователя
+}
+</div>
+<p><strong>Паттерн:</strong> DRY (Don't Repeat Yourself) — не дублируем логику в каждом контроллере.</p>
+</div>
+
+<!-- Q23 -->
+<div class="q-block"><strong>Q23: Как работает flash-сообщение?</strong></div>
+<div class="a-block">
+<div class="code-block">
+// Контроллер — записываем в сессию
+req.session.successMessage = 'Product created';
+res.redirect('/products');
+
+// app.js — передаём во все шаблоны
+app.use((req, res, next) => {
+    res.locals.successMessage = req.session.successMessage || null;
+    delete req.session.successMessage;
+    next();
+});
+
+// header.ejs — отображаем
+&lt;% if (successMessage) { %&gt;
+    &lt;div class="flash-message"&gt;&lt;%= successMessage %&gt;&lt;/div&gt;
+&lt;% } %&gt;
+</div>
+</div>
+
+<!-- Q24 -->
+<div class="q-block"><strong>Q24: Что такое Singleton-паттерн?</strong></div>
+<div class="a-block">
+<p>Паттерн, гарантирующий создание <strong>только одного экземпляра</strong> класса.</p>
+<div class="code-block">
+// services/product.service.js
+class ProductService { ... }
+export default new ProductService(); // ← Всегда один экземпляр
+
+// Все контроллеры получают один и тот же объект
+import ProductService from '../services/product.service.js';
+</div>
+<p><strong>Зачем:</strong> Экономия памяти, консистентность состояния, единая точка доступа.</p>
+</div>
+
+<!-- Q25 -->
+<div class="q-block"><strong>Q25: Как тестировать Node.js приложение?</strong></div>
+<div class="a-block">
+<p><strong>Уровни тестирования:</strong></p>
+<ul>
+    <li><strong>Unit-тесты</strong> — тестирование отдельных функций (сервисов)</li>
+    <li><strong>Integration-тесты</strong> — тестирование маршрутов (supertest)</li>
+    <li><strong>E2E</strong> — полный цикл (Playwright, Cypress)</li>
+</ul>
+<div class="code-block">
+// Пример unit-теста (Jest)
+test('buyProduct throws INSUFFICIENT_FUNDS', async () => {
+    await expect(service.buyProduct(userWithNoMoney, productId))
+        .rejects.toThrow('INSUFFICIENT_FUNDS');
+});
+
+// Пример integration-теста (supertest)
+test('GET /products returns 200', async () => {
+    const res = await request(app).get('/products');
+    expect(res.status).toBe(200);
+});
+</div>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 8: NODE.JS DEEP DIVE -->
+<!-- ============================== -->
+
+<h2 id="nodejs">8. Node.js — Глубокое погружение</h2>
+
+<p>Дополнительные вопросы по ядру Node.js, которые часто задают на собеседованиях.</p>
+
+<!-- NQ1 -->
+<div class="q-block"><strong>NQ1: Что такое Node.js и чем он отличается от JavaScript?</strong></div>
+<div class="a-block">
+<p><strong>JavaScript</strong> — язык программирования. <strong>Node.js</strong> — среда выполнения (runtime) для JavaScript на сервере, построенная на <strong>V8</strong> (движок Google Chrome).</p>
+<div class="diagram">
+Браузер:  JavaScript + DOM API + Web APIs
+Node.js:  JavaScript + fs + http + net + process + ...
+</div>
+<p>Node.js добавляет модули для работы с файловой системой, сетью, процессами — того, чего нет в браузере.</p>
+</div>
+
+<!-- NQ2 -->
+<div class="q-block"><strong>NQ2: Что такое V8?</strong></div>
+<div class="a-block">
+<p><strong>V8</strong> — JavaScript-движок, разработанный Google. Он компилирует JavaScript в <strong>машинный код</strong> (native code) вместо интерпретации.</p>
+<ul>
+    <li>Используется в Chrome, Node.js, Deno</li>
+    <li>V8 написан на C++</li>
+    <li>Использует <strong>JIT-компиляцию</strong> (Just-In-Time) — компилирует "горячий" код во время выполнения</li>
+</ul>
+</div>
+
+<!-- NQ3 -->
+<div class="q-block"><strong>NQ3: Что такое libuv?</strong></div>
+<div class="a-block">
+<p><strong>libuv</strong> — C-библиотека, обеспечивающая:</p>
+<ul>
+    <li><strong>Event Loop</strong> — цикл обработки событий</li>
+    <li><strong>Асинхронный I/O</strong> — файловые операции, DNS, сеть</li>
+    <li><strong>Потоки (thread pool)</strong> — тяжёлые операции (файлы, crypto, DNS) выполняются в пуле потоков</li>
+    <li><strong>Кроссплатформенность</strong> — одинаково работает на Linux, Windows, macOS</li>
+</ul>
+<div class="code-block">
+// libuv использует thread pool (по умолчанию 4 потока) для:
+fs.readFile('file.txt', callback);      // Файловые операции
+dns.lookup('google.com', callback);     // DNS
+crypto.pbkdf2(..., callback);           // Криптография
+
+// А вот network I/O — через epoll/kqueue/IOCP (не thread pool)
+http.get('http://example.com', cb);     // Сетевой I/O
+</div>
+</div>
+
+<!-- NQ4 -->
+<div class="q-block"><strong>NQ4: Что такое поток (Stream) в Node.js?</strong></div>
+<div class="a-block">
+<p><strong>Stream</strong> — механизм для последовательной обработки данных. Вместо загрузки всего файла в память, данные обрабатываются по частям.</p>
+<p><strong>4 типа Stream:</strong></p>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>Тип</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Описание</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Readable</td><td style="padding:6px;">Чтение данных</td><td style="padding:6px;">fs.createReadStream(), req</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Writable</td><td style="padding:6px;">Запись данных</td><td style="padding:6px;">fs.createWriteStream(), res</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Duplex</td><td style="padding:6px;">Чтение + Запись</td><td style="padding:6px;">net.Socket</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Transform</td><td style="padding:6px;">Трансформация</td><td style="padding:6px;">zlib.createGzip()</td></tr>
+</table>
+<div class="code-block">
+// В проекте: поток для аватаров (GridFS)
+const downloadStream = bucket.openDownloadStream(fileId);
+downloadStream.pipe(res);  // Поток → ответ
+
+// pipe() соединяет Readable → Writable
+readableStream.pipe(writableStream);
+</div>
+</div>
+
+<!-- NQ5 -->
+<div class="q-block"><strong>NQ5: Callback, Promise, async/await — в чём разница?</strong></div>
+<div class="a-block">
+<div class="code-block">
+// 1. Callback (старый стиль) — "Callback Hell"
+fs.readFile('a.txt', (err, data) => {
+    fs.readFile('b.txt', (err, data2) => {
+        fs.readFile('c.txt', (err, data3) => {
+            // Вложенность растёт → трудно читать
+        });
+    });
+});
+
+// 2. Promise — цепочка .then()
+readFileAsync('a.txt')
+    .then(data => readFileAsync('b.txt'))
+    .then(data2 => readFileAsync('c.txt'))
+    .then(data3 => { ... })
+    .catch(err => { ... }); // Единый обработчик ошибок
+
+// 3. async/await — синтаксический сахар над Promise
+async function readAll() {
+    try {
+        const data = await readFileAsync('a.txt');
+        const data2 = await readFileAsync('b.txt');
+        const data3 = await readFileAsync('c.txt');
+    } catch (err) { ... }
+}
+</div>
+<p><strong>async/await</strong> — современный стандарт. Весь проект использует именно его.</p>
+</div>
+
+<!-- NQ6 -->
+<div class="q-block"><strong>NQ6: Что такое блокирующий и неблокирующий код?</strong></div>
+<div class="a-block">
+<p><strong>Блокирующий</strong> — выполняется синхронно, замораживает Event Loop:</p>
+<div class="code-block">
+// БЛОКИРУЮЩИЙ — весь сервер "зависает" на 1 секунду
+const data = fs.readFileSync('huge-file.txt');  // readFileSync!
+console.log('Сервер заблокирован на 1 секунду');
+// Все остальные запросы ждут
+</div>
+<p><strong>Неблокирующий</strong> — передаёт задачу и продолжает работу:</p>
+<div class="code-block">
+// НЕБЛОКИРУЮСЩИЙ — сервер продолжает обрабатывать запросы
+fs.readFile('huge-file.txt', (err, data) => {
+    console.log('Файл прочитан'); // Когда будет готово
+});
+console.log('Сервер НЕ заблокирован');
+</div>
+<p><strong>Node.js = неблокирующий I/O + однопоточность + event-driven.</strong></p>
+</div>
+
+<!-- NQ7 -->
+<div class="q-block"><strong>NQ7: Что такое Worker Threads?</strong></div>
+<div class="a-block">
+<p>Node.js — однопоточный, но поддерживает <strong>Worker Threads</strong> для CPU-bound задач:</p>
+<div class="code-block">
+import { Worker } from 'worker_threads';
+
+// Основной поток — не блокируется
+const worker = new Worker('./heavy-computation.js');
+worker.on('message', (result) => {
+    console.log('Результат:', result);
+});
+worker.postMessage({ data: largeArray });
+
+// worker.js — выполняется в отдельном потоке
+parentPort.on('message', (msg) => {
+    const result = heavyComputation(msg.data);
+    parentPort.postMessage(result);
+});
+</div>
+<p><strong>Когда использовать:</strong> Обработка изображений, криптография, парсинг больших JSON.</p>
+<p><strong>Когда НЕ нужно:</strong> I/O-bound задачи (запросы к БД, файловые операции) — они и так неблокирующие.</p>
+</div>
+
+<!-- NQ8 -->
+<div class="q-block"><strong>NQ8: Что такое process.nextTick() и setImmediate()?</strong></div>
+<div class="a-block">
+<p>Оба откладывают выполнение, но в разные фазы Event Loop:</p>
+<div class="code-block">
+// process.nextTick() — выполняется ДО следующей фазы Event Loop
+process.nextTick(() => console.log('nextTick'));
+setImmediate(() => console.log('immediate'));
+console.log('sync');
+
+// Вывод: sync → nextTick → immediate
+</div>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>nextTick</strong></td><td style="padding:6px;color:#2dff7a;"><strong>setImmediate</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Выполняется до следующей фазы</td><td style="padding:6px;">Выполняется в фазе Check</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Блокирует Event Loop если много</td><td style="padding:6px;">Не блокирует</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Используйте редко</td><td style="padding:6px;">Предпочтительнее</td></tr>
+</table>
+</div>
+
+<!-- NQ9 -->
+<div class="q-block"><strong>NQ9: Что такое модули в Node.js? CommonJS vs ES Modules</strong></div>
+<div class="a-block">
+<p><strong>CommonJS (CJS)</strong> — оригинальная система модулей Node.js:</p>
+<div class="code-block">
+// Экспорт
+module.exports = { foo: 1 };
+// или
+exports.foo = 1;
+
+// Импорт
+const { foo } = require('./module');
+</div>
+<p><strong>ES Modules (ESM)</strong> — стандарт ECMAScript 2015:</p>
+<div class="code-block">
+// Экспорт
+export const foo = 1;
+export default class MyClass { ... }
+
+// Импорт
+import { foo } from './module.js';
+import MyClass from './module.js';
+</div>
+<p>Этот проект использует <strong>ESM</strong> (<span class="code-inline">"type": "module"</span> в package.json).</p>
+<p><strong>Ключевые отличия:</strong></p>
+<ul>
+    <li>CJS загружается синхронно, ESM — асинхронно</li>
+    <li>CJS копирует экспорты, ESM — ссылки</li>
+    <li>CJS можно вызывать условно (<span class="code-inline">if (x) require()</span>), ESM — только вверху файла</li>
+    <li>CJS: <span class="code-inline">__dirname</span>, ESM: <span class="code-inline">import.meta.url</span></li>
+</ul>
+</div>
+
+<!-- NQ10 -->
+<div class="q-block"><strong>NQ10: Что такое Buffer?</strong></div>
+<div class="a-block">
+<p><strong>Buffer</strong> — структура для работы с <strong>бинарными данными</strong> (raw bytes). JavaScript изначально работает только со строками.</p>
+<div class="code-block">
+// Создание Buffer
+const buf = Buffer.from('Hello World');
+console.log(buf);       // &lt;Buffer 48 65 6c 6c 6f 20 57 6f 72 6c 64&gt;
+console.log(buf.length); // 11 байт
+
+// Конвертация обратно в строку
+const str = buf.toString('utf-8'); // 'Hello World'
+
+// Из массива байт
+const buf2 = Buffer.from([72, 101, 108, 108, 111]);
+
+// В проекте: аватар хранится в GridFS как Buffer
+uploadStream.end(fileBuffer); // fileBuffer — это Buffer
+</div>
+<p><strong>Когда нужно:</strong> Работа с файлами, сетью, изображениями, шифрованием.</p>
+</div>
+
+<!-- NQ11 -->
+<div class="q-block"><strong>NQ11: Что такое Error First Callback?</strong></div>
+<div class="a-block">
+<p>Согласованность в Node.js: первый аргумент callback'а — <strong>всегда ошибка</strong> (или null).</p>
+<div class="code-block">
+// Error First Callback
+fs.readFile('file.txt', (error, data) => {
+    // error = null → данные в data
+    // error = Error объект → проблема
+    if (error) {
+        console.error('Ошибка:', error.message);
+        return;
+    }
+    console.log('Данные:', data);
+});
+
+// Это соглашение используют ВСЕ Node.js модули:
+http.createServer((req, res) => { ... }); // req, res — не error first
+dns.lookup('example.com', (err, address) => { ... }); // error first
+</div>
+</div>
+
+<!-- NQ12 -->
+<div class="q-block"><strong>NQ12: Что такое EventEmitter?</strong></div>
+<div class="a-block">
+<p><strong>EventEmitter</strong> — паттерн "издатель-подписчик" (pub/sub). Основа Node.js — большинство модулей наследуют его.</p>
+<div class="code-block">
+import { EventEmitter } from 'events';
+
+class TaskEmitter extends EventEmitter {}
+const emitter = new TaskEmitter();
+
+// Подписка
+emitter.on('task:created', (task) => {
+    console.log('Задача создана:', task.title);
+});
+
+// Вызов события
+emitter.emit('task:created', { title: 'Buy food' });
+</div>
+<p><strong>Примеры в Node.js:</strong></p>
+<ul>
+    <li><span class="code-inline">http.Server</span> — наследует EventEmitter</li>
+    <li><span class="code-inline">Stream</span> — события 'data', 'end', 'error'</li>
+    <li><span class="code-inline">process</span> — события 'exit', 'uncaughtException'</li>
+</ul>
+<div class="code-block">
+// Stream — это EventEmitter
+const stream = fs.createReadStream('file.txt');
+stream.on('data', (chunk) => { ... });    // Подписка
+stream.on('end', () => { ... });          // Данные закончились
+stream.on('error', (err) => { ... });     // Ошибка
+</div>
+</div>
+
+<!-- NQ13 -->
+<div class="q-block"><strong>NQ13: Что такое cluster в Node.js?</strong></div>
+<div class="a-block">
+<p><strong>cluster</strong> — модуль для запуска нескольких процессов Node.js на одном сервере, используя все ядра CPU.</p>
+<div class="code-block">
+import cluster from 'cluster';
+import os from 'os';
+
+if (cluster.isPrimary) {
+    const numCPUs = os.cpus().length;
+    for (let i = 0; i &lt; numCPUs; i++) {
+        cluster.fork(); // Запускаем worker-процесс
+    }
+    cluster.on('exit', (worker) => {
+        cluster.fork(); // Перезапускаем упавший worker
+    });
+} else {
+    // Worker-процесс — запускает сервер
+    app.listen(3001);
+}
+</div>
+<p><strong>Зачем:</strong> Node.js однопоточный. Кластер задействует все ядра CPU.</p>
+<p><strong>Альтернативы:</strong> PM2 (автоматический cluster), Docker (несколько контейнеров).</p>
+</div>
+
+<!-- NQ14 -->
+<div class="q-block"><strong>NQ14: Что такое middleware в контексте Express vs Koa vs Fastify?</strong></div>
+<div class="a-block">
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>Express</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Koa</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Fastify</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Middleware</td><td style="padding:6px;">Middleware</td><td style="padding:6px;">Hooks / Plugins</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">(req, res, next)</td><td style="padding:6px;">(ctx, next)</td><td style="padding:6px;">(request, reply)</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">callback-based</td><td style="padding:6px;">async/await</td><td style="padding:6px;">async/await</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Медленнее</td><td style="padding:6px;">Средне</td><td style="padding:6px;">Быстрее</td></tr>
+</table>
+<p>Express использует <strong>callback-паттерн</strong> <span class="code-inline">(req, res, next)</span>, хотя поддерживает async через обёртки.</p>
+</div>
+
+<!-- NQ15 -->
+<div class="q-block"><strong>NQ15: Что такое dotenv и зачем нужен?</strong></div>
+<div class="a-block">
+<p><strong>dotenv</strong> — загружает переменные окружения из <span class="code-inline">.env</span> файла в <span class="code-inline">process.env</span>.</p>
+<div class="code-block">
+// .env файл (НЕ коммитится в git!)
+MONGO_URI=mongodb://localhost:27017/stalker
+SESSION_SECRET=my-super-secret-key
+PORT=3001
+</div>
+<div class="code-block">
+// app.js — загружаем в начале
+import dotenv from 'dotenv';
+dotenv.config(); // Читает .env → process.env.MONGO_URI
+
+// Используем
+mongoose.connect(process.env.MONGO_URI);
+</div>
+<p><strong>Правила безопасности:</strong></p>
+<ul>
+    <li><span class="code-inline">.env</span> — всегда в <span class="code-inline">.gitignore</span></li>
+    <li>Никогда не храните секреты в коде</li>
+    <li>Для продакшена — переменные окружения сервера (Docker, PM2, Vercel)</li>
+</ul>
+</div>
+
+<!-- NQ16 -->
+<div class="q-block"><strong>NQ16: Что такое CommonJS require() и как он работает под капотом?</strong></div>
+<div class="a-block">
+<p>При вызове <span class="code-inline">require('./module')</span> Node.js:</p>
+<ol>
+    <li><strong>Резолвинг</strong> — находит файл (./module.js, ./module/index.js, ./module.json)</li>
+    <li><strong>Загрузка</strong> — читает содержимое файла</li>
+    <li><strong>Компиляция</strong> — оборачивает в функцию: <span class="code-inline">(function(exports, require, module, __filename, __dirname) { ... })</span></li>
+    <li><strong>Кеширование</strong> — сохраняет результат в <span class="code-inline">require.cache</span></li>
+    <li><strong>Возврат</strong> — возвращает <span class="code-inline">module.exports</span></li>
+</ol>
+<div class="code-block">
+// Под капотом require:
+(function(exports, require, module, __filename, __dirname) {
+    // Ваш код модуля
+    module.exports = { foo: 1 };
+});
+</div>
+</div>
+
+<!-- NQ17 -->
+<div class="q-block"><strong>NQ17: Что такое __dirname и __filename? Как получить их в ES Modules?</strong></div>
+<div class="a-block">
+<p>В <strong>CommonJS</strong> это глобальные переменные. В <strong>ES Modules</strong> их нет.</p>
+<div class="code-block">
+// CommonJS — работают напрямую
+console.log(__dirname);  // '/home/user/project'
+console.log(__filename); // '/home/user/project/app.js'
+
+// ES Modules — через import.meta
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+</div>
+</div>
+
+<!-- NQ18 -->
+<div class="q-block"><strong>NQ18: Что такое unhandledRejection и uncaughtException?</strong></div>
+<div class="a-block">
+<p>Обработчики "неперехваченных" ошибок:</p>
+<div class="code-block">
+// unhandledRejection — Promise, у которого нет .catch()
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection:', reason);
+    // Логируем, но НЕ закрываем процесс
+});
+
+// uncaughtException — ошибка, которую не поймал try/catch
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    process.exit(1); // Закрываем — состояние может быть повреждено
+});
+</div>
+<p><strong>Best practice:</strong> В продакшене — логируйте и перезапускайте процесс (через PM2/Docker).</p>
+</div>
+
+<!-- NQ19 -->
+<div class="q-block"><strong>NQ19: Что такое файловая система (fs) и её основные методы?</strong></div>
+<div class="a-block">
+<div class="code-block">
+import fs from 'fs';
+import { readFile, writeFile, readdir } from 'fs/promises';
+
+// Синхронные (БЛОКИРУЮТ Event Loop)
+const data = fs.readFileSync('file.txt', 'utf-8');
+const files = fs.readdirSync('./uploads');
+
+// Асинхронные (callback)
+fs.readFile('file.txt', 'utf-8', (err, data) => { ... });
+
+// Асинхронные (Promise) — РЕКОМЕНДУЕТСЯ
+const data = await readFile('file.txt', 'utf-8');
+const files = await readdir('./uploads');
+
+// Запись
+await writeFile('output.txt', 'Hello');
+</div>
+<p><strong>НИКОГДА</strong> не используйте sync-методы в серверном коде — они блокируют обработку всех запросов.</p>
+</div>
+
+<!-- NQ20 -->
+<div class="q-block"><strong>NQ20: Что такое child_process и зачем он нужен?</strong></div>
+<div class="a-block">
+<p><strong>child_process</strong> — модуль для запуска внешних команд (bash, python, ffmpeg и т.д.):</p>
+<div class="code-block">
+import { exec, spawn } from 'child_process';
+
+// exec — выполняет команду, возвращает результат
+exec('ls -la', (error, stdout, stderr) => {
+    console.log(stdout);
+});
+
+// spawn — запускает процесс с потоками
+const process = spawn('ffmpeg', ['-i', 'input.mp4', 'output.webm']);
+process.stdout.on('data', (data) => console.log(data));
+process.stderr.on('data', (data) => console.error(data));
+</div>
+<p><strong>В проекте не используется</strong>, но часто применяется для: обработки видео/изображений, git-команд, системных скриптов.</p>
+</div>
+
+<!-- NQ21 -->
+<div class="q-block"><strong>NQ21: Зачем в Node.js нужен event-driven подход?</strong></div>
+<div class="a-block">
+<p><strong>Event-driven</strong> — архитектура, где код реагирует на <strong>события</strong>, а не последовательно выполняется.</p>
+<div class="code-block">
+// Event-driven: код реагирует на события
+server.on('request', (req, res) => {   // Событие: "пришёл запрос"
+    res.end('Hello');
+});
+
+server.on('error', (err) => {          // Событие: "ошибка"
+    console.error(err);
+});
+
+// Не event-driven: код ждёт последовательно
+const req = await waitForRequest();     // Блокирующее ожидание
+const response = processRequest(req);
+sendResponse(response);
+</div>
+<p><strong>Преимущества:</strong></p>
+<ul>
+    <li>Не блокирует поток</li>
+    <li>Масштабируется на тысячи одновременных соединений</li>
+    <li>Экономит ресурсы (не создаёт поток на каждый запрос)</li>
+</ul>
+</div>
+
+<!-- NQ22 -->
+<div class="q-block"><strong>NQ22: Что такое process.env и какие переменные там хранят?</strong></div>
+<div class="a-block">
+<div class="code-block">
+// Типичные переменные окружения
+process.env.NODE_ENV      // 'development' | 'production' | 'test'
+process.env.PORT          // '3001'
+process.env.MONGO_URI     // 'mongodb://localhost:27017/db'
+process.env.SESSION_SECRET // 'секретный-ключ'
+process.env.JWT_SECRET    // 'jwt-секрет'
+process.env.CLIENT_URL    // 'http://localhost:3001'
+</div>
+<p><strong>Зачем:</strong></p>
+<ul>
+    <li>Не хранить секреты в коде</li>
+    <li>Переключение между dev/prod</li>
+    <li>Настройка без перекомпиляции</li>
+</ul>
+</div>
+
+<!-- NQ23 -->
+<div class="q-block"><strong>NQ23: Что такое нативные addons (C/C++) в Node.js?</strong></div>
+<div class="a-block">
+<p>Node.js может загружать <strong>C/C++ модули</strong> через <span class="code-inline">node-gyp</span>:</p>
+<div class="code-block">
+// Примеры нативных addons:
+// - bcrypt (хеширование паролей — быстрее чем pure JS)
+// - sharp (обработка изображений)
+// - mongoose (работает с MongoDB через C++ драйвер)
+</div>
+<p><strong>Как это работает:</strong></p>
+<ol>
+    <li>C++ код компилируется в .node файл</li>
+    <li>Node.js загружает его через <span class="code-inline">require()</span></li>
+    <li>JS-обёртка экспортирует функции</li>
+</ol>
+<p>При <span class="code-inline">npm install</span> некоторые пакеты запускают <span class="code-inline">node-gyp rebuild</span> для компиляции.</p>
+</div>
+
+<!-- NQ24 -->
+<div class="q-block"><strong>NQ24: Как Node.js обрабатывает ошибки?</strong></div>
+<div class="a-block">
+<p>4 уровня обработки ошибок:</p>
+<div class="code-block">
+// 1. try/catch — синхронные ошибки
+try {
+    JSON.parse('invalid');
+} catch (err) {
+    console.error(err);
+}
+
+// 2. .catch() — ошибки Promises
+someAsyncFunction()
+    .catch(err => console.error(err));
+
+// 3. process.on('unhandledRejection') — неперехваченные Promise
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled:', err);
+});
+
+// 4. Express error middleware — ошибки HTTP
+app.use((err, req, res, next) => {
+    res.status(500).json({ error: err.message });
+});
+</div>
+</div>
+
+<!-- NQ25 -->
+<div class="q-block"><strong>NQ25: Что такое Deno и Bun и чем отличаются от Node.js?</strong></div>
+<div class="a-block">
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;"><strong>Node.js</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Deno</strong></td><td style="padding:6px;color:#2dff7a;"><strong>Bun</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">npm + package.json</td><td style="padding:6px;">URL-импорты, import map</td><td style="padding:6px;">npm + bun.lockb</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">CommonJS + ESM</td><td style="padding:6px;">Только ESM</td><td style="padding:6px;">CJS + ESM</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Слабая типизация</td><td style="padding:6px;">Встроенная типизация</td><td style="padding:6px;">Слабая типизация</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Медленнее</td><td style="padding:6px;">Средне</td><td style="padding:6px;">Значительно быстрее</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Большая экосистема</td><td style="padding:6px;">Растущая</td><td style="padding:6px;">Совместимость с npm</td></tr>
+</table>
+<p><strong>Node.js</strong> — зрелая экосистема, крупнейший npm registry. <strong>Deno</strong> — безопасность по умолчанию, TypeScript. <strong>Bun</strong> — скорость, замена сборщиков.</p>
+</div>
+
+<hr>
+
+<!-- ============================== -->
+<!-- SECTION 9: TESTING -->
+<!-- ============================== -->
+
+<h2 id="testing">9. Тестирование (Vitest) — Unit-тесты, Mock, Coverage</h2>
+
+<h3>9.1 Зачем нужны тесты?</h3>
+
+<p><strong>Тестирование</strong> — это проверка того, что ваш код работает правильно. Это как автоматический контроль качества: вы описываете ожидаемое поведение, а компьютер проверяет его каждый раз при запуске.</p>
+
+<div class="q-block"><strong>Аналогия:</strong></div>
+<p>Представьте, что вы пишете функцию <span class="code-inline">calculatePrice()</span>. Без тестов вы проверяете её вручную: вводите числа, смотрите на результат. Но что если завтра вы измените функцию и сломаете её для другого случая? Вы можете не заметить. Тест автоматически проверяет <strong>все</strong> случаи за секунды.</p>
+
+<p><strong>Три уровня тестирования:</strong></p>
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:20%;"><strong>Уровень</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Что проверяем</strong></td><td style="padding:6px;color:#2dff7a;width:40%;"><strong>Пример</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Unit-тесты</td><td style="padding:6px;">Отдельные функции/методы в изоляции</td><td style="padding:6px;">AuthService.login() с правильным паролем</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Integration</td><td style="padding:6px;">Взаимодействие нескольких модулей</td><td style="padding:6px;">POST /login → AuthService → UserRepository → MongoDB</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">E2E</td><td style="padding:6px;">Полный цикл "клиент-сервер"</td><td style="padding:6px;">Playwright: открыл страницу → нажал кнопку → проверил результат</td></tr>
+</table>
+
+<p>В этом проекте реализованы <strong>unit-тесты</strong> — они быстрые (400ms на 80 тестов), изолированные (не требуют MongoDB) и проверяют самую важную часть — бизнес-логику в сервисах.</p>
+
+<h3>9.2 Почему Vitest, а не Jest?</h3>
+
+<p><strong>Vitest</strong> — современный тестовый ранкер, созданный разработчиками Vite. Проект использует ES Modules (<span class="code-inline">"type": "module"</span>), и Vitest поддерживает их <strong>нативно</strong> без дополнительной настройки.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:12px 0;">
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;color:#2dff7a;width:25%;"><strong>Критерий</strong></td><td style="padding:6px;color:#2dff7a;width:37%;"><strong>Vitest</strong></td><td style="padding:6px;color:#2dff7a;width:38%;"><strong>Jest</strong></td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">ES Modules</td><td style="padding:6px;">Нативная поддержка</td><td style="padding:6px;">Требует --experimental-vm-modules</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Скорость</td><td style="padding:6px;">Быстрее (использует Vite)</td><td style="padding:6px;">Медленнее</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">API</td><td style="padding:6px;">Совместим с Jest (describe/it/expect)</td><td style="padding:6px;">Оригинальный API</td></tr>
+<tr style="border-bottom:1px solid #1a3a1a;"><td style="padding:6px;">Конфигурация</td><td style="padding:6px;">vitest.config.js</td><td style="padding:6px;">jest.config.js</td></tr>
+</table>
+
+<p><strong>Команды для запуска:</strong></p>
+<div class="code-block">
+npm test              # Запуск всех тестов (vitest run)
+npm run test:watch    # Watch mode — перезапуск при изменении файла
+npm run test:coverage # Запуск с отчётом покрытия кода
+</div>
+
+<h3>9.3 Структура тестов в проекте</h3>
+
+<div class="code-block">
+tests/
+├── helpers/
+│   └── mockHelpers.js        # Фабрики моков: mockReq(), mockRes(), mockNext()
+└── unit/
+    ├── services/
+    │   ├── auth.service.test.js       # Тесты аутентификации (8 тестов)
+    │   ├── product.service.test.js    # Тесты покупки товаров (8 тестов)
+    │   ├── task.service.test.js       # Тесты задач и наград (8 тестов)
+    │   ├── rbac.service.test.js       # Тесты прав доступа (7 тестов)
+    │   ├── comment.service.test.js    # Тесты комментариев (6 тестов)
+    │   └── post.service.test.js       # Тесты статей (6 тестов)
+    ├── middleware/
+    │   ├── admin.middleware.test.js   # Тест isAdmin (4 теста)
+    │   ├── auth.middleware.test.js    # Тест isAuth (3 теста)
+    │   └── validation.middleware.test.js # Тест validate (3 теста)
+    └── controllers/
+        └── base.controller.test.js   # Тест BaseController (7 тестов)
+</div>
+
+<p><strong>Итого:</strong> 10 файлов, 80 тестов, 425ms на выполнение.</p>
+
+<h3>9.4 Как работает vi.mock() — мокирование зависимостей</h3>
+
+<p>Когда мы тестируем <span class="code-inline">AuthService</span>, нам не нужна реальная MongoDB. Мы <strong>заменяем</strong> (мокаем) репозитории и bcrypt на поддельные объекты с предсказуемым поведением.</p>
+
+<div class="q-block"><strong>Что такое мок (mock)?</strong></div>
+<p>Мок — это <strong>подделка</strong>. Вместо реального модуля (который работает с БД) мы создаём объект с теми же методами, но которые возвращают заданные значения. Это называется "test double" — двойник для тестов.</p>
+
+<div class="code-block">
+// Оригинал: repositories/user.repository.js
+// В реальном коде findByUsername() обращается к MongoDB
+
+// Мок: заменяем весь модуль на объект с vi.fn()
+vi.mock('../../../repositories/user.repository.js', () => ({
+    default: {
+        findByUsername: vi.fn(),   // ← Функция-заглушка
+        findByEmail: vi.fn(),
+        create: vi.fn(),
+    }
+}));
+</div>
+
+<p><strong>Как это работает:</strong></p>
+<ol>
+    <li><span class="code-inline">vi.mock()</span> вызывается <strong>до</strong> импорта тестируемого модуля</li>
+    <li>Vitest перехватывает <span class="code-inline">import userRepository</span> в сервисе</li>
+    <li>Вместо реального репозитория подставляется наш объект с моками</li>
+    <li>Мы настраиваем мок: <span class="code-inline">userRepository.findByUsername.mockResolvedValue(...)</span></li>
+    <li>Вызываем метод сервиса — он работает с моком, а не с БД</li>
+</ol>
+
+<div class="code-block">
+// Полный пример: тест AuthService.register()
+import { vi } from 'vitest';
+
+// 1. Мокаем зависимости (ДО импорта AuthService)
+vi.mock('../../../repositories/user.repository.js', () => ({
+    default: {
+        findByUsername: vi.fn(),
+        findByEmail: vi.fn(),
+        create: vi.fn(),
+    }
+}));
+
+vi.mock('bcrypt', () => ({
+    default: {
+        hash: vi.fn(),     // Мокаем хеширование
+        compare: vi.fn(),  // Мокаем сравнение паролей
+    }
+}));
+
+// 2. Импортируем после моков
+import bcrypt from 'bcrypt';
+import userRepository from '../../../repositories/user.repository.js';
+import AuthService from '../../../services/auth.service.js';
+
+// 3. Тест
+it('should create user with hashed password', async () => {
+    // Настраиваем моки: "когда вызовут findByUsername — верни null"
+    userRepository.findByUsername.mockResolvedValue(null);
+    userRepository.findByEmail.mockResolvedValue(null);
+    roleRepository.findByName.mockResolvedValue({ _id: 'role1' });
+    bcrypt.hash.mockResolvedValue('hashed_password');  // "хеш = hashed_password"
+    userRepository.create.mockResolvedValue({ _id: 'new' });
+
+    // Вызываем тестируемый метод
+    await AuthService.register({
+        username: 'test', email: 't@t.com', password: '123'
+    });
+
+    // Проверяем результаты
+    expect(bcrypt.hash).toHaveBeenCalledWith('123', 10);  // Пароль захеширован
+    expect(userRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({ password: 'hashed_password' })
+    );
+});
+</div>
+
+<p><strong>Зачем vi.clearAllMocks() в beforeEach?</strong></p>
+<p>Каждый тест должен быть <strong>изолированным</strong>. Если один тест настроил мок, а другой не сбросил — результаты будут некорректными. <span class="code-inline">vi.clearAllMocks()</span> сбрасывает все вызовы и возвращаемые значения.</p>
+
+<div class="code-block">
+beforeEach(() => {
+    vi.clearAllMocks();  // Сбрасываем все моки перед каждым тестом
+});
+</div>
+
+<hr>
+
+<h3>9.5 Описание каждого тестового файла</h3>
+
+<p>Ниже — подробный разбор каждого тестового файла: что тестируется, почему это важно и как устроен каждый тест.</p>
+
+<!-- ===== auth.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">auth.service.test.js</span>
+    <span class="test-badge">8 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Сервис аутентификации — регистрация и вход пользователя. Это самая критичная часть приложения: если она сломается, пользователи не смогут войти или зарегистрироваться.</p>
+
+<p class="test-why">Почему важно: AuthService работает с паролями и ролями. Ошибка здесь — уязвимость безопасности или потеря данных пользователя.</p>
+
+<p><strong>Какие зависимости мокаются:</strong></p>
+<ul>
+    <li><span class="code-inline">userRepository</span> — мокаем findByUsername, findByEmail, create</li>
+    <li><span class="code-inline">roleRepository</span> — мокаем findByName</li>
+    <li><span class="code-inline">bcrypt</span> — мокаем hash и compare (реальное хеширование медленное)</li>
+</ul>
+
+<p><strong>Тесты группы register (регистрация):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw USER_ALREADY_EXISTS if username exists</span><br>
+    Проверяет: если username уже занят, выбрасывается ошибка с кодом USER_ALREADY_EXISTS.<br>
+    Как: мокаем <span class="code-inline">findByUsername</span> → возвращает существующего пользователя.</li>
+
+    <li><span class="test-name">should throw EMAIL_ALREADY_EXISTS if email exists</span><br>
+    Проверяет: если email уже зарегистрирован — ошибка EMAIL_ALREADY_EXISTS.<br>
+    Как: <span class="code-inline">findByUsername</span> → null, <span class="code-inline">findByEmail</span> → существует.</li>
+
+    <li><span class="test-name">should throw DEFAULT_ROLE_NOT_FOUND if role not found</span><br>
+    Проверяет: если роль "user" не найдена в БД — ошибка. Это защита от случая, когда сидер не запущен.<br>
+    Как: <span class="code-inline">roleRepository.findByName</span> → null.</li>
+
+    <li><span class="test-name">should create user with hashed password</span><br>
+    Проверяет: пароль хешируется через bcrypt (10 salt rounds), пользователь создаётся с ролью "user".<br>
+    Как: настраиваем все моки → вызываем register → проверяем что <span class="code-inline">bcrypt.hash</span> вызван с правильными аргументами.</li>
+
+    <li><span class="test-name">should work without email</span><br>
+    Проверяет: email не обязателен — можно зарегистрироваться без него.<br>
+    Как: вызываем register без email → проверяем что <span class="code-inline">create</span> вызван с <span class="code-inline">email: null</span>.</li>
+</ul>
+
+<p><strong>Тесты группы login (вход):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw INVALID_CREDS if user not found</span><br>
+    Проверяет: если пользователя нет — ошибка "неверные данные".<br>
+    Как: <span class="code-inline">findByLoginCredentials</span> → null.</li>
+
+    <li><span class="test-name">should throw USER_BANNED if user is banned</span><br>
+    Проверяет: забаненный пользователь не может войти.<br>
+    Как: мок возвращает пользователя со <span class="code-inline">status: 'banned'</span>.</li>
+
+    <li><span class="test-name">should throw INVALID_CREDS if password is wrong</span><br>
+    Проверяет: неправильный пароль — ошибка.<br>
+    Как: <span class="code-inline">bcrypt.compare</span> → false.</li>
+
+    <li><span class="test-name">should return user on successful login</span><br>
+    Проверяет: успешный вход — обновляется lastLogin, возвращается пользователь.<br>
+    Как: пароль совпадает → проверяем что <span class="code-inline">user.save()</span> вызван и <span class="code-inline">lastLogin</span> — это Date.</li>
+</ul>
+</div>
+
+<!-- ===== product.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">product.service.test.js</span>
+    <span class="test-badge">8 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Сервис продуктов — CRUD-операции и логика покупки. Самый сложный метод — <span class="code-inline">buyProduct()</span>, который списывает деньги и добавляет товар в инвентарь.</p>
+
+<p class="test-why">Почему важно: buyProduct — финансовая операция. Ошибка = деньги списаны, но товар не добавлен (или наоборот).</p>
+
+<p><strong>Тесты группы CRUD:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should return product if found / should throw PRODUCT_NOT_FOUND</span><br>
+    Проверяет: getProduct возвращает продукт или ошибку 404.<br>
+    Как: мок возвращает объект или null.</li>
+
+    <li><span class="test-name">should throw PRODUCT_NOT_FOUND if not exists (update/delete)</span><br>
+    Проверяет: обновление/удаление несуществующего продукта — ошибка.<br>
+    Как: <span class="code-inline">findById</span> → null перед update/delete.</li>
+</ul>
+
+<p><strong>Тесты группы buyProduct (покупка):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw USER_NOT_FOUND if user not found</span><br>
+    Проверяет: покупка несуществующим пользователем — ошибка.</li>
+
+    <li><span class="test-name">should throw PRODUCT_NOT_FOUND if product not found</span><br>
+    Проверяет: покупка несуществующего товара — ошибка.</li>
+
+    <li><span class="test-name">should throw INSUFFICIENT_FUNDS if not enough money</span><br>
+    Проверяет: если у пользователя 50₽, а товар стоит 100₽ — ошибка INSUFFICIENT_FUNDS.<br>
+    Как: <span class="code-inline">user.money = 50</span>, <span class="code-inline">product.price = 100</span>.</li>
+
+    <li><span class="test-name">should deduct money and add to inventory</span><br>
+    Проверяет: деньги списываются, товар добавляется в инвентарь с count: 1.<br>
+    Как: создаём мок-пользователя с <span class="code-inline">money: 200</span>, товар за 100 → после покупки <span class="code-inline">money = 100</span>, <span class="code-inline">inventory.length = 1</span>.</li>
+
+    <li><span class="test-name">should increment count if product already in inventory</span><br>
+    Проверяет: если товар уже в инвентаре — увеличивается count, а не добавляется новый элемент.<br>
+    Как: у мок-пользователя уже есть товар p1 с count: 2 → после покупки count: 3.</li>
+</ul>
+</div>
+
+<!-- ===== task.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">task.service.test.js</span>
+    <span class="test-badge">8 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Сервис задач — создание, назначение пользователей, обновление статуса и выдача наград. Самый сложный метод — <span class="code-inline">updateAssignmentStatus()</span> (~40 строк логики).</p>
+
+<p class="test-why">Почему важно: updateAssignmentStatus начисляет деньги за выполнение задач. Ошибка = пользователь не получил награду или получил дважды.</p>
+
+<p><strong>Тесты группы createTask:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw EVENT_ID_REQUIRED if no eventId</span><br>
+    Проверяет: задача не может существовать без привязки к событию.</li>
+
+    <li><span class="test-name">should create task with eventId</span><br>
+    Проверяет: при наличии eventId задача создаётся.</li>
+</ul>
+
+<p><strong>Тесты группы addUserToTask:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw TASK_NOT_FOUND / USER_ALREADY_ASSIGNED</span><br>
+    Проверяет: нельзя добавить в несуществующую задачу или назначить того же пользователя дважды.</li>
+</ul>
+
+<p><strong>Тесты группы updateAssignmentStatus (самые важные):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw INVALID_STATUS for bad status</span><br>
+    Проверяет: допустимые статусы — pending, in_progress, completed, failed. Всё остальное — ошибка.</li>
+
+    <li><span class="test-name">should throw USER_NOT_ASSIGNED if userId does not match</span><br>
+    Проверяет: только назначенный пользователь может обновить свой статус. Чужак не может.</li>
+
+    <li><span class="test-name">should update status and give reward on completion</span><br>
+    Проверяет: при переводе в completed — начисляется награда (reward) на счёт пользователя.<br>
+    Как: мок-задача с reward: 50, мок-пользователь с money: 100 → после completed <span class="code-inline">money = 150</span>.<br>
+    Также проверяем что <span class="code-inline">setRewardGiven</span> вызван (чтобы не начислить дважды).</li>
+
+    <li><span class="test-name">should not give reward if already given</span><br>
+    Проверяет: если <span class="code-inline">rewardGiven: true</span> — повторного начисления нет. Защита от дублирования наград.</li>
+</ul>
+</div>
+
+<!-- ===== rbac.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">rbac.service.test.js</span>
+    <span class="test-badge">7 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Сервис RBAC (Role-Based Access Control) — управление ролями и правами, проверка доступа.</p>
+
+<p class="test-why">Почему важно: hasPermission — это "замок" приложения. Если он сломается, либо все будут админами, либо никто не сможет ничего делать.</p>
+
+<p><strong>Тесты группы createPermission/createRole:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should throw PERMISSION_ALREADY_EXISTS / ROLE_ALREADY_EXISTS</span><br>
+    Проверяет: нельзя создать дубликат роли или права. Уникальность — критична для RBAC.</li>
+
+    <li><span class="test-name">should create permission/role</span><br>
+    Проверяет: при уникальном имени — создание проходит успешно.</li>
+</ul>
+
+<p><strong>Тесты группы hasPermission (самые важные):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should return false if user not found</span><br>
+    Проверяет: несуществующий пользователь не имеет прав.</li>
+
+    <li><span class="test-name">should return false if user has no role</span><br>
+    Проверяет: пользователь без роли — нет прав.</li>
+
+    <li><span class="test-name">should return false if role has no permissions</span><br>
+    Проверяет: роль без разрешений — нет прав.</li>
+
+    <li><span class="test-name">should return true if permission exists</span><br>
+    Проверяет: если право есть в массиве role.permissions — доступ разрешён.</li>
+
+    <li><span class="test-name">should return false if permission not found</span><br>
+    Проверяет: если конкретного права нет — доступ запрещён (даже если роль есть).</li>
+</ul>
+<p class="test-why">Эти 5 тестов проверяют каскадную цепочку: user → role → permissions. Каждый "null-check" — это потенциальная точка падения.</p>
+</div>
+
+<!-- ===== comment.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">comment.service.test.js</span>
+    <span class="test-badge">6 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Сервис комментариев — создание, удаление, проверка владельца.</p>
+
+<p class="test-why">Почему важно: isOwner() определяет, может ли пользователь удалить комментарий. Ошибка = чужой удалит ваш комментарий.</p>
+
+<ul class="test-list">
+    <li><span class="test-name">should create comment</span><br>
+    Проверяет: создание комментария с правильными полями (postId, author, text).</li>
+
+    <li><span class="test-name">should throw COMMENT_NOT_FOUND / should delete comment</span><br>
+    Проверяет: удаление несуществующего комментария — ошибка; существующего — успешно.</li>
+
+    <li><span class="test-name">should return true if user is owner</span><br>
+    Проверяет: если author комментария совпадает с userId — пользователь владелец.<br>
+    Как: <span class="code-inline">comment.author.toString() === userId</span> — сравнение ObjectId как строк.</li>
+
+    <li><span class="test-name">should return false if user is not owner / comment not found</span><br>
+    Проверяет: чужой комментарий или несуществующий — не владелец.</li>
+</ul>
+</div>
+
+<!-- ===== post.service.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">post.service.test.js</span>
+    <span class="test-badge">6 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> CRUD-операции для статей (постов). Классический паттерн: create → getById → update → delete.</p>
+
+<p class="test-why">Почему важно: каждый метод проверяет существование перед изменением. Ошибка = работа с "призрачными" данными.</p>
+
+<ul class="test-list">
+    <li><span class="test-name">should throw POST_NOT_FOUND / should return post</span><br>
+    Проверяет: getById возвращает пост или ошибку 404.</li>
+
+    <li><span class="test-name">should create post / should update post / should delete post</span><br>
+    Проверяет: полный цикл CRUD. Для update/delete сначала проверяется существование.</li>
+
+    <li><span class="test-name">should return all posts</span><br>
+    Проверяет: getAll возвращает массив (даже пустой).</li>
+</ul>
+</div>
+
+<!-- ===== admin.middleware.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">admin.middleware.test.js</span>
+    <span class="test-badge">4 теста</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Middleware проверки админских прав. Это "стражник" — пропускает только админов.</p>
+
+<p class="test-why">Почему важно: если isAdmin сломается, обычный пользователь получит доступ к админке.</p>
+
+<p><strong>Паттерн тестирования middleware:</strong></p>
+<div class="code-block">
+// Создаём мок-объекты req, res, next
+const req = { user: { role: { name: 'admin' } } };
+const res = { status: vi.fn().mockReturnThis(), render: vi.fn() };
+const next = vi.fn();
+
+// Вызываем middleware
+isAdmin(req, res, next);
+
+// Проверяем: next() вызван (доступ разрешён)
+expect(next).toHaveBeenCalled();
+</div>
+
+<ul class="test-list">
+    <li><span class="test-name">should call next if user is admin</span><br>
+    Проверяет: роль admin → доступ разрешён, next() вызван.</li>
+
+    <li><span class="test-name">should return 403 if user is not admin</span><br>
+    Проверяет: роль user → 403 Forbidden, next() НЕ вызван.</li>
+
+    <li><span class="test-name">should return 403 if user is not logged in</span><br>
+    Проверяет: нет пользователя → 403.</li>
+
+    <li><span class="test-name">should return 403 if user has no role</span><br>
+    Проверяет: пользователь есть, но role = undefined → 403.</li>
+</ul>
+</div>
+
+<!-- ===== auth.middleware.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">auth.middleware.test.js</span>
+    <span class="test-badge">3 теста</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Middleware проверки авторизации — пропускает только залогиненных пользователей.</p>
+
+<p class="test-why">Почему важно: если isAuth сломается, неавторизованные пользователи попадут внутрь приложения.</p>
+
+<ul class="test-list">
+    <li><span class="test-name">should redirect to /login if no session</span><br>
+    Проверяет: нет сессии → редирект на /login.</li>
+
+    <li><span class="test-name">should redirect to /login if no session.user</span><br>
+    Проверяет: сессия есть, но user = undefined → редирект.</li>
+
+    <li><span class="test-name">should call next if session.user exists</span><br>
+    Проверяет: пользователь залогинен → next() вызван, редиректа нет.</li>
+</ul>
+</div>
+
+<!-- ===== validation.middleware.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">validation.middleware.test.js</span>
+    <span class="test-badge">3 теста</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> Middleware обработки ошибок валидации — решает как ответить: HTML-рендером или JSON.</p>
+
+<p class="test-why">Почему важно: проект — гибрид (HTML + API). Один и тот же middleware должен работать и для формы, и для AJAX-запроса.</p>
+
+<ul class="test-list">
+    <li><span class="test-name">should call next if no errors</span><br>
+    Проверяет: если ошибок нет — next() вызван, обработка продолжается.</li>
+
+    <li><span class="test-name">should return 422 JSON if errors and request is not HTML</span><br>
+    Проверяет: AJAX-запрос с ошибками → JSON { errors: [...] } со статусом 422.<br>
+    Как: <span class="code-inline">req.accepts</span> возвращает false (не HTML).</li>
+
+    <li><span class="test-name">should save errors to session and redirect if HTML request</span><br>
+    Проверяет: форма с ошибками → ошибки сохраняются в сессию, редирект "назад".<br>
+    Как: <span class="code-inline">req.accepts</span> возвращает 'html' → <span class="code-inline">req.session.validationErrors</span> заполняется.</li>
+</ul>
+</div>
+
+<!-- ===== base.controller.test.js ===== -->
+
+<div class="test-file">
+<div class="test-file-header">
+    <span class="test-file-name">base.controller.test.js</span>
+    <span class="test-badge">7 тестов</span>
+    <span class="test-pass">✅ Все проходят</span>
+</div>
+
+<p class="test-desc"><strong>Что тестируется:</strong> BaseController — базовый класс со вспомогательными методами. Все контроллеры наследуются от него.</p>
+
+<p class="test-why">Почему важно: BaseController — фундамент. Если handleError неправильно маппит статусы, все ошибки в приложении будут 500.</p>
+
+<p><strong>Тесты handleError (маппинг ошибок → HTTP-статусы):</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should return 404 for NOT_FOUND errors</span><br>
+    Проверяет: USER_NOT_FOUND, PRODUCT_NOT_FOUND, ANOMALY_NOT_FOUND, EVENT_NOT_FOUND, POST_NOT_FOUND, TASK_NOT_FOUND → 404.</li>
+
+    <li><span class="test-name">should return 400 for BAD_REQUEST errors</span><br>
+    Проверяет: INSUFFICIENT_FUNDS, EMAIL_ALREADY_EXISTS, EVENT_ID_REQUIRED → 400.</li>
+
+    <li><span class="test-name">should return 403 for BANNED errors</span><br>
+    Проверяет: USER_BANNED → 403 Forbidden.</li>
+
+    <li><span class="test-name">should return 500 for unknown errors</span><br>
+    Проверяет: любая другая ошибка → 500 Internal Server Error.</li>
+
+    <li><span class="test-name">should return error message in response</span><br>
+    Проверяет: сообщение об ошибке попадает в JSON-ответ.</li>
+</ul>
+
+<p><strong>Тесты sendValidationError:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should return 400 JSON with errors array</span><br>
+    Проверяет: валидация без renderView → JSON с массивом ошибок.</li>
+
+    <li><span class="test-name">should render view if renderView is provided</span><br>
+    Проверяет: валидация с renderView → рендер шаблона с данными и ошибками.</li>
+</ul>
+
+<p><strong>Тесты getCurrentUser:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should return req.user if set / should return res.locals.user as fallback</span><br>
+    Проверяет: приоритет req.user, fallback на res.locals.user.</li>
+</ul>
+
+<p><strong>Тест successRedirect:</strong></p>
+<ul class="test-list">
+    <li><span class="test-name">should set session message and redirect</span><br>
+    Проверяет: flash-сообщение записывается в сессию, выполняется редирект.</li>
+</ul>
+</div>
+
+<hr>
+
+<h3>9.6 Как читать Coverage-отчёт</h3>
+
+<p><strong>Coverage</strong> — это метрика того, какой процент кода покрыт тестами. Запуск:</p>
+
+<div class="code-block">
+npm run test:coverage
+</div>
+
+<p>Vitest генерирует таблицу:</p>
+
+<div class="code-block">
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   20.08 |    31.13 |   17.88 |    20.1 |
+ services          |   54.21 |    62.14 |   46.87 |   54.36 |
+  auth.service.js  |  100    |   100    |  100    |  100    |
+  product.service  |   87.23 |    84.21 |   66.66 |   87.23 | 11,48,95-100
+  task.service.js  |   87.32 |    87.5  |   80    |   87.32 | ...6-78,86-88
+-------------------|---------|----------|---------|---------|-------------------
+</div>
+
+<p><strong>Столбцы:</strong></p>
+
+<table class="coverage-table">
+<tr><td class="cov-label">% Stmts (Statements)</td><td class="cov-value">Какой процент строк кода (инструкций) выполнился при тестировании. 100% = все строки выполнены.</td></tr>
+<tr><td class="cov-label">% Branch (Branches)</td><td class="cov-value">Какой процент ветвлений (if/else, switch) был проверен. Например, если есть <span class="code-inline">if (a > 0) { ... } else { ... }</span> — нужно проверить оба варианта.</td></tr>
+<tr><td class="cov-label">% Funcs (Functions)</td><td class="cov-value">Какой процент функций был вызван хотя бы раз. Если функция есть, но тест её не вызвал — она не покрыта.</td></tr>
+<tr><td class="cov-label">% Lines</td><td class="cov-value">Аналогично Statements, но считает строки. Почти всегда совпадает со Stmts.</td></tr>
+<tr><td class="cov-label">Uncovered Line #s</td><td class="cov-value">Номера строк, которые НЕ выполнились. Это "слепые зоны" — код, который может содержать баги.</td></tr>
+</table>
+
+<p><strong>Как поднимать coverage:</strong></p>
+<ol>
+    <li>Посмотрите столбец "Uncovered Line #s" — там номера строк без тестов</li>
+    <li>Напишите тест, который вызывает этот код</li>
+    <li>Запустите <span class="code-inline">npm run test:coverage</span> — цифры вырастут</li>
+    <li>Цель: сначала 60% statements, потом 80%</li>
+</ol>
+
+<p><strong>Что НЕ нужно тестировать:</strong></p>
+<ul>
+    <li>Конфигурационные файлы (vitest.config.js, app.js)</li>
+    <li>Миграции и сидеры (database/seeders/)</li>
+    <li>EJS-шаблоны (views/)</li>
+    <li>Простые геттеры/сеттеры без логики</li>
+</ul>
+
+<hr>
+
+<h3>9.7 Q&A: Частые вопросы о тестировании</h3>
+
+<div class="q-block"><strong>Q: Что такое mock (мок)?</strong></div>
+<div class="a-block">
+<p>Мок — это <strong>подделка</strong> реального модуля. Вместо того чтобы обращаться к MongoDB (медленно, требует настройки), мы создаём объект с теми же методами, который возвращает предсказуемые значения.</p>
+<div class="code-block">
+// Реальный репозиторий → обращается к MongoDB
+userRepository.findByUsername('admin') → кандидат из БД
+
+// Мок → возвращает то, что мы задали
+userRepository.findByUsername.mockResolvedValue({ _id: '1', username: 'admin' })
+</div>
+</div>
+
+<div class="q-block"><strong>Q: Что такое test double (двойник)?</strong></div>
+<div class="a-block">
+<p>Термин из киноиндустрии: "двойник" — это кто заменяет актёра. В тестах:</p>
+<ul>
+    <li><strong>Mock</strong> — объект с настраиваемым поведением (vi.fn())</li>
+    <li><strong>Spy</strong> — перехватывает вызовы, но не меняет поведение (vi.spyOn())</li>
+    <li><strong>Stub</strong> — всегда возвращает одно и то же значение</li>
+    <li><strong>Fake</strong> — упрощённая рабочая версия (in-memory хранилище)</li>
+</ul>
+<p>В проекте используются в основном <strong>mocks</strong> (vi.fn()).</p>
+</div>
+
+<div class="q-block"><strong>Q: Когда НЕ нужно тестировать?</strong></div>
+<div class="a-block">
+<ul>
+    <li>Когда код слишком простой (one-liner без логики)</li>
+    <li>Когда тест будет дублировать реализацию (test-to-implementation)</li>
+    <li>Когда тест хрупкий (ломается при каждом изменении)</li>
+    <li>Когда стоимость теста выше стоимости бага</li>
+</ul>
+<p><strong>Правило:</strong> Тестируйте бизнес-логику, а не код.</p>
+</div>
+
+<div class="q-block"><strong>Q: Сколько тестов достаточно?</strong></div>
+<div class="a-block">
+<p>Нет.magic-числа. Ориентир:</p>
+<ul>
+    <li><strong>Минимум:</strong> 1 тест на каждый публичный метод сервиса</li>
+    <li><strong>Хорошо:</strong> 2-3 теста на метод (happy path + edge cases)</li>
+    <li><strong>Отлично:</strong> все ветвления (if/else) покрыты</li>
+</ul>
+<p>80 тестов на 6 сервисов + 3 middleware + 1 контроллер — это хороший старт.</p>
+</div>
+
+<div class="q-block"><strong>Q: Как тестировать async-код?</strong></div>
+<div class="a-block">
+<p>Vitest поддерживает async/await нативно:</p>
+<div class="code-block">
+// Вариант 1: async/await (рекомендуется)
+it('should return user', async () => {
+    const result = await service.login({ username: 'test', password: '123' });
+    expect(result.username).toBe('test');
+});
+
+// Вариант 2: return Promise
+it('should throw error', () => {
+    return expect(service.login({ username: 'no', password: '123' }))
+        .rejects.toThrow('INVALID_CREDS');
+});
+</div>
+</div>
+
+<div class="q-block"><strong>Q: Что делать, если тест падает?</strong></div>
+<div class="a-block">
+<ol>
+    <li>Прочитайте сообщение об ошибке — обычно там сразу видна причина</li>
+    <li>Проверьте, что моки настроены правильно (mockResolvedValue vs mockReturnValue)</li>
+    <li>Убедитесь, что vi.clearAllMocks() вызывается в beforeEach</li>
+    <li>Проверьте, что импорты идут <strong>после</strong> vi.mock()</li>
+    <li>Если тест "мерцает" (то проходит, то нет) — проблема с изоляцией</li>
+</ol>
+</div>
+
+<hr>
+
+<p style="text-align:center;color:#7dffb3;margin:40px 0;">☢ Удачи на собеседовании, сталкер!</p>
+
+</div>
+
+<%- include('../partials/footer') %>
