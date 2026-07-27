@@ -3,7 +3,7 @@ import AuthService from '../services/auth.service.js';
 
 export class AuthController extends BaseController {
     async register(req, res) {
-        console.log('[AUTH] Register attempt:', req.body.username);
+        console.log('[AUTH] Register attempt:', req.body.email);
 
         try {
             await AuthService.register(req.body);
@@ -74,7 +74,7 @@ export class AuthController extends BaseController {
     }
 
     async apiRegister(req, res) {
-        console.log('[API] Register attempt:', req.body.username);
+        console.log('[API] Register attempt:', req.body.email);
 
         try {
             const user = await AuthService.register(req.body);

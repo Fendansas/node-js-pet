@@ -9,28 +9,11 @@
 
         <form method="POST" action="/register" class="auth-form">
 
-            <label>Позывной</label>
-            <input type="text" name="username" placeholder="Например: Sidorovich" required>
-
-            <label>Email (необязательно)</label>
-            <input type="email" name="email" placeholder="stalker@zone.ru">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="stalker@zone.ru" required>
 
             <label>Пароль</label>
             <input type="password" name="password" placeholder="••••••••" required>
-
-            <label>О себе</label>
-            <input type="text" name="bio" placeholder="Коротко о тебе...">
-
-            <label>Аватар (URL)</label>
-            <input type="text" name="avatar" placeholder="https://...">
-
-            <label>Путь сталкера</label>
-            <select name="rank">
-                <option value="stalker">Сталкер</option>
-                <option value="svoboda">Свобода</option>
-                <option value="dolg">Долг</option>
-                <option value="monolit">Монолит</option>
-            </select>
 
             <button type="submit">Войти в Зону</button>
 

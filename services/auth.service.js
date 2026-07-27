@@ -5,23 +5,13 @@ import roleRepository from '../repositories/role.repository.js';
 
 class AuthService {
 
-    async register({ username, email, password, bio, avatar, rank }) {
+    async register({ email, password }) {
 
-        const existsUsername = await userRepository.findByUsername(username);
-
-        if (existsUsername) {
-            const error = new Error('USER_ALREADY_EXISTS');
-            error.code = 'USER_ALREADY_EXISTS';
+        const existsEmail = await userRepository.findByEmail(email);
+        if (existsEmail) {
+            const error = new Error('EMAIL_ALREADY_EXISTS');
+            error.code = 'EMAIL_ALREADY_EXISTS';
             throw error;
-        }
-
-        if (email) {
-            const existsEmail = await userRepository.findByEmail(email);
-            if (existsEmail) {
-                const error = new Error('EMAIL_ALREADY_EXISTS');
-                error.code = 'EMAIL_ALREADY_EXISTS';
-                throw error;
-            }
         }
 
         const userRole = await roleRepository.findByName('user');
@@ -35,12 +25,9 @@ class AuthService {
         const hashed = await bcrypt.hash(password, 10);
 
         const user = await userRepository.create({
-            username,
-            email: email || null,
+            username: email,
+            email,
             password: hashed,
-            bio: bio || '',
-            avatar: avatar || null,
-            rank: rank || 'stalker',
             role: userRole._id
         });
 
