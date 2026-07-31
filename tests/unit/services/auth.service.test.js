@@ -2,10 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../repositories/user.repository.js', () => ({
     default: {
-        findByUsername: vi.fn(),
         findByEmail: vi.fn(),
+        findByEmailWithRole: vi.fn(),
         create: vi.fn(),
-        findByLoginCredentials: vi.fn(),
     }
 }));
 
@@ -33,98 +32,83 @@ describe('AuthService', () => {
     });
 
     describe('register', () => {
-        it('should throw USER_ALREADY_EXISTS if username exists', async () => {
-            userRepository.findByUsername.mockResolvedValue({ _id: 'exists' });
+        it('should throw WRONG_PASSWORD if email exists but password does not match', async () => {
+            userRepository.findByEmail.mockResolvedValue({ _id: 'exists', password: 'hash' });
+            bcrypt.compare.mockResolvedValue(false);
 
             await expect(
-                AuthService.register({ username: 'test', email: 't@t.com', password: '123' })
-            ).rejects.toThrow('USER_ALREADY_EXISTS');
+                AuthService.register({ email: 't@t.com', password: 'wrong' })
+            ).rejects.toThrow('WRONG_PASSWORD');
         });
 
-        it('should throw EMAIL_ALREADY_EXISTS if email exists', async () => {
-            userRepository.findByUsername.mockResolvedValue(null);
-            userRepository.findByEmail.mockResolvedValue({ _id: 'exists' });
+        it('should return existing user without creating if email exists and password matches', async () => {
+            const existingUser = { _id: 'exists', email: 't@t.com', password: 'hash' };
+            userRepository.findByEmail.mockResolvedValue(existingUser);
+            bcrypt.compare.mockResolvedValue(true);
 
-            await expect(
-                AuthService.register({ username: 'test', email: 't@t.com', password: '123' })
-            ).rejects.toThrow('EMAIL_ALREADY_EXISTS');
+            const result = await AuthService.register({ email: 't@t.com', password: '123456' });
+
+            expect(result).toEqual({ user: existingUser, isNew: false });
+            expect(userRepository.create).not.toHaveBeenCalled();
         });
 
         it('should throw DEFAULT_ROLE_NOT_FOUND if role not found', async () => {
-            userRepository.findByUsername.mockResolvedValue(null);
             userRepository.findByEmail.mockResolvedValue(null);
             roleRepository.findByName.mockResolvedValue(null);
 
             await expect(
-                AuthService.register({ username: 'test', email: 't@t.com', password: '123' })
+                AuthService.register({ email: 't@t.com', password: '123456' })
             ).rejects.toThrow('DEFAULT_ROLE_NOT_FOUND');
         });
 
         it('should create user with hashed password', async () => {
-            userRepository.findByUsername.mockResolvedValue(null);
             userRepository.findByEmail.mockResolvedValue(null);
             roleRepository.findByName.mockResolvedValue({ _id: 'role1', name: 'user' });
             bcrypt.hash.mockResolvedValue('hashed_password');
-            userRepository.create.mockResolvedValue({ _id: 'new', username: 'test' });
+            userRepository.create.mockResolvedValue({ _id: 'new', email: 't@t.com' });
 
             const result = await AuthService.register({
-                username: 'test', email: 't@t.com', password: '123'
+                email: 't@t.com', password: '123456'
             });
 
-            expect(bcrypt.hash).toHaveBeenCalledWith('123', 10);
+            expect(bcrypt.hash).toHaveBeenCalledWith('123456', 10);
             expect(userRepository.create).toHaveBeenCalledWith({
-                username: 'test',
+                username: 't@t.com',
                 email: 't@t.com',
                 password: 'hashed_password',
-                bio: '',
-                avatar: null,
-                rank: 'stalker',
                 role: 'role1'
             });
-            expect(result.username).toBe('test');
-        });
-
-        it('should work without email', async () => {
-            userRepository.findByUsername.mockResolvedValue(null);
-            roleRepository.findByName.mockResolvedValue({ _id: 'role1', name: 'user' });
-            bcrypt.hash.mockResolvedValue('hashed');
-            userRepository.create.mockResolvedValue({ _id: 'new' });
-
-            await AuthService.register({ username: 'test', password: '123' });
-
-            expect(userRepository.create).toHaveBeenCalledWith(
-                expect.objectContaining({ email: null })
-            );
+            expect(result).toEqual({ user: { _id: 'new', email: 't@t.com' }, isNew: true });
         });
     });
 
     describe('login', () => {
         it('should throw INVALID_CREDS if user not found', async () => {
-            userRepository.findByLoginCredentials.mockResolvedValue(null);
+            userRepository.findByEmailWithRole.mockResolvedValue(null);
 
             await expect(
-                AuthService.login({ username: 'no', password: '123' })
+                AuthService.login({ email: 'no@t.com', password: '123456' })
             ).rejects.toThrow('INVALID_CREDS');
         });
 
         it('should throw USER_BANNED if user is banned', async () => {
-            userRepository.findByLoginCredentials.mockResolvedValue({
+            userRepository.findByEmailWithRole.mockResolvedValue({
                 _id: 'u1', password: 'hash', status: 'banned'
             });
 
             await expect(
-                AuthService.login({ username: 'test', password: '123' })
+                AuthService.login({ email: 't@t.com', password: '123456' })
             ).rejects.toThrow('USER_BANNED');
         });
 
         it('should throw INVALID_CREDS if password is wrong', async () => {
-            userRepository.findByLoginCredentials.mockResolvedValue({
+            userRepository.findByEmailWithRole.mockResolvedValue({
                 _id: 'u1', password: 'hash', status: 'active', save: vi.fn()
             });
             bcrypt.compare.mockResolvedValue(false);
 
             await expect(
-                AuthService.login({ username: 'test', password: 'wrong' })
+                AuthService.login({ email: 't@t.com', password: 'wrong' })
             ).rejects.toThrow('INVALID_CREDS');
         });
 
@@ -133,10 +117,10 @@ describe('AuthService', () => {
                 _id: 'u1', password: 'hash', status: 'active',
                 lastLogin: null, save: vi.fn()
             };
-            userRepository.findByLoginCredentials.mockResolvedValue(mockUser);
+            userRepository.findByEmailWithRole.mockResolvedValue(mockUser);
             bcrypt.compare.mockResolvedValue(true);
 
-            const result = await AuthService.login({ username: 'test', password: '123' });
+            const result = await AuthService.login({ email: 't@t.com', password: '123456' });
 
             expect(result.save).toHaveBeenCalled();
             expect(result.lastLogin).toBeInstanceOf(Date);

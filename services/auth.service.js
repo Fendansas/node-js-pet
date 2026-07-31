@@ -9,8 +9,12 @@ class AuthService {
 
         const existsEmail = await userRepository.findByEmail(email);
         if (existsEmail) {
-            const error = new Error('EMAIL_ALREADY_EXISTS');
-            error.code = 'EMAIL_ALREADY_EXISTS';
+            const isMatch = await bcrypt.compare(password, existsEmail.password);
+            if(isMatch){
+                return {user: existsEmail, isNew: false}
+            }
+            const error = new Error('WRONG_PASSWORD');
+            error.code = 'WRONG_PASSWORD';
             throw error;
         }
 
@@ -31,12 +35,12 @@ class AuthService {
             role: userRole._id
         });
 
-        return user;
+        return {user, isNew: true};
     }
 
-    async login({ username, password }) {
+    async login({ email, password }) {
 
-        const user = await userRepository.findByLoginCredentials(username);
+        const user = await userRepository.findByEmailWithRole(email);
 
         if (!user) {
             const error = new Error('INVALID_CREDS');

@@ -13,10 +13,11 @@ export const validateRegister = [
 ];
 
 export const validateLogin =[
-    body('username')
+    body('email')
         .trim()
-        .notEmpty()
-        .withMessage("Username is required"),
+        .isEmail()
+        .withMessage("Invalid email")
+        .normalizeEmail(),
     body('password')
         .trim()
         .notEmpty()

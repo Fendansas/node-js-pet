@@ -108,9 +108,6 @@ app.use(currentUser);
 // ===== ONLINE SYSTEM =====
 app.use(updateLastSeen);
 
-// ===== ROUTES =====
-app.use(mainRoute);
-
 // ===== AVATAR ROUTE =====
 app.get('/api/avatars/:id', async (req, res) => {
     try {
@@ -132,6 +129,9 @@ app.get('/api/avatars/:id', async (req, res) => {
         res.sendFile(path.join(process.cwd(), 'public/img/default-avatar.png'));
     }
 });
+
+// ===== ROUTES =====
+app.use(mainRoute);
 
 // ===== ОБРАБОТКА ОШИБОК MULTER =====
 app.use((error, req, res, next) => {

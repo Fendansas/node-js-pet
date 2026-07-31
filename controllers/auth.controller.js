@@ -31,7 +31,7 @@ export class AuthController extends BaseController {
     }
 
     async login (req, res){
-        console.log('[AUTH] Login attempt:', req.body.username);
+        console.log('[AUTH] Login attempt:', req.body.email);
 
         try {
             const user = await AuthService.login(req.body);
@@ -77,12 +77,25 @@ export class AuthController extends BaseController {
         console.log('[API] Register attempt:', req.body.email);
 
         try {
-            const user = await AuthService.register(req.body);
-            console.log('[API] User registered successfully:', user._id);
+            const {user, isNew} = await AuthService.register(req.body);
+            if(isNew){
+                console.log('[API] User registered successfully:', user._id);
+                return  res.status(201).json({
+                    success: true,
+                    message: 'User registered successfully',
+                    data:{
+                        id: user._id,
+                        username: user.username,
+                        email: user.email
+                    }
+                })
+            }
 
-            return res.status(201).json({
+            console.log('[API] Pseudo-login success', user._id);
+
+            return res.status(200).json({
                 success: true,
-                message: 'User registered successfully',
+                message: 'Login successful',
                 data: {
                     id: user._id,
                     username: user.username,
@@ -91,6 +104,13 @@ export class AuthController extends BaseController {
             });
         } catch (err) {
             console.log('[API] Register error:', err.message);
+
+            if (err.message === 'WRONG_PASSWORD'){
+              return res.status(401).json({
+                  success: false,
+                  message: 'Wrong password'
+              })
+            }
 
             if (err.message === 'USER_ALREADY_EXISTS') {
                 return res.status(409).json({
@@ -117,6 +137,46 @@ export class AuthController extends BaseController {
                 success: false,
                 message: 'Server error'
             });
+        }
+    }
+
+    async apiLogin(req, res){
+        console.log('[API] Login attempt:', req.body.email)
+
+        try {
+            const user = await AuthService.login(req.body)
+            return res.status(200).json({
+                success: true,
+                message: 'Login successful',
+                data:{
+                    id: user._id,
+                    username: user.username,
+                    email: user.email
+                }
+            });
+        } catch (err){
+
+            console.log('[API] Login error:', err.message)
+
+            if (err.message === 'INVALID_CREDS'){
+                return res.status(401).json({
+                    success:false,
+                    message: 'Invalid credentials'
+                })
+            }
+
+            if (err.message === 'USER_BANNED'){
+                return res.status(403).json({
+                    success:false,
+                    message: 'Account is banned'
+                })
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Server error'
+            })
+
         }
     }
 }

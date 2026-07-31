@@ -54,6 +54,16 @@ class UserRepository extends BaseRepository {
         );
     }
 
+    async findByEmailWithRole(email){
+        return await this.findOne(
+            {email},
+            {
+                path: 'role',
+                populate: {path: 'permissions'}
+            }
+        );
+    }
+
     async findForAdminList() {
         return await this.findAll({}, {
             populate: ['role']

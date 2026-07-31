@@ -16,7 +16,7 @@ const registerLimiter = rateLimit({
 
 router.use(apiKeyAuth);
 
-router.post('/login', (req, res) => AuthController.login(req, res));
+router.post('/login', (req, res) => AuthController.apiLogin(req, res));
 router.post('/register', registerLimiter, validateRegister, validate, (req, res)=>
     AuthController.apiRegister(req, res)
 );

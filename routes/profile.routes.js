@@ -16,6 +16,18 @@ router.post('/edit-profile',
     (req, res) => UserController.updateProfile(req, res));
 
 
+router.post(
+    '/avatar',
+    isAuth,
+    (req, res, next) => {
+        const method = req.query._method || req.body._method;
+        if (method === 'DELETE') {
+            return UserController.deleteAvatar(req, res);
+        }
+        next();
+    }
+);
+
 router.post('/avatar',
     isAuth,
     upload.single('avatar'),
@@ -25,16 +37,6 @@ router.delete(
     '/avatar',
     isAuth,
     (req, res) => UserController.deleteAvatar(req, res)
-);
-router.post(
-    '/avatar',
-    isAuth,
-    (req, res, next) => {
-        if (req.body._method === 'DELETE') {
-            return UserController.deleteAvatar(req, res);
-        }
-        next();
-    }
 );
 
 export default router;
