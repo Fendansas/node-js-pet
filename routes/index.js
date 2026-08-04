@@ -11,6 +11,7 @@ import taskRoutes from './task.routes.js';
 import apiRoutes from './api.routes.js';
 import overlayRoutes from './overlay.routes.js';
 import studyRoutes from './study.routes.js';
+import galleryRoutes from './gallery.routes.js';
 
 import express from 'express';
 
@@ -29,5 +30,6 @@ mainRoute.use('/tasks', taskRoutes);
 mainRoute.use('/api', apiRoutes);
 mainRoute.use('/overlays', overlayRoutes);
 mainRoute.use('/study', studyRoutes);
+mainRoute.use('/gallery', galleryRoutes);
 
 export default mainRoute;

@@ -34,7 +34,11 @@ const permissionsList = [
     'dashboard:read', 'rbac:manage',
     'profile:read', 'profile:update', 'avatar:manage',
     // коменты
-    'comment:create', 'comment:read', 'comment:delete', 'comment:rate'
+    'comment:create', 'comment:read', 'comment:delete', 'comment:rate',
+    // Галерея
+    'gallery:read', 'gallery:create', 'gallery:moderate',
+    // Эталоны лиц (распознавание)
+    'person:read', 'person:manage'
 ];
 
 const create = async () => {
@@ -67,7 +71,8 @@ const create = async () => {
             ['product:read', 'post:read', 'event:read', 'task:read', 
              'anomaly:read', 'overlay:read',
              'profile:read', 'profile:update', 'avatar:manage',
-             'comment:create', 'comment:read', 'comment:rate'].includes(p.name)
+             'comment:create', 'comment:read', 'comment:rate',
+             'gallery:read', 'gallery:create'].includes(p.name)
         );
         
         const userRole = await Role.findOneAndUpdate(

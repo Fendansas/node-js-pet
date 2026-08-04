@@ -8,6 +8,9 @@
     "seed": "node database/seeders/rbac.seed.js",
     "seed:admin": "node database/seeders/admin.seed.js",
     "seed:items": "node database/seeders/items.seed.js",
+    "face:install": "bash face-recognition/setup.sh",
+    "face": "bash -c 'face-recognition/.venv/bin/python face-recognition/service.py 2>/dev/null || python3 face-recognition/service.py'",
+    "scan:faces": "node scripts/rescan-faces.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

@@ -90,3 +90,8 @@ service-account.json
 
 # Файлы куки
 cookies.txt
+
+# Python face-recognition
+face-recognition/.venv/
+__pycache__/
+*.pyc

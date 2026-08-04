@@ -99,5 +99,63 @@ const uploadOverlay = multer({
     }
 });
 
-export { upload, uploadScreenshot, uploadOverlay };
+// Storage для фото галереи
+const galleryStorage = multer.diskStorage({
+    destination: (req, file, cd) => {
+        const uploadPath = 'public/uploads/gallery';
+
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cd(null, uploadPath);
+    },
+
+    filename: (req, file, cd) => {
+        cd(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const uploadGallery = multer({
+    storage: galleryStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req, file, cd) => {
+        if (file.mimetype.startsWith('image/')) {
+            cd(null, true);
+        } else {
+            cd(new Error('Только изображения!'));
+        }
+    }
+});
+
+// Storage для фото эталонов (распознавание лиц)
+const personStorage = multer.diskStorage({
+    destination: (req, file, cd) => {
+        const uploadPath = 'public/uploads/persons';
+
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cd(null, uploadPath);
+    },
+
+    filename: (req, file, cd) => {
+        cd(null, Date.now() + '-' + file.originalname);
+    },
+});
+
+const uploadPerson = multer({
+    storage: personStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req, file, cd) => {
+        if (file.mimetype.startsWith('image/')) {
+            cd(null, true);
+        } else {
+            cd(new Error('Только изображения!'));
+        }
+    }
+});
+
+export { upload, uploadScreenshot, uploadOverlay, uploadGallery, uploadPerson };
 export default upload;

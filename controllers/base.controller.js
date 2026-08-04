@@ -17,6 +17,7 @@ export class BaseController {
             case 'EVENT_NOT_FOUND':
             case 'POST_NOT_FOUND':
             case 'TASK_NOT_FOUND':
+            case 'PERSON_NOT_FOUND':
                 statusCode = 404;
                 break;
             case 'EMAIL_ALREADY_EXISTS':
